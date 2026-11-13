@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Connect to Tailscale
@@ -37,8 +38,8 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=3 \
             sanxez@100.68.170.113 \
-            "cd /opt/NISAR-SAR-Change-Detection && \
-             podman pull ghcr.io/s4nxez/nisar-sar-change-detection-back:latest && \
-             podman pull ghcr.io/s4nxez/nisar-sar-change-detection-front:latest && \
+            "cd /opt/HACKATHON-NISAR-SAR-Change-Detection && \
+             podman pull ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-back:latest && \
+             podman pull ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-front:latest && \
              podman-compose up -d --force-recreate > /dev/null 2>&1 && \
              echo DEPLOY_OK"
