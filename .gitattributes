@@ -1,0 +1,2 @@
+data/sql/*.sql linguist-detectable=false
+data/csv/*.csv linguist-detectable=false
