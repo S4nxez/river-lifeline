@@ -28,7 +28,7 @@ function selectSite(id) {
 
 async function init() {
   try {
-    const response = await fetch("/api/sites", { headers: { Accept: "application/json" } });
+    const response = await fetch("./api/sites", { headers: { Accept: "application/json" } });
     if (response.ok) {
       const catalog = await response.json();
       if (Array.isArray(catalog.sites) && catalog.sites.length > 0) {
