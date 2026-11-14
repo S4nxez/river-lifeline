@@ -27,7 +27,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req.requestMatchers(Constants.API + Constants.SITES + "/**")
+                .authorizeHttpRequests(req -> req.requestMatchers(Constants.PUBLIC_PATHS.stream()
+                                .map(path -> path + "/**")
+                                .toArray(String[]::new))
                         .permitAll()
                         .anyRequest()
                         .authenticated())
