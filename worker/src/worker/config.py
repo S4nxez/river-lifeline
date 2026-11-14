@@ -1,16 +1,14 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
-from pathlib import Path
 
 
 @dataclass(frozen=True)
 class Settings:
-    """The worker's configuration, read from environment variables."""
+    """The worker's configuration, read from environment variables. The worker is stateless: no data directory."""
 
     backend_url: str
     worker_token: str
     poll_interval_seconds: float
-    data_dir: Path
 
     @classmethod
     def from_env(cls, env: Mapping[str, str]) -> "Settings":
@@ -25,13 +23,4 @@ class Settings:
             backend_url=env.get("BACKEND_URL", "http://backend:8080"),
             worker_token=token,
             poll_interval_seconds=poll_interval,
-            data_dir=Path(env.get("DATA_DIR", "/data")),
         )
-
-    @property
-    def scenes_dir(self) -> Path:
-        return self.data_dir / "scenes"
-
-    @property
-    def models_dir(self) -> Path:
-        return self.data_dir / "models"

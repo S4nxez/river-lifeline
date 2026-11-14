@@ -1,67 +1,69 @@
 """What the use cases need from the outside world, as interfaces. Implementations live in worker.adapters."""
 
-from datetime import date
+from collections.abc import Collection
 from typing import Protocol
 
-from worker.domain.connectivity import Community, MonitoredArea, RouteMeasurement
-from worker.domain.drought import DroughtEvent, WeatherObservation
-from worker.domain.imagery import Scene
-from worker.domain.jobs import Job, JobResult
+from worker.domain.drought import DroughtEvent, DroughtModel, WeatherObservation
+from worker.domain.jobs import Job, JobResult, JobType
+from worker.domain.passes import AssessPassInputs, ChangeMap, PassAssessment, ReevaluatePassInputs
+from worker.domain.rasters import Raster, RasterRef
 
 # --- Talking to the backend: the worker's only connection to the outside -------------------------------------------
 
 
 class JobQueue(Protocol):
-    def next_job(self) -> Job | None:
-        """The next pending job, or None when there is nothing to do."""
+    def next_job(self, types: Collection[JobType], contracts: Collection[int]) -> Job | None:
+        """Leases the next pending job of these types and contract versions; None when there is nothing to do."""
         ...
 
-    def complete(self, result: JobResult) -> None: ...
-
-    def fail(self, job_id: str, reason: str) -> None: ...
-
-
-class ImageryProvider(Protocol):
-    def scenes_for(self, job: Job) -> list[Scene]:
-        """The scenes the backend gathered (from Earthdata and other catalogs) for this job, downloaded locally."""
+    def heartbeat(self, job_id: str) -> int:
+        """Extends the lease; returns its new length in seconds. Raises LeaseLost when the job is no longer ours."""
         ...
 
-
-class AreaProvider(Protocol):
-    def monitored_area(self) -> MonitoredArea:
-        """The hub and the communities the backend monitors."""
+    def complete(self, result: JobResult) -> None:
+        """Uploads the result's rasters, then posts its data. Raises LeaseLost when the job is no longer ours."""
         ...
 
+    def fail(self, job_id: str, reason: str, retryable: bool) -> None: ...
 
-class WeatherProvider(Protocol):
-    def observations(self, region: str, start: date, end: date) -> list[WeatherObservation]: ...
 
-    def drought_history(self, region: str) -> list[DroughtEvent]: ...
+class RasterSource(Protocol):
+    def read(self, ref: RasterRef) -> Raster:
+        """Downloads a raster the job references into memory."""
+        ...
 
 
 # --- Algorithms: swappable implementations ------------------------------------------------------------------------
 
 
-class RouteMapper(Protocol):
-    def measure(self, scene: Scene, hub: Community, communities: list[Community]) -> list[RouteMeasurement]:
-        """One measurement per community: the narrowest point of its water route to the hub in this scene."""
+class PassAnalyzer(Protocol):
+    def assess(self, inputs: AssessPassInputs, rasters: RasterSource) -> PassAssessment:
+        """Judges a NISAR pass from its granule windows; reads each raster from `rasters` when it needs it."""
+        ...
+
+    def reevaluate(self, inputs: ReevaluatePassInputs, rasters: RasterSource) -> PassAssessment:
+        """Judges a pass again from its stored masks, without radar."""
         ...
 
 
-class DroughtModel(Protocol):
-    def train(self, observations: list[WeatherObservation], droughts: list[DroughtEvent]) -> None: ...
+class ChangeMapper(Protocol):
+    def compare(self, previous: Raster, current: Raster) -> ChangeMap:
+        """Water lost and gained between two `water` rasters of the same grid."""
+        ...
 
-    def predict(self, recent: list[WeatherObservation], horizon_days: int) -> float:
+
+class DroughtModelTrainer(Protocol):
+    def train(self, observations: list[WeatherObservation], droughts: list[DroughtEvent]) -> DroughtModel: ...
+
+
+class DroughtForecaster(Protocol):
+    def predict(self, model: DroughtModel, recent: list[WeatherObservation], horizon_days: int) -> float:
         """Probability (0 to 1) of a drought within `horizon_days`."""
         ...
 
 
-class DroughtModelStore(Protocol):
-    def save(self, region: str, model: DroughtModel) -> None: ...
-
-    def load(self, region: str) -> DroughtModel:
-        """The trained model of the region; raises ModelNotFound if there is none."""
-        ...
+class DroughtModelAlgorithm(DroughtModelTrainer, DroughtForecaster, Protocol):
+    """One implementation that trains and forecasts with the same kind of model."""
 
 
 # --- What every use case is to the dispatcher ---------------------------------------------------------------------
