@@ -1,190 +1,451 @@
 .stat-foot {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
+.dot,
+.key-dot,
+.level-indicator {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
 
-.stat-card .stat-source {
-  font-size: 22px;
-}
-
-.workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(330px, 1fr);
-  gap: 16px;
-}
+/* Sections: a rule on top and white space, no boxes */
 
 .panel {
   min-width: 0;
-  padding: 19px;
+  border-top: 1px solid var(--text);
+  padding-top: 20px;
 }
 
 .panel-heading {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .panel-heading h2 {
-  font: 600 19px/1.2 "Space Grotesk";
+  font: 600 28px/1.15 var(--display);
+  letter-spacing: -0.025em;
   margin: 0;
 }
 
 .panel-heading .eyebrow {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .live-label,
-.count-pill,
 .unit-label {
-  font-size: 9px;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  letter-spacing: 0.06em;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.live-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+/* Map: the page turns around it. Its panels sit on it as cards */
+
+.map-section {
+  border-top: 1px solid var(--text);
+  padding-top: 20px;
 }
 
-.count-pill {
-  border: 1px solid var(--line);
-  padding: 5px 8px;
-  border-radius: 7px;
+.map-heading {
+  margin-bottom: 24px;
 }
 
-.map-key {
-  display: flex;
-  gap: 17px;
-  flex-wrap: wrap;
-  padding: 15px 0 10px;
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.map-key span {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.key-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
+.map-stage {
+  position: relative;
 }
 
 #map {
-  height: 330px;
-  border-radius: 11px;
+  height: clamp(560px, 78vh, 820px);
+  border: 1px solid var(--line);
+  border-radius: 4px;
   overflow: hidden;
-  background: #14232e;
-  border: 1px solid #ffffff0c;
+  background: var(--hover);
 }
 
 .leaflet-container {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
-.leaflet-control-attribution {
-  font-size: 9px !important;
-  background: #101b25d9 !important;
-  color: #8fa2ae !important;
-}
-
-.leaflet-control-attribution a {
-  color: #9dc4d3 !important;
+.leaflet-bar {
+  border: 1px solid var(--line) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
 }
 
 .leaflet-bar a {
-  background: #172530 !important;
-  color: #dce8ed !important;
-  border-color: #354a57 !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
 }
 
-.leaflet-tooltip {
-  background: #172530;
-  color: #edf4f7;
-  border: 1px solid #425763;
-  box-shadow: none;
-  border-radius: 6px;
-}
-
-.map-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 12px;
-  font-size: 10px;
+.leaflet-container .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
   color: var(--muted);
 }
 
-.map-pin {
-  color: var(--amber);
-  font-size: 12px;
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--text);
 }
 
-.demo-tag {
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  color: var(--amber);
-  font-weight: 700;
+/* OpenStreetMap fallback (mapService.js) has no night style: darken its tiles, not the markers or the radar */
+:root[data-theme="dark"] .map-fallback .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
 }
+
+.leaflet-control-attribution {
+  font-size: 11px !important;
+}
+
+.leaflet-tooltip {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 13px;
+}
+
+.map-footer {
+  margin: 0;
+  padding-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.map-error {
+  padding: 24px;
+  color: var(--muted);
+}
+
+/* Cards on the map: solid, hairline-bordered, with only the faint shadow that lifts them off the imagery */
+.map-card {
+  position: absolute;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgb(17 18 20 / 0.08);
+}
+
+.map-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.map-card-head h3 {
+  margin: 0;
+  font: 600 16px/1.2 var(--display);
+  letter-spacing: -0.01em;
+}
+
+.card-toggle {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.card-toggle:hover {
+  color: var(--text);
+}
+
+.card-toggle[aria-expanded="true"] .card-toggle-closed,
+.card-toggle[aria-expanded="false"] .card-toggle-open {
+  display: none;
+}
+
+.map-card-body {
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
+}
+
+.map-card-body[hidden],
+.layer-controls[hidden] {
+  display: none;
+}
+
+/* Communities card, top left */
 
 .site-panel {
+  top: 16px;
+  left: 16px;
+  width: 320px;
+  max-height: calc(100% - 96px);
   display: flex;
   flex-direction: column;
 }
 
 .site-list {
   display: grid;
-  gap: 7px;
-  margin: 15px 0 12px;
 }
+
+.site-panel .selected-summary {
+  margin: 0;
+  padding: 16px;
+}
+
+/* Layers card, top right */
+
+.layers-panel {
+  top: 16px;
+  right: 16px;
+  width: 280px;
+  max-height: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.layers-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 600 16px/1.2 var(--display);
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Folded, the card is just its title */
+.layers-panel:has(.layers-toggle[aria-expanded="false"]) {
+  width: auto;
+}
+
+.layers-toggle::after {
+  content: "−";
+  color: var(--muted);
+}
+
+.layers-toggle[aria-expanded="false"]::after {
+  content: "+";
+}
+
+.layer-controls {
+  display: grid;
+  gap: 18px;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
+}
+
+.control-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.control-label {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.control-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segmented button {
+  flex: 1;
+  padding: 7px 8px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.segmented button:first-child {
+  border-left: 0;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.segmented button:disabled {
+  color: var(--faint);
+  cursor: not-allowed;
+}
+
+.control-range {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-range .control-label {
+  grid-column: 1 / -1;
+}
+
+.control-range input,
+.control-check input {
+  accent-color: var(--accent);
+}
+
+.control-range input {
+  width: 100%;
+  margin: 0;
+}
+
+.control-range output {
+  min-width: 40px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.control-check input {
+  margin: 0;
+}
+
+.control-warning {
+  margin: 0;
+  font-size: 12px;
+  color: var(--isolated);
+}
+
+.control-check .control-warning {
+  margin-left: auto;
+}
+
+.control-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Status filter, bottom left: the legend, which also filters */
+
+.status-filter {
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: calc(100% - 140px);
+  padding: 4px;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filter-chip:hover {
+  background: var(--hover);
+}
+
+.filter-chip b {
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.filter-chip[aria-pressed="false"] {
+  color: var(--faint);
+}
+
+.filter-chip[aria-pressed="false"] .key-dot {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--faint);
+}
+
+/* Community list */
 
 .site-item {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 16px;
   width: 100%;
   min-width: 0;
   text-align: left;
-  padding: 12px 10px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: #ffffff04;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  transition: background 0.15s;
 }
 
 .site-item:hover {
-  background: #ffffff09;
+  background: var(--hover);
 }
 
 .site-item.is-selected {
-  background: #e4b65c0d;
-  border-color: #e4b65c60;
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .site-index {
-  font: 500 11px "Space Grotesk";
+  font-size: 12px;
   color: var(--faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .site-main {
@@ -198,4 +459,36 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.site-main strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.site-main small {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.site-change {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.site-change b,
+.site-change small {
+  display: block;
+}
+
+.site-change b {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.site-change small {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
 }

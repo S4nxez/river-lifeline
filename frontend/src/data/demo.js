@@ -3,6 +3,16 @@ import { countByStatus, latestKnown } from "../status.js";
 
 const hub = { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 };
 
+// The demo area, as the API describes one (services/api.js): its own threshold, no bounds (the map fits the places)
+const area = {
+  id: "tefe",
+  name: "Tefé",
+  region: "Amazonas",
+  center: { lat: hub.lat, lng: hub.lng },
+  bounds: null,
+  connectedMinWidthM: 60,
+};
+
 const passes = [
   { id: "nisar-2026-08-04", acquiredOn: "2026-08-04", riverLevelCm: 1650, sentinel1On: null },
   { id: "nisar-2026-08-16", acquiredOn: "2026-08-16", riverLevelCm: 1420, sentinel1On: "2026-08-15" },
@@ -63,13 +73,27 @@ function assessments(track) {
   });
 }
 
-/** The demo overview, as `loadOverview` returns it. */
+/** The demo passes, newest first, as the pass selector lists them. */
+function passList() {
+  return [...passes].reverse().map((pass) => ({
+    id: pass.id,
+    acquiredOn: pass.acquiredOn,
+    platform: "NISAR",
+    track: null,
+    evaluated: true,
+    coverage: null,
+    riverLevelCm: pass.riverLevelCm,
+  }));
+}
+
+/** The demo overview, as `loadOverview` returns it: the demo data has no imagery. */
 export function demoOverview() {
   const statuses = communities.map(({ place, track }) => ({ ...place, latest: latestKnown(assessments(track)) }));
   const last = passes.at(-1);
   const lastStatuses = communities.map(({ track }) => ({ latest: { status: track.at(-1)[0] } }));
   const counts = countByStatus(lastStatuses);
   return {
+    area,
     hub,
     latestPass: {
       id: last.id,
@@ -83,7 +107,21 @@ export function demoOverview() {
         noData: counts.no_data,
       },
     },
+    passId: last.id,
+    passes: passList(),
+    layerCatalog: [],
     communities: statuses,
+    imagery: [],
+  };
+}
+
+/** One demo pass, as `loadPass` returns it: every community as that pass saw it; null for an unknown pass. */
+export function demoPass(passId) {
+  const index = passes.findIndex((pass) => pass.id === passId);
+  if (index < 0) return null;
+  return {
+    communities: communities.map(({ place, track }) => ({ ...place, latest: assessments(track)[index] })),
+    imagery: [],
   };
 }
 

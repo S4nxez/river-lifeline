@@ -1,13 +1,10 @@
 // What each connectivity status means on screen. Codes are the API's (`status` of an assessment).
 
-/** Narrowest channel (m) the monitor still counts as a working route; below it a community is at risk. */
-export const CONNECTED_MIN_WIDTH_M = 60;
-
 export const STATUSES = {
-  isolated: { label: "Isolated", color: "#e47759", severity: 0 },
-  at_risk: { label: "At risk", color: "#e4b65c", severity: 1 },
-  no_data: { label: "No data", color: "#6d8491", severity: 2 },
-  connected: { label: "Connected", color: "#68b6a3", severity: 3 },
+  isolated: { label: "Isolated", color: "#b42318", severity: 0 },
+  at_risk: { label: "At risk", color: "#a15c07", severity: 1 },
+  no_data: { label: "No data", color: "#8a8f96", severity: 2 },
+  connected: { label: "Connected", color: "#0b7a52", severity: 3 },
 };
 
 export const KIND_LABELS = {

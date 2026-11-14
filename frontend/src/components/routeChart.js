@@ -1,7 +1,29 @@
 import { formatDay } from "../format.js";
-import { CONNECTED_MIN_WIDTH_M, STATUSES } from "../status.js";
+import { STATUSES } from "../status.js";
 
 let chart;
+
+// Chart.js draws on a canvas, so it can't read the CSS: these mirror the theme tokens of main.css
+export const CHART_COLORS = {
+  light: {
+    line: "#111214",
+    fill: "#11121410",
+    point: "#ffffff",
+    threshold: "#8a8f96",
+    grid: "#ececea",
+    ticks: "#5c6066",
+    tooltip: { background: "#ffffff", title: "#111214", body: "#5c6066", border: "#e6e6e3" },
+  },
+  dark: {
+    line: "#ececec",
+    fill: "#ececec14",
+    point: "#141517",
+    threshold: "#7d8188",
+    grid: "#26282c",
+    ticks: "#a1a5ab",
+    tooltip: { background: "#1c1d20", title: "#ececec", body: "#a1a5ab", border: "#2e3034" },
+  },
+};
 
 /** Width (m) to plot for an assessment: 0 once isolated, a gap when the pass had no data. */
 export function plottedWidth(assessment) {
@@ -9,8 +31,12 @@ export function plottedWidth(assessment) {
   return assessment.routeWidthM ?? null;
 }
 
-/** The narrowest point of the community's route on every NISAR pass, against the connected threshold. */
-export function renderRouteChart(canvas, history) {
+/**
+ * The narrowest point of the community's route on every NISAR pass, against the area's connected threshold
+ * (`thresholdM`, from the API; no threshold line without it).
+ */
+export function renderRouteChart(canvas, history, { theme = "light", thresholdM = null } = {}) {
+  const colors = CHART_COLORS[theme] ?? CHART_COLORS.light;
   if (chart) chart.destroy();
   const assessments = history?.assessments ?? [];
   chart = new Chart(canvas, {
@@ -21,22 +47,27 @@ export function renderRouteChart(canvas, history) {
         {
           label: "Route width",
           data: assessments.map(plottedWidth),
-          borderColor: "#72b8d0",
-          backgroundColor: "#72b8d018",
+          borderColor: colors.line,
+          backgroundColor: colors.fill,
+          pointBorderColor: colors.point,
           pointBackgroundColor: assessments.map((assessment) => STATUSES[assessment.status].color),
           pointRadius: 4,
           borderWidth: 2,
           tension: 0.25,
           spanGaps: false,
         },
-        {
-          label: `Connected (${CONNECTED_MIN_WIDTH_M} m)`,
-          data: assessments.map(() => CONNECTED_MIN_WIDTH_M),
-          borderColor: "#e4b65c",
-          borderDash: [6, 4],
-          borderWidth: 1.5,
-          pointRadius: 0,
-        },
+        ...(thresholdM == null
+          ? []
+          : [
+              {
+                label: `Connected (${thresholdM} m)`,
+                data: assessments.map(() => thresholdM),
+                borderColor: colors.threshold,
+                borderDash: [6, 4],
+                borderWidth: 1.5,
+                pointRadius: 0,
+              },
+            ]),
       ],
     },
     options: {
@@ -45,20 +76,27 @@ export function renderRouteChart(canvas, history) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: "#172530", titleColor: "#edf4f7", bodyColor: "#c1d0d8", padding: 10 },
+        tooltip: {
+          backgroundColor: colors.tooltip.background,
+          titleColor: colors.tooltip.title,
+          bodyColor: colors.tooltip.body,
+          borderColor: colors.tooltip.border,
+          borderWidth: 1,
+          padding: 10,
+        },
       },
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: "#8fa2ae", maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
+          ticks: { color: colors.ticks, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
           border: { display: false },
         },
         y: {
           beginAtZero: true,
-          grid: { color: "#263742" },
-          ticks: { color: "#8fa2ae", maxTicksLimit: 5 },
+          grid: { color: colors.grid },
+          ticks: { color: colors.ticks, maxTicksLimit: 5 },
           border: { display: false },
-          title: { display: true, text: "m", color: "#8fa2ae" },
+          title: { display: true, text: "m", color: colors.ticks },
         },
       },
     },
