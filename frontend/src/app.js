@@ -1,60 +1,67 @@
-import { sites as demoSites, observationDates as demoObservationDates } from "./data/sites.js";
-import { renderSiteList, renderSelectedSummary } from "./components/siteList.js";
-import { renderInsight } from "./components/insightPanel.js";
-import { renderTrendChart } from "./components/trendChart.js";
+import { renderCommunityList, renderSelectedSummary } from "./components/communityList.js";
+import { renderRouteChart } from "./components/routeChart.js";
+import { renderStatusPanel } from "./components/statusPanel.js";
+import { formatDay, formatRiverLevel } from "./format.js";
+import { loadHistory, loadOverview } from "./services/api.js";
 import { createMap } from "./services/mapService.js";
+import { bySeverity, countByStatus } from "./status.js";
 
+const $ = (selector) => document.querySelector(selector);
 const elements = {
-  list: document.querySelector("#site-list"),
-  summary: document.querySelector("#selected-summary"),
-  insight: document.querySelector("#insight-content"),
-  chart: document.querySelector("#trend-chart"),
+  list: $("#community-list"),
+  summary: $("#selected-summary"),
+  status: $("#status-content"),
+  chart: $("#route-chart"),
 };
-let sites = demoSites;
-let observationDates = demoObservationDates;
-let selectedId = sites[0].id;
+
+let communities = [];
+let live = false;
+let selectedId = null;
 let mapControls;
 
-function selectSite(id) {
+async function select(id) {
+  const community = communities.find((item) => item.id === id);
+  if (!community) return;
   selectedId = id;
-  const site = sites.find((item) => item.id === id);
-  if (!site) return;
-  renderSiteList(elements.list, sites, selectedId, selectSite);
-  renderSelectedSummary(elements.summary, site);
-  renderInsight(elements.insight, site);
-  renderTrendChart(elements.chart, site, observationDates);
-  mapControls?.selectSite(id);
+  renderCommunityList(elements.list, communities, selectedId, select);
+  renderSelectedSummary(elements.summary, community);
+  renderStatusPanel(elements.status, community);
+  mapControls?.selectCommunity(id);
+
+  const history = await loadHistory(id, live);
+  // The user may have picked another community while this one loaded
+  if (selectedId === id) renderRouteChart(elements.chart, history);
+}
+
+function renderStats(overview) {
+  const counts = countByStatus(communities);
+  const pad = (count) => String(count).padStart(2, "0");
+  $("#stat-communities").textContent = pad(communities.length);
+  $("#stat-isolated").textContent = pad(counts.isolated);
+  $("#stat-at-risk").textContent = pad(counts.at_risk);
+  const pass = overview.latestPass;
+  $("#stat-pass").textContent = pass ? formatDay(pass.acquiredOn) : "—";
+  $("#stat-river").textContent = pass ? `River at ${formatRiverLevel(pass.riverLevelCm)}` : "No pass yet";
+  $("#data-mode").textContent = live ? "LIVE DATA" : "DEMO DATA";
 }
 
 async function init() {
-  try {
-    const response = await fetch("./api/sites", { headers: { Accept: "application/json" } });
-    if (response.ok) {
-      const catalog = await response.json();
-      if (Array.isArray(catalog.sites) && catalog.sites.length > 0) {
-        sites = catalog.sites;
-        observationDates = Array.isArray(catalog.observationDates) ? catalog.observationDates : demoObservationDates;
-        selectedId = sites[0].id;
-      }
-    }
-  } catch (error) {
-    console.info("SAR API unavailable; using illustrative demo data.", error);
-  }
+  const loaded = await loadOverview();
+  live = loaded.live;
+  communities = bySeverity(loaded.overview.communities);
+  renderStats(loaded.overview);
+  // The community most in need first
+  select(communities[0]?.id);
 
-  document.querySelector("#stat-areas").textContent = String(sites.length).padStart(2, "0");
-  document.querySelector("#stat-signals").textContent = String(
-    sites.reduce((total, site) => total + (site.level === "high" ? 5 : site.level === "medium" ? 3 : 1), 0),
-  ).padStart(2, "0");
-  selectSite(selectedId);
-  createMap(sites, selectSite)
+  createMap(loaded.overview.hub, communities, select)
     .then((controls) => {
       mapControls = controls;
-      mapControls.selectSite(selectedId);
+      mapControls.selectCommunity(selectedId);
     })
     .catch((error) => {
-      document.querySelector("#map").innerHTML =
-        '<p class="map-error">Map could not load. Check your connection and reload.</p>';
+      $("#map").innerHTML = '<p class="map-error">Map could not load. Check your connection and reload.</p>';
       console.error("Map initialisation failed:", error);
     });
 }
+
 init();

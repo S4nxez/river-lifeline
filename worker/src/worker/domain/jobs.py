@@ -6,7 +6,7 @@ from typing import Any
 class JobType(StrEnum):
     """The work the backend can ask for. The values are the `type` field of the backend's jobs."""
 
-    DETECT_CHANGES = "detect_changes"
+    ASSESS_CONNECTIVITY = "assess_connectivity"
     TRAIN_DROUGHT_MODEL = "train_drought_model"
     FORECAST_DROUGHT = "forecast_drought"
 

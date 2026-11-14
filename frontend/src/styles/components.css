@@ -13,10 +13,6 @@
   display: inline-block;
 }
 
-.dot-amber {
-  background: var(--amber);
-}
-
 .stat-card .stat-source {
   font-size: 22px;
 }
@@ -89,18 +85,6 @@
   height: 7px;
   border-radius: 50%;
   display: inline-block;
-}
-
-.key-high {
-  background: var(--red);
-}
-
-.key-medium {
-  background: var(--amber);
-}
-
-.key-low {
-  background: var(--green);
 }
 
 #map {

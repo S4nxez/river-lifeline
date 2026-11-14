@@ -3,11 +3,11 @@ import os
 import signal
 
 from worker.adapters.backend.client import BackendClient
-from worker.adapters.imaging.log_ratio import LogRatioChangeDetector
+from worker.adapters.imaging.water_routes import ThresholdRouteMapper
 from worker.adapters.ml.drought_model import BaselineDroughtModel
 from worker.adapters.ml.model_store import PickleModelStore
 from worker.application.dispatcher import Dispatcher
-from worker.application.use_cases.detect_changes import DetectChanges
+from worker.application.use_cases.assess_connectivity import AssessConnectivity
 from worker.application.use_cases.forecast_drought import ForecastDrought
 from worker.application.use_cases.train_drought_model import TrainDroughtModel
 from worker.application.worker import Worker
@@ -21,7 +21,13 @@ def build_worker(settings: Settings, backend: BackendClient | None = None) -> Wo
     models = PickleModelStore(settings.models_dir)
     dispatcher = Dispatcher(
         {
-            JobType.DETECT_CHANGES: DetectChanges(backend, LogRatioChangeDetector()),
+            JobType.ASSESS_CONNECTIVITY: AssessConnectivity(
+                backend,
+                backend,
+                # Starting thresholds, to calibrate on scenes of the Tefé area
+                nisar=ThresholdRouteMapper(polarization="HH", water_threshold_db=-17.0),
+                sentinel1=ThresholdRouteMapper(polarization="VV", water_threshold_db=-18.0),
+            ),
             JobType.TRAIN_DROUGHT_MODEL: TrainDroughtModel(backend, BaselineDroughtModel, models),
             JobType.FORECAST_DROUGHT: ForecastDrought(backend, models),
         }

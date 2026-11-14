@@ -71,6 +71,6 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith(Constants.API + Constants.SITES);
+        return Constants.PUBLIC_PATHS.stream().anyMatch(open -> path.equals(open) || path.startsWith(open + "/"));
     }
 }
