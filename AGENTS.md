@@ -30,9 +30,14 @@ The pre-commit hook applies them (enable it once per clone with `npm --prefix fr
 
 ## Architecture
 
-- The UI talks only to the backend. The backend is the only part that calls external APIs (Earthdata, weather...).
-- The Python worker (`worker/`) talks only to the backend: it pulls jobs, fetches their inputs and posts results through
-  the backend's internal API (`worker/README.md`). Never call the worker from the UI or an external API from the worker.
+- Three layers, two contracts (CONTRACTS.md): processing (`worker/`) fetches the satellite data and writes files to
+  `RIVER_DATA_DIR`, and never serves requests; the backend (`server/`) only reads, validates, joins and serves them
+  under `/api/v1` (GET only), and never computes science; the UI talks only to the backend.
+- Nothing is specific to one area: each study area is a folder `aois/<id>/` with its own coordinates and thresholds.
+  Never hardcode an area, a width or a coverage threshold in the backend or the UI.
+- The server follows hexagonal architecture with DDD: `domain` (model, rules) ← `application` (use cases and ports)
+  ← `infrastructure` (web and file system adapters, Spring wiring). Domain and application don't use Spring or
+  Jackson. `server/src/test/java/com/riverlifeline/ArchitectureTest.java` fails the build on a violation.
 - The worker follows clean architecture: `domain` ← `application` ← `adapters` ← `entrypoints`, each layer importing
   only the ones inside it. `worker/tests/test_architecture.py` fails the build on a violation.
 
@@ -41,5 +46,7 @@ The pre-commit hook applies them (enable it once per clone with `npm --prefix fr
 - Short-lived branch, pull request to `main`, green CI, merge. Release then deploys `main` to production on its own.
 - Conventional commits: `feat(scope): ...`, `fix`, `test`, `chore`, `docs`, `style`.
 - Flyway: never edit a migration that has been merged; add a new `V<n>__` file, and agree on the number with the team.
+- Data contract: the files processing writes and the `/api/v1` JSON follow CONTRACTS.md. Changing them means a PR
+  that updates the contract, `fixtures/data` and every layer together.
 - The frontend calls the API with relative URLs (`./api/...`) because the app is served under a path prefix.
 - CI/CD, local setup and rollback: `docs/devops.md`.

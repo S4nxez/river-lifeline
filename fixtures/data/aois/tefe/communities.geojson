@@ -1,0 +1,372 @@
+{
+  "type": "FeatureCollection",
+  "schema_version": "1.0.0",
+  "aoi_id": "tefe",
+  "generated_at": "2026-10-24T03:00:00Z",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "osm-node-2984471123",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.6012,
+          -3.3215
+        ]
+      },
+      "properties": {
+        "id": "osm-node-2984471123",
+        "name": "Alvarães",
+        "kind": "town",
+        "municipality": "Alvarães",
+        "osm_ref": "node/2984471123",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.5905,
+            -3.316
+          ],
+          "source": "osm_port",
+          "osm_ref": "node/998877665",
+          "distance_from_center_m": 1260
+        },
+        "reference_max_width_class_m": 400
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "manual-caiambe",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.415,
+          -3.532
+        ]
+      },
+      "properties": {
+        "id": "manual-caiambe",
+        "name": "Caiambé",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": null,
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.4138,
+            -3.5311
+          ],
+          "source": "village_center",
+          "osm_ref": null,
+          "distance_from_center_m": 0
+        },
+        "reference_max_width_class_m": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223344",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.86,
+          -3.295
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223344",
+        "name": "Nogueira",
+        "kind": "village",
+        "municipality": "Alvarães",
+        "osm_ref": "node/3011223344",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.8572,
+            -3.2971
+          ],
+          "source": "osm_pier",
+          "osm_ref": "node/3011229001",
+          "distance_from_center_m": 380
+        },
+        "reference_max_width_class_m": 200
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223345",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.952,
+          -3.461
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223345",
+        "name": "Boa Esperança",
+        "kind": "hamlet",
+        "municipality": "Tefé",
+        "osm_ref": "node/3011223345",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.952,
+            -3.461
+          ],
+          "source": "village_center",
+          "osm_ref": null,
+          "distance_from_center_m": 0
+        },
+        "reference_max_width_class_m": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223346",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.623,
+          -3.618
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223346",
+        "name": "São João do Catuá",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": "node/3011223346",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.6218,
+            -3.6165
+          ],
+          "source": "osm_slipway",
+          "osm_ref": "node/3011229002",
+          "distance_from_center_m": 210
+        },
+        "reference_max_width_class_m": 200
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-way-415522330",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.705,
+          -3.218
+        ]
+      },
+      "properties": {
+        "id": "osm-way-415522330",
+        "name": "Vila Santa Luzia",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": "way/415522330",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.7042,
+            -3.2195
+          ],
+          "source": "osm_pier",
+          "osm_ref": "node/3011229003",
+          "distance_from_center_m": 190
+        },
+        "reference_max_width_class_m": 400
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223347",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.983,
+          -3.276
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223347",
+        "name": "Porto Praia",
+        "kind": "indigenous_village",
+        "municipality": "Uarini",
+        "osm_ref": "node/3011223347",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.9811,
+            -3.2772
+          ],
+          "source": "osm_pier",
+          "osm_ref": "node/3011229004",
+          "distance_from_center_m": 250
+        },
+        "reference_max_width_class_m": 200
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "manual-bom-jesus",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.528,
+          -3.712
+        ]
+      },
+      "properties": {
+        "id": "manual-bom-jesus",
+        "name": "Bom Jesus",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": null,
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.528,
+            -3.712
+          ],
+          "source": "village_center",
+          "osm_ref": null,
+          "distance_from_center_m": 0
+        },
+        "reference_max_width_class_m": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223348",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.885,
+          -3.605
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223348",
+        "name": "Ponta da Castanha",
+        "kind": "hamlet",
+        "municipality": "Tefé",
+        "osm_ref": "node/3011223348",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.8838,
+            -3.6039
+          ],
+          "source": "osm_ferry_terminal",
+          "osm_ref": "node/3011229005",
+          "distance_from_center_m": 180
+        },
+        "reference_max_width_class_m": 200
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223349",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.791,
+          -3.502
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223349",
+        "name": "Nova Jerusalém",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": "node/3011223349",
+        "population": null,
+        "monitored": true,
+        "exclusion_reason": null,
+        "boarding_point": {
+          "location": [
+            -64.7901,
+            -3.5008
+          ],
+          "source": "osm_slipway",
+          "osm_ref": "node/3011229006",
+          "distance_from_center_m": 165
+        },
+        "reference_max_width_class_m": 400
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "osm-node-3011223350",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.695,
+          -3.438
+        ]
+      },
+      "properties": {
+        "id": "osm-node-3011223350",
+        "name": "Agrovila do Tefé",
+        "kind": "village",
+        "municipality": "Tefé",
+        "osm_ref": "node/3011223350",
+        "population": null,
+        "monitored": false,
+        "exclusion_reason": "terra_firme",
+        "boarding_point": null,
+        "reference_max_width_class_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "manual-igarape-preto",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.555,
+          -3.185
+        ]
+      },
+      "properties": {
+        "id": "manual-igarape-preto",
+        "name": "Igarapé Preto",
+        "kind": "hamlet",
+        "municipality": "Alvarães",
+        "osm_ref": null,
+        "population": null,
+        "monitored": false,
+        "exclusion_reason": "never_navigable",
+        "boarding_point": {
+          "location": [
+            -64.555,
+            -3.185
+          ],
+          "source": "village_center",
+          "osm_ref": null,
+          "distance_from_center_m": 0
+        },
+        "reference_max_width_class_m": null
+      }
+    }
+  ]
+}

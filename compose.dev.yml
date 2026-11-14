@@ -5,7 +5,9 @@
 #   mysql -> 127.0.0.1:3306, root/root and the NisarSar database: the defaults in application.properties
 #   front -> http://localhost:5500, the frontend from disk with /api proxied to the backend (Caddyfile.dev).
 #            BACKEND=host:port points it elsewhere (default: the host's port 8080)
-#            FRONT_BIND=0.0.0.0 opens it to other devices, e.g. a phone on the same tailnet (default: this machine only)
+# Run from server/, the backend serves the API from ../fixtures/data (RIVER_DATA_DIR overrides it).
+# FRONT_BIND=0.0.0.0 opens it to other devices, e.g. a phone on the same tailnet (default: this machine only)
+
 services:
   mysql:
     image: docker.io/library/mysql:8
