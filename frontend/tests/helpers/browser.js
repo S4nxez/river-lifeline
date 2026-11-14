@@ -80,23 +80,32 @@ export function installLeaflet({ zoom = 2 } = {}) {
   return recorded;
 }
 
-/** A site as the API (and the demo data) describe it. */
-export function site(overrides = {}) {
+/**
+ * A community as `GET /api/communities` describes it. `latest` overrides merge into its latest assessment;
+ * `latest: null` is a community no pass assessed yet.
+ */
+export function community({ latest = {}, ...overrides } = {}) {
+  const defaults = {
+    passId: "nisar-2026-08-28",
+    acquiredOn: "2026-08-28",
+    status: "at_risk",
+    routeWidthM: 40,
+    sentinel1: { sceneOn: "2026-08-27", agrees: true },
+  };
   return {
-    id: "valencia",
-    name: "Valencia coast",
-    country: "Spain",
-    lat: 39.5,
-    lng: -0.4,
-    level: "low",
-    change: "+3%",
-    category: "Coastal / urban",
-    description: "A small signal variation.",
-    confidence: 0.584,
-    vv: [-8.8, -8.6],
-    vh: [-15.4, -15.6],
+    id: "uarini",
+    name: "Uarini",
+    kind: "town",
+    lat: -2.99,
+    lng: -65.113,
+    latest: latest === null ? null : { ...defaults, ...latest },
     ...overrides,
   };
+}
+
+/** An assessment as the API's community history lists it. */
+export function assessment(acquiredOn, status, routeWidthM = null) {
+  return { passId: `nisar-${acquiredOn}`, acquiredOn, status, routeWidthM, sentinel1: null };
 }
 
 /** Resolves once `condition()` is true, failing after `timeoutMs`. */
