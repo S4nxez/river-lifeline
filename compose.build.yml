@@ -1,0 +1,15 @@
+# Builds backend and frontend from this checkout instead of pulling them from GHCR.
+# Used by CI and to run the full stack locally (build the jar first):
+#   mvn -f server/pom.xml -DskipTests package
+#   docker compose -f podman-compose.yml -f compose.build.yml up -d --build   ->  http://127.0.0.1:8091
+services:
+  backend:
+    image: local/backend:dev
+    build:
+      context: ./server
+      dockerfile: Containerfile
+  frontend:
+    image: local/frontend:dev
+    build:
+      context: ./frontend
+      dockerfile: Containerfile
