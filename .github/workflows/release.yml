@@ -70,7 +70,8 @@ jobs:
     timeout-minutes: 10
     env:
       TAG: ${{ inputs.tag || github.sha }}
-      # The Pi's checkout of this repo: it holds podman-compose.yml, Caddyfile and the .env with the DB password
+      # The Pi's checkout of this repo: it holds podman-compose.yml, Caddyfile, the fixtures and the .env
+      # (RIVER_DATA_HOST_DIR: the folder the processing pipeline writes to)
       APP_DIR: /opt/HACKATHON-NISAR-SAR-Change-Detection
     steps:
       - uses: actions/checkout@v5
@@ -120,7 +121,7 @@ jobs:
         continue-on-error: true
         run: ssh pi "bash -s -- $IMAGE $TAG" < scripts/prune-images.sh
 
-      # Only backend and MySQL: Caddy/nginx logs hold visitors' IPs and this repo's Actions logs are public
+      # Only the backend: Caddy/nginx logs hold visitors' IPs and this repo's Actions logs are public
       - name: Logs
         if: failure()
         run: ssh pi "cd $APP_DIR && podman-compose ps; podman-compose logs backend 2>&1 | tail -n 150" || true
