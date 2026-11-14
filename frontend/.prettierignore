@@ -1,0 +1,3 @@
+# Generated or vendored data, not hand-written code
+public/data/
+package-lock.json

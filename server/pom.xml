@@ -134,6 +134,25 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <!-- Java formatter: `mvn spotless:apply` formats, `mvn verify` fails on unformatted code (CI).
+                 The pre-commit hook (.githooks) runs apply on commit. -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <java>
+                        <palantirJavaFormat/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
