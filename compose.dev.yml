@@ -1,25 +1,15 @@
-# Local development: run the backend from the IDE (or `mvn spring-boot:run` in server/) and these around it.
+# Local development: run the backend from the IDE (or `mvn spring-boot:run` in server/) and this around it.
 #   docker compose -f compose.dev.yml up -d      (podman-compose works too)
-#   docker compose -f compose.dev.yml down -v    (wipe the data; Flyway refills it on the next start)
+#   docker compose -f compose.dev.yml down
 #
-#   mysql -> 127.0.0.1:3306, root/root and the NisarSar database: the defaults in application.properties
 #   front -> http://localhost:5500, the frontend from disk with /api proxied to the backend (Caddyfile.dev).
-#            BACKEND=host:port points it elsewhere (default: the host's port 8080)
+#            BACKEND=host:port points it elsewhere (default: the host's port 8000)
+# The backend needs no database: run from server/, it serves ../fixtures/data (RIVER_DATA_DIR overrides it).
 services:
-  mysql:
-    image: docker.io/library/mysql:8
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: NisarSar
-    ports:
-      - "127.0.0.1:3306:3306"
-    volumes:
-      - dev_mysql:/var/lib/mysql
-
   front:
     image: docker.io/library/caddy:2
     environment:
-      BACKEND: ${BACKEND:-host.docker.internal:8080}
+      BACKEND: ${BACKEND:-host.docker.internal:8000}
     # Docker Desktop and Podman resolve host.docker.internal already; Docker Engine on Linux needs this
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -28,6 +18,3 @@ services:
     volumes:
       - ./frontend:/srv:ro,Z
       - ./Caddyfile.dev:/etc/caddy/Caddyfile:ro,Z
-
-volumes:
-  dev_mysql:
