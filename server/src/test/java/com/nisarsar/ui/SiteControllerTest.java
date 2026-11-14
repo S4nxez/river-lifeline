@@ -51,7 +51,7 @@ class SiteControllerTest {
         assertThatThrownBy(() -> controller.getSite("NOPE"))
                 .isInstanceOfSatisfying(ResponseStatusException.class, e -> {
                     assertThat(e.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-                    assertThat(e.getReason()).contains("NOPE");
+                    assertThat(e.getReason()).isEqualTo("SAR site not found: NOPE");
                 });
     }
 
