@@ -1,121 +1,106 @@
-"""Refined Lee speckle filter (Lee, 1981): smooths homogeneous areas and keeps edges such as river banks sharp.
+"""Refined Lee speckle filter (Lee 1981; edge-aligned windows, Lee, Grunes and De Grandi 1999), in linear power.
 
-For every pixel, on a 7 x 7 window in linear power:
-  1. the means of the nine 3 x 3 sub-windows give the gradient across four directions (horizontal, vertical and the two
-     diagonals); the steepest one is the edge;
-  2. of the two halves of the window on either side of that edge, the one whose sub-window mean is closer to the
-     centre's is the pixel's side: only it is used, so water is never averaged with land;
-  3. the Lee estimator weighs that half's mean against the pixel itself by how much more the half varies than speckle
-     alone would make it vary (speckle variance 1/looks): a homogeneous half gives its mean, a textured one keeps the
-     pixel.
-NaN pixels are no data: they take no part in any statistic and stay NaN.
+In a 7 x 7 window the strongest of four edge directions is found from the means of nine 3 x 3 blocks; the statistics
+are taken over the half window on the pixel's own side of that edge, so a channel pixel is averaged with water and not
+with the bright bank. Then x = mu + k (I - mu), k = var_x / var with var_x = (var - mu^2 Cu^2) / (1 + Cu^2) and
+Cu^2 = 1 / looks: homogeneous windows (the variance of speckle only) are averaged, heterogeneous ones keep the pixel.
+NaN in, NaN out.
 """
 
+import warnings
+
 import numpy as np
+from scipy import ndimage
 
-HALF = 3  # half the 7 x 7 window
-ROWS_PER_STRIP = 512  # rows filtered at once: bounds the memory of the working arrays
-TIE = 1e-6  # relative difference under which two gradients are equal
+from worker.adapters.imaging.backscatter import box_sum
 
-# Each half window as one column interval [dc0, dc1] per row offset dr in -3..3 (offsets from the centre pixel)
-_ROWS = range(-HALF, HALF + 1)
-_HALVES = {
-    "top": [(dr, (-HALF, HALF)) for dr in _ROWS if dr <= 0],
-    "bottom": [(dr, (-HALF, HALF)) for dr in _ROWS if dr >= 0],
-    "left": [(dr, (-HALF, 0)) for dr in _ROWS],
-    "right": [(dr, (0, HALF)) for dr in _ROWS],
-    "up_left": [(dr, (-HALF, -dr)) for dr in _ROWS],  # dr + dc <= 0
-    "down_right": [(dr, (-dr, HALF)) for dr in _ROWS],  # dr + dc >= 0
-    "up_right": [(dr, (dr, HALF)) for dr in _ROWS],  # dc >= dr
-    "down_left": [(dr, (-HALF, dr)) for dr in _ROWS],  # dc <= dr
-}
-# (sub-window on one side, sub-window on the other, half on the first side, half on the other), sub-windows as
-# (row, col) offsets of their centres
-_EDGES = [
-    ((-2, 0), (2, 0), "top", "bottom"),
-    ((0, -2), (0, 2), "left", "right"),
-    ((-2, -2), (2, 2), "up_left", "down_right"),
-    ((-2, 2), (2, -2), "up_right", "down_left"),
-]
+RADIUS = 3  # 7 x 7 window
+CHUNK_ROWS = 512  # rows filtered at once: bounds the memory of the working arrays
+MIN_PIXELS = 10  # fewer valid pixels in the chosen half window: the pixel is kept as measured
+
+
+def _halves() -> list[np.ndarray]:
+    """The eight edge-aligned half windows of a 7 x 7 window (28 pixels each, centre line included): west, east,
+    north, south and the four triangles cut by the diagonals."""
+    yy, xx = np.mgrid[-RADIUS : RADIUS + 1, -RADIUS : RADIUS + 1]
+    return [xx <= 0, xx >= 0, yy <= 0, yy >= 0, (xx + yy) <= 0, (xx + yy) >= 0, (yy - xx) <= 0, (yy - xx) >= 0]
+
+
+HALVES = _halves()
 
 
 def refined_lee(db: np.ndarray, looks: float) -> np.ndarray:
     """The filtered backscatter in dB; `looks` is the equivalent number of looks of the product."""
     if looks <= 0:
         raise ValueError(f"looks must be positive, got {looks}")
-    out = np.full(db.shape, np.nan, np.float32)
-    height = db.shape[0]
-    for first in range(0, height, ROWS_PER_STRIP):
-        last = min(height, first + ROWS_PER_STRIP)
-        top, bottom = max(0, first - HALF), min(height, last + HALF)
-        filtered = _filter_block(db[top:bottom], looks)
-        out[first:last] = filtered[first - top : first - top + (last - first)]
-    return out
+    # float32 as measured: directions that tie on a clean edge are broken the same way the method was validated with
+    linear = np.where(np.isfinite(db), np.power(10.0, np.nan_to_num(db) / 10.0), np.nan)
+    padded = np.pad(linear, RADIUS, mode="constant", constant_values=np.nan)
+    ok = np.isfinite(padded)
+    out = np.empty(db.shape, np.float32)
+    for first in range(0, db.shape[0], CHUNK_ROWS):
+        last = min(db.shape[0], first + CHUNK_ROWS)
+        out[first:last] = _filter_chunk(padded[first : last + 2 * RADIUS], ok[first : last + 2 * RADIUS], 1.0 / looks)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        result = 10.0 * np.log10(out)
+    result[~np.isfinite(result)] = np.nan
+    return result.astype(np.float32)
 
 
-class _WindowSums:
-    """Sums over column intervals of shifted rows of a block, from row-wise prefix sums: any half window costs seven
-    subtractions per pixel whatever its shape."""
-
-    def __init__(self, values: np.ndarray) -> None:
-        # float64: in float32 the rounding of a prefix over a long row is as large as the backscatter of water
-        padded = np.pad(values.astype(np.float64), HALF)
-        self._prefix = np.concatenate([np.zeros((padded.shape[0], 1)), padded.cumsum(axis=1)], axis=1)
-        self._shape = values.shape
-
-    def over(self, intervals: list[tuple[int, tuple[int, int]]]) -> np.ndarray:
-        h, w = self._shape
-        total = np.zeros(self._shape)
-        for dr, (c0, c1) in intervals:
-            rows = slice(HALF + dr, HALF + dr + h)
-            total += (
-                self._prefix[rows, HALF + c1 + 1 : HALF + c1 + 1 + w] - self._prefix[rows, HALF + c0 : HALF + c0 + w]
-            )
-        return total
+def _sub_means(linear: np.ndarray, ok: np.ndarray) -> np.ndarray:
+    """Mean of every 3 x 3 block of a padded chunk, NaN ignored."""
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return box_sum(np.where(ok, linear, 0.0), 3) / box_sum(ok.astype(np.float64), 3)
 
 
-def _filter_block(db: np.ndarray, looks: float) -> np.ndarray:
-    ok = np.isfinite(db)
-    linear = np.where(ok, np.power(10.0, np.where(ok, db, 0.0).astype(np.float64) / 10.0), 0.0)
-    sums, squares, counts = _WindowSums(linear), _WindowSums(linear * linear), _WindowSums(ok.astype(np.float64))
+def _filter_chunk(linear: np.ndarray, ok: np.ndarray, cu2: float) -> np.ndarray:
+    """Refined Lee on a chunk padded with RADIUS rows and columns on every side; returns the unpadded result."""
+    r = RADIUS
+    h, w = linear.shape[0] - 2 * r, linear.shape[1] - 2 * r
+    means = _sub_means(linear, ok)
+    block = {(dy, dx): means[r + dy : r + dy + h, r + dx : r + dx + w] for dy in (-2, 0, 2) for dx in (-2, 0, 2)}
 
-    def sub_window_mean(dr: int, dc: int) -> np.ndarray:
-        intervals = [(r, (dc - 1, dc + 1)) for r in range(dr - 1, dr + 2)]
-        n = counts.over(intervals)
-        with np.errstate(invalid="ignore", divide="ignore"):
-            return np.where(n > 0, sums.over(intervals) / n, np.nan)
+    def side(*keys: tuple[int, int]) -> np.ndarray:
+        """Mean of the blocks of one side that have data (image edges and gaps are NaN)."""
+        with np.errstate(invalid="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            return np.nanmean(np.stack([block[k] for k in keys]), axis=0)
 
-    centre = sub_window_mean(0, 0)
-    steepest = np.full(db.shape, -1.0)
-    chosen = np.zeros(db.shape, np.int8)
-    names = list(_HALVES)
-    for first_side, second_side, first_half, second_half in _EDGES:
-        a, b = sub_window_mean(*first_side), sub_window_mean(*second_side)
-        gradient = np.nan_to_num(np.abs(a - b), nan=-1.0)
-        closer_to_a = np.nan_to_num(np.abs(a - centre), nan=np.inf) <= np.nan_to_num(np.abs(b - centre), nan=np.inf)
-        side = np.where(closer_to_a, names.index(first_half), names.index(second_half))
-        # a direction must be clearly steeper to win: on a straight edge the diagonals tie with it up to rounding
-        steeper = gradient > steepest * (1 + TIE) + TIE * 1e-6
-        steepest = np.where(steeper, gradient, steepest)
-        chosen = np.where(steeper, side, chosen)
+    # the block means on each side of the four possible edges; the side closer to the centre block is the pixel's own
+    sides = [
+        (side((-2, -2), (0, -2), (2, -2)), side((-2, 2), (0, 2), (2, 2))),  # west | east
+        (side((-2, -2), (-2, 0), (-2, 2)), side((2, -2), (2, 0), (2, 2))),  # north | south
+        (side((-2, -2), (-2, 0), (0, -2)), side((0, 2), (2, 0), (2, 2))),  # north-west | south-east
+        (side((-2, 0), (-2, 2), (0, 2)), side((0, -2), (2, -2), (2, 0))),  # north-east | south-west
+    ]
+    centre = block[0, 0]
+    with np.errstate(invalid="ignore"):  # NaN sides (gaps, image edges) are handled below
+        gradients = np.stack([np.abs(b - a) for a, b in sides])
+        direction = np.argmax(np.nan_to_num(gradients, nan=-1.0), axis=0)
+        first = np.take_along_axis(np.stack([a for a, _ in sides]), direction[None], 0)[0]
+        second = np.take_along_axis(np.stack([b for _, b in sides]), direction[None], 0)[0]
+        d1, d2 = np.abs(first - centre), np.abs(second - centre)
+    own_side = np.where(np.isnan(d1), 1, np.where(np.isnan(d2) | (d1 <= d2), 0, 1))  # a side without data loses
+    choice = 2 * direction + own_side  # index into HALVES
 
-    mean = np.zeros(db.shape)
-    mean_square = np.zeros(db.shape)
-    for index, name in enumerate(names):
-        here = chosen == index
+    values = np.where(ok, linear, 0.0)
+    valid = ok.astype(np.float64)
+    total, squares, count = np.zeros((h, w)), np.zeros((h, w)), np.zeros((h, w))
+    inner = (slice(r, r + h), slice(r, r + w))
+    for k, half in enumerate(HALVES):
+        here = choice == k
         if not here.any():
             continue
-        n = np.maximum(counts.over(_HALVES[name]), 1)
-        mean[here] = (sums.over(_HALVES[name]) / n)[here]
-        mean_square[here] = (squares.over(_HALVES[name]) / n)[here]
-
-    variance = np.maximum(mean_square - mean * mean, 0.0)
-    noise = 1.0 / looks  # squared coefficient of variation of the speckle
-    signal_variance = np.maximum((variance - mean * mean * noise) / (1.0 + noise), 0.0)
+        kernel = half.astype(np.float64)
+        total[here] = ndimage.correlate(values, kernel, mode="constant")[inner][here]
+        squares[here] = ndimage.correlate(values * values, kernel, mode="constant")[inner][here]
+        count[here] = ndimage.correlate(valid, kernel, mode="constant")[inner][here]
     with np.errstate(invalid="ignore", divide="ignore"):
-        weight = np.where(variance > 0, signal_variance / variance, 0.0)
-    filtered = mean + weight * (linear - mean)
-    with np.errstate(invalid="ignore", divide="ignore"):
-        out = 10.0 * np.log10(filtered)
-    out[~ok | ~np.isfinite(out)] = np.nan
-    return out.astype(np.float32)
+        mu = total / count
+        var = np.maximum(squares / count - mu * mu, 0.0)
+        var_x = (var - mu * mu * cu2) / (1.0 + cu2)
+        k = np.clip(np.where(var > 0, var_x / var, 0.0), 0.0, 1.0)
+    pixel = linear[inner]
+    out = np.where(count >= MIN_PIXELS, mu + k * (pixel - mu), pixel)
+    out[~ok[inner]] = np.nan
+    return out

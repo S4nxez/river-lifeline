@@ -6,82 +6,80 @@ from worker.adapters.imaging.backscatter import box_filter
 from worker.adapters.imaging.refined_lee import refined_lee
 
 
-def speckled(db: np.ndarray, looks: int, seed: int = 7) -> np.ndarray:
-    """Multiplicative speckle of `looks` looks (gamma, mean 1) on a backscatter field in dB."""
-    noise = np.random.default_rng(seed).gamma(looks, 1.0 / looks, db.shape)
-    return (10 * np.log10(np.power(10.0, db / 10.0) * noise)).astype(np.float32)
+def gamma_db(mean_db: float, shape: tuple[int, int], looks: int, seed: int = 0) -> np.ndarray:
+    """Backscatter with multiplicative speckle of `looks` looks (gamma, mean 1), in dB."""
+    rng = np.random.default_rng(seed)
+    return (10 * np.log10(rng.gamma(looks, 1 / looks, shape) * 10 ** (mean_db / 10))).astype(np.float32)
 
 
-def bank(rows: int = 40, cols: int = 40) -> np.ndarray:
-    """Water (-20 dB) on the west half, land (-5 dB) on the east half."""
-    db = np.full((rows, cols), -5.0, np.float32)
-    db[:, : cols // 2] = -20.0
+def shore() -> np.ndarray:
+    """Lake (-23 dB) on the west half, forest (-7 dB) on the east half."""
+    db = np.full((40, 40), -7.0, np.float32)
+    db[:, :20] = -23.0
     return db
 
 
-@pytest.mark.parametrize("db", [bank(), bank().T, bank(40, 3000)])
-def test_keeps_a_clean_edge_exactly_where_a_box_filter_blurs_it(db):
-    db = db.astype(np.float32)
+def test_homogeneous_areas_are_smoothed_without_bias():
+    db = gamma_db(-10.0, (120, 120), 9)
 
-    np.testing.assert_allclose(refined_lee(db, 9), db, atol=1e-4)
-    assert np.abs(box_filter(db, 7) - db).max() > 1
+    out = refined_lee(db, 9.0)
 
-
-def test_follows_a_diagonal_bank():
-    rows, cols = np.mgrid[:40, :40]
-    db = np.where(cols > rows, -5.0, -20.0).astype(np.float32)
-
-    filtered = refined_lee(db, 9)
-
-    inner = (slice(4, -4), slice(4, -4))
-    assert np.abs(filtered - db)[inner].mean() < np.abs(box_filter(db, 7) - db)[inner].mean() / 4
+    lin_in, lin_out = 10 ** (db / 10), 10 ** (out / 10)
+    looks_in = (lin_in.mean() / lin_in.std()) ** 2
+    inner = lin_out[10:-10, 10:-10]
+    assert (inner.mean() / inner.std()) ** 2 > 4 * looks_in
+    assert float(lin_out.mean() / lin_in.mean()) == pytest.approx(1.0, abs=0.03)
 
 
-def test_smooths_speckle_in_homogeneous_areas():
-    noisy = speckled(np.full((60, 60), -10.0, np.float32), looks=4)
+def test_a_noiseless_shore_is_kept_and_a_narrow_line_is_less_blurred_than_by_the_box():
+    np.testing.assert_allclose(refined_lee(shore(), 9.0), shore(), atol=1e-3)  # an edge is not blurred at all
 
-    filtered = refined_lee(noisy, 4)
-
-    inner = (slice(5, -5), slice(5, -5))
-    assert filtered[inner].std() < noisy[inner].std() / 2
-    assert abs(float(np.median(filtered[inner])) + 10) < 1
-
-
-def test_does_not_average_water_with_land_next_to_a_noisy_bank():
-    noisy = speckled(bank(), looks=4)
-
-    filtered = refined_lee(noisy, 4)
-
-    assert np.median(filtered[5:-5, 18:20]) < -15  # the last water columns stay water
-    assert np.median(filtered[5:-5, 20:22]) > -10  # the first land columns stay land
+    line = np.full((40, 40), -7.0, np.float32)
+    line[:, 19:21] = -23.0  # 40 m channel: thinner than the half windows
+    lee, box = refined_lee(line, 9.0)[5:-5, 19:21], box_filter(line, 3)[5:-5, 19:21]
+    assert (lee < box - 3).all()  # much darker than the box leaves it, not exact
 
 
-def test_more_looks_mean_less_speckle_to_remove():
-    noisy = speckled(np.full((40, 40), -10.0, np.float32), looks=4)
+def test_a_60m_channel_keeps_its_width_where_the_box_filter_shrinks_it():
+    mean = np.full((200, 200), -7.0, np.float32)
+    mean[:, 99:102] = -23.0  # 3 px = 60 m
+    noisy = mean + gamma_db(0.0, mean.shape, 9, seed=3)
 
-    # assuming a cleaner product, the filter trusts the pixels more and smooths less
-    assert refined_lee(noisy, 1000).std() > refined_lee(noisy, 1).std()
+    lee = refined_lee(noisy, 9.0)[5:-5, 99:102] < -15
+    box = box_filter(noisy, 3)[5:-5, 99:102] < -15
 
-
-def test_no_data_takes_no_part_and_stays_no_data():
-    db = bank()
-    db[10:15, 10:15] = np.nan
-
-    filtered = refined_lee(db, 9)
-
-    assert np.isnan(filtered[10:15, 10:15]).all()
-    np.testing.assert_allclose(filtered[16:, :], db[16:, :], atol=1e-4)
+    assert lee.mean() > 0.95
+    assert box.mean() < 0.5
 
 
-def test_strips_give_the_same_result_as_one_pass(monkeypatch):
-    noisy = speckled(np.random.default_rng(3).uniform(-20, -5, (50, 30)).astype(np.float32), looks=4)
-    whole = refined_lee(noisy, 4)
+def test_a_shore_next_to_a_gap_is_kept():
+    db = shore()
+    db[:6, :] = np.nan  # swath edge just north of the shore's end
+    db[:, 36:] = np.nan
 
-    monkeypatch.setattr(module, "ROWS_PER_STRIP", 7)
+    out = refined_lee(db, 9.0)
 
-    np.testing.assert_allclose(refined_lee(noisy, 4), whole, atol=1e-5)
+    ok = np.isfinite(db)
+    np.testing.assert_allclose(out[ok], db[ok], atol=1e-3)
+
+
+def test_no_data_stays_no_data_and_does_not_spread():
+    db = gamma_db(-10.0, (60, 60), 9)
+    db[20:30, 20:30] = np.nan
+
+    np.testing.assert_array_equal(np.isnan(refined_lee(db, 9.0)), np.isnan(db))
+
+
+def test_chunks_give_the_same_result(monkeypatch):
+    db = gamma_db(-12.0, (90, 50), 9, seed=5)
+    db[:, 20:23] = -23.0
+    whole = refined_lee(db, 9.0)
+
+    monkeypatch.setattr(module, "CHUNK_ROWS", 7)
+
+    np.testing.assert_allclose(refined_lee(db, 9.0), whole, atol=1e-5)
 
 
 def test_looks_must_be_positive():
     with pytest.raises(ValueError):
-        refined_lee(bank(), 0)
+        refined_lee(shore(), 0)

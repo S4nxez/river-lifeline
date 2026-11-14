@@ -51,10 +51,32 @@ shared secret in the `X-Worker-Token` header.
 
 | Job type | Use case | Algorithm |
 |---|---|---|
-| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer` (`adapters/imaging/`): HH to dB with fill masked, speckle filter (refined Lee or box), nearest-pixel resampling to the area grid (pyproj), water with hysteresis, specks under 1 ha dropped and holes under 2 ha filled, routes by channel width from each water access to the hub, coverage and gaps. Not yet: water under vegetation, adaptive threshold, swath edge trim, low-water rule, Sentinel-1 |
+| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer` (`adapters/imaging/`), see below |
 | `detect_change` | `DetectChange` | `NumpyChangeMapper`: open water (classes 1 and 2) lost and gained where both passes have data |
 | `classify_communities` | `ClassifyCommunities` | `domain/connectivity.py`: pure Python. Inland: never water within the access radius; unresolved: never linked through a channel at least the narrowest width level; monitored: the rest with data |
 | `train_drought_model`, `forecast_drought` | `TrainDroughtModel`, `ForecastDrought` | `BaselineDroughtModel`: **not implemented yet** |
+
+### How a pass is judged (`adapters/imaging/`)
+
+1. **Backscatter** (`backscatter.py`, `refined_lee.py`): per granule, HH (and HV when the area flags water under
+   vegetation) from linear power to dB, fill below `validFloorDb` masked, speckle filtered (refined Lee with
+   `speckle.looks`, or a box over `speckle.windowM`), resampled to the area grid by nearest pixel. Outside a circular
+   area and within `edgeMarginM` of the edge of the data is no data: the signal rolls off there and reads as water.
+2. **Water** (`water.py`): below the pass threshold, fixed or measured on the tiles that hold both water and land
+   (Kittler-Illingworth, `waterDbAdaptive`), plus darker-than-weak pixels touching it; specks under 1 ha dropped,
+   holes under 2 ha filled. Water under vegetation (HH bright, HH - HV large, near open water) is mapped but never a
+   route.
+3. **Sentinel-1** (`sentinel1.py`): the scene dates within `maxDays` whose river level is within `levelToleranceCm`
+   of the pass's; each date's tiles averaged onto the grid and filtered with refined Lee; the darkest of them on each
+   pixel, classed as water, land or undecided; agreement with NISAR.
+4. **Low water** (`water.py`): at a river level up to `gaugeMaxCm`, on seasonal ground (`seasonalPct` of the water
+   occurrence), beds Sentinel-1 sees as mud leave the routes, and broad beds no scene judged make a route at most at
+   risk (`unverifiedRoute`).
+5. **Routes**: from each community's water access to the hub, by channel width, judged against `safeWidthM` and
+   `accessRadiusM`; a route that could run through a gap is no data.
+
+`reevaluate_pass` runs steps 4 and 5 from the stored `water` (open water 1-2, vegetation 3) and `sentinel1` rasters;
+it reports the method's fixed thresholds, since the stored water was already cut with the pass's own.
 
 The worker only announces the job types whose algorithm exists (`entrypoints/cli.py`), so the backend keeps the others
 pending instead of seeing them fail. Pass the implementation to `build_worker` once it is written.

@@ -3,6 +3,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from scipy import ndimage
 
 from worker.adapters.imaging.grid import pixel_lats, pixel_lons
 from worker.domain.area import AreaGrid
@@ -24,9 +25,24 @@ def linear_to_db(values: np.ndarray) -> np.ndarray:
 
 
 def mask_fill(db: np.ndarray, valid_floor_db: float) -> np.ndarray:
-    """Values below the floor are the product's fill, not data: NaN."""
+    """Values below the floor are not measurements: windows carry near-zero fill (down to -170 dB) at the edge of the
+    imaged swath, far below the noise floor (about -25 dB). They become NaN (no data), so they are neither water nor
+    averaged into their neighbours by the speckle filter. Works in place and returns `db`."""
     with np.errstate(invalid="ignore"):
         db[db < valid_floor_db] = np.nan
+    return db
+
+
+def trim_swath_edge(db: np.ndarray, in_area: np.ndarray, margin_m: float, pixel_m: float) -> np.ndarray:
+    """Pixels within `margin_m` of the edge of the data (no data inside the area) become NaN. Towards the edge of the
+    swath the signal rolls off to the noise floor: the median HH falls from about -8 dB inside to -25 to -35 dB in the
+    last 100 m, and a band several hundred metres wide reads as water along the edge, a fake channel that links
+    communities. The corners of a circular area are not an edge. Works in place and returns `db`."""
+    if not margin_m:
+        return db
+    gaps = ~np.isfinite(db) & in_area
+    if gaps.any():
+        db[ndimage.distance_transform_edt(~gaps) * pixel_m <= margin_m] = np.nan
     return db
 
 
@@ -80,3 +96,29 @@ def resample_into(out: np.ndarray, db: np.ndarray, grid: AreaGrid, transform: Tr
         block = out[first:last]
         fill = np.isnan(block) & np.isfinite(values)
         block[fill] = values[fill]
+
+
+def average_onto(values: np.ndarray, origin: XY, step: XY, grid: AreaGrid, to_lonlat: Transform) -> np.ndarray:
+    """A raster in its own projection averaged onto the area grid (linear power, NaN ignored): every source pixel goes
+    to the grid pixel holding its centre. For sources whose pixel is no larger than the grid's; grid pixels no source
+    pixel falls in are NaN."""
+    total = np.zeros(grid.width * grid.height)
+    count = np.zeros(grid.width * grid.height)
+    cols = origin.x + np.arange(values.shape[1]) * step.x
+    for first in range(0, values.shape[0], ROWS_PER_CHUNK):
+        last = min(values.shape[0], first + ROWS_PER_CHUNK)
+        chunk = values[first:last]
+        ok = np.isfinite(chunk)
+        if not ok.any():
+            continue
+        x, y = np.meshgrid(cols, origin.y + np.arange(first, last) * step.y)
+        lon, lat = to_lonlat(x[ok], y[ok])
+        gc = np.floor((np.asarray(lon) - grid.origin.x) / grid.step.x + 0.5).astype(np.int64)
+        gr = np.floor((np.asarray(lat) - grid.origin.y) / grid.step.y + 0.5).astype(np.int64)
+        inside = (gc >= 0) & (gc < grid.width) & (gr >= 0) & (gr < grid.height)
+        index = gr[inside] * grid.width + gc[inside]
+        total += np.bincount(index, weights=chunk[ok][inside].astype(np.float64), minlength=total.size)
+        count += np.bincount(index, minlength=count.size)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean = np.where(count > 0, total / count, np.nan)
+    return mean.reshape(grid.height, grid.width).astype(np.float32)
