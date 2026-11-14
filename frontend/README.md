@@ -1,36 +1,31 @@
-# SAR Observatory — frontend starter
+# River Lifeline — frontend
 
-Mobile-first, componentised vanilla JavaScript interface for the NASA Space Apps Challenge 2026 **Dancing with the SARs** concept.
+Vanilla JavaScript page (ES modules, no build step) that shows which riverside communities around Tefé can still
+reach the town by water, according to the latest NISAR passes, with the Sentinel-1 cross-check of each result.
 
-## Run locally
+It only talks to the backend, with relative URLs (the app is served under a path prefix):
 
-Because the app uses JavaScript modules and fetches a local GeoJSON file, serve the folder over HTTP (do not open `index.html` with `file://`).
+| Request                      | Used for                                                           |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `GET ./api/communities`      | The hub, the latest pass and every community's latest known status |
+| `GET ./api/communities/{id}` | The route width of one community on every pass (the chart)         |
 
-```bash
-python -m http.server 8080
-```
-
-Open `http://localhost:8080`.
+When the API can't be reached, or has no communities yet, the page shows the demo data of `src/data/demo.js`
+(the same synthetic drought as the backend's V4 migration) and says DEMO DATA in the header.
 
 ## Structure
 
-- `index.html` — semantic page shell and visible dashboard regions.
-- `src/app.js` — app entry point and selected-site state.
-- `src/data/sites.js` — centralised sample sites and chart series.
-- `src/components/` — site list, interpretation panel, trend chart.
-- `src/services/mapService.js` — Leaflet map and markers.
-- `src/styles/main.css` — design tokens, layout, responsive styles.
-- `public/data/world.geo.json` — retained source GeoJSON asset, available for future overlays.
+- `index.html`: page shell.
+- `src/app.js`: entry point; loads the overview, keeps the selection, wires the components.
+- `src/status.js`: what each status means (labels, colours, severity order) and the connected threshold.
+- `src/format.js`: dates, widths and river levels for display.
+- `src/services/api.js`: the backend calls and the demo fallback. `src/services/mapService.js`: Leaflet map.
+- `src/components/`: community list, route width chart, status panel.
+- `tests/`: `node:test` + jsdom, with Leaflet, Chart.js and `fetch` faked.
 
-## Important
+## Run
 
-- **All values and detections are illustrative UI demo data**, not live Sentinel-1 data and not scientific findings.
-- The map uses CARTO basemap tiles and requires an internet connection. Chart.js, Leaflet and Google Fonts are loaded from CDNs.
-- No framework/build step is required. When the project grows, a bundler such as Vite can be added without changing the component boundaries.
+Locally, `docker compose -f compose.dev.yml up -d` at the repository root serves this folder on
+http://localhost:5500 with `/api` proxied to the backend (see `docs/devops.md`). Tests: `npm test`.
 
-## Suggested next implementation steps
-
-1. Replace `src/data/sites.js` with a validated API response from a processing pipeline.
-2. Add paired SAR acquisition previews (before/after) and metadata: acquisition date, orbit direction, polarisation, and processing level.
-3. Define change detection thresholds and explain uncertainty with validated domain-specific methodology.
-4. Add accessible map/list synchronisation and a clear distinction between model confidence and physical event certainty.
+The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
