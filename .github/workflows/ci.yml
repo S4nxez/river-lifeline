@@ -54,6 +54,21 @@ jobs:
         working-directory: frontend
         run: npm test
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: worker/pyproject.toml
+
+      # Ruff (formatting + lint) and pytest, architecture rules included (worker/tests/test_architecture.py)
+      - name: Worker - formatting, lint and unit tests
+        working-directory: worker
+        run: |
+          pip install -e ".[dev]"
+          ruff format --check .
+          ruff check .
+          pytest
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
