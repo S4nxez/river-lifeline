@@ -4,7 +4,7 @@ info:
   version: "1"
   summary: The only interface between the backend and the processing worker.
   description: |
-    Contract version 1 (`contractVersion`). See `docs/contracts/README.md` for the rules behind it.
+    Contract version 1 (`contractVersion`). See `worker-api.md`, next to this file, for the rules behind it.
 
     The worker pulls jobs, downloads the rasters they reference, uploads the rasters of its result and posts the
     result or the failure. It calls nothing else, stores nothing and parses no file format: rasters are raw
@@ -180,7 +180,11 @@ components:
       type: object
       required: [id, type, contractVersion, leaseSeconds, inputs]
       properties:
-        id: { type: string }
+        id:
+          type: string
+          description: |
+            Identifies this lease of the job: a job handed out again gets a new id, and calls with an earlier one are
+            answered 409.
         type: { $ref: "#/components/schemas/JobType" }
         contractVersion: { type: integer, const: 1 }
         leaseSeconds: { type: integer, minimum: 1, description: "Post a result, a failure or a heartbeat before it runs out" }

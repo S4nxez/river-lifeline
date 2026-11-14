@@ -33,8 +33,8 @@ one entry in the dispatcher. Use cases are tested with the in-memory fakes in `t
 
 ## Backend contract
 
-The contract the worker is moving to is [`docs/contracts`](../docs/contracts/README.md) (OpenAPI spec:
-[`worker-api.yaml`](../docs/contracts/worker-api.yaml)): every job carries all its inputs, rasters travel as raw arrays
+The contract the worker is moving to is [`api/worker-api.md`](../api/worker-api.md) (OpenAPI spec:
+[`worker-api.yaml`](../api/worker-api.yaml)): every job carries all its inputs, rasters travel as raw arrays
 the backend serves and receives, and the worker stores nothing (no `DATA_DIR`, no scene files, no model files) and
 parses no file format.
 
