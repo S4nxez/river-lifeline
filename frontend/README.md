@@ -29,3 +29,7 @@ Locally, `docker compose -f compose.dev.yml up -d` at the repository root serves
 http://localhost:5500 with `/api` proxied to the backend (see `docs/devops.md`). Tests: `npm test`.
 
 The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
+
+The CARTO basemaps API key stays out of git: put `CARTO_API_KEY=...` in the `.env` at the repository root (on the
+Pi, next to `podman-compose.yml`) and Caddy serves it to the page as `./config.js`. Without it the map still works,
+but CARTO watermarks the tiles with "API key required".

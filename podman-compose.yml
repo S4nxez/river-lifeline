@@ -1,4 +1,4 @@
-# Production stack (Raspberry Pi). Reads MYSQL_ROOT_PASSWORD from the .env next to this file.
+# Production stack (Raspberry Pi). Reads MYSQL_ROOT_PASSWORD and CARTO_API_KEY from the .env next to this file.
 # IMAGE_TAG selects the image version (default latest); the Release workflow deploys by commit SHA.
 # CI and local full-stack runs layer compose.build.yml on top to build the images from source.
 services:
@@ -42,6 +42,9 @@ services:
   caddy:
     image: docker.io/library/caddy:2
     restart: always
+    environment:
+      # The CARTO basemaps key, served to the page as ./config.js (see Caddyfile)
+      CARTO_API_KEY: ${CARTO_API_KEY:-}
     ports:
       - "127.0.0.1:8091:80"
     volumes:
