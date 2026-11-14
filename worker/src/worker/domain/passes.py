@@ -1,7 +1,7 @@
 """One radar pass over an area: what a job brings to judge it, and the judgement (PassAssessment, ChangeResult)."""
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from enum import StrEnum
 
 from worker.domain.area import AreaGrid, AreaSpec
@@ -60,6 +60,15 @@ class Gauge:
 
     station: str
     days: tuple[GaugeDay, ...]
+
+    def level_on(self, day: date, max_days: int = 1) -> float | None:
+        """The level on `day`, else on the closest day within `max_days` (the earlier one on a tie), else None."""
+        levels = {d.day: d.level_cm for d in self.days}
+        for k in range(max_days + 1):
+            for candidate in (day - timedelta(days=k), day + timedelta(days=k)):
+                if candidate in levels:
+                    return levels[candidate]
+        return None
 
 
 @dataclass(frozen=True)

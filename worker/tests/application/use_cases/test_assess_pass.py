@@ -151,6 +151,24 @@ def test_a_reevaluation_brings_no_radar():
         ReevaluatePass(analyzer, FakeRasters()).execute(job(reevaluate_inputs(), JobType.REEVALUATE_PASS))
 
 
+def test_a_reevaluation_reports_the_sentinel1_agreement_without_sending_its_classes_again():
+    analyzer = FakeAnalyzer(assessment(sentinel1=AGREEMENT))
+
+    result = ReevaluatePass(analyzer, FakeRasters()).execute(job(reevaluate_inputs(), JobType.REEVALUATE_PASS))
+
+    assert result.data["sentinel1"]["dates"] == ["2026-10-25"]
+    assert set(result.rasters) == set(result.data["rasters"]) == {"water"}
+
+
+def test_a_reevaluation_never_sends_sentinel1_classes():
+    analyzer = FakeAnalyzer(
+        assessment(sentinel1=AGREEMENT, rasters={"water": classes(*([0] * 12)), "sentinel1": classes(*([1] * 12))})
+    )
+
+    with pytest.raises(InvalidResult):
+        ReevaluatePass(analyzer, FakeRasters()).execute(job(reevaluate_inputs(), JobType.REEVALUATE_PASS))
+
+
 def test_the_grid_check_uses_the_area_of_the_job():
     other = AreaGrid("EPSG:4326", 4, 3, XY(10, 10), GRID.step, 1000, GRID.bbox)
     inputs = assess_inputs()

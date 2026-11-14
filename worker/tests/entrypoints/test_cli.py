@@ -16,7 +16,12 @@ class Backend(FakeQueue, FakeRasters):
 def test_announces_only_the_job_types_whose_algorithms_exist():
     worker = build_worker(SETTINGS, backend=Backend())
 
-    assert worker._dispatcher.job_types == {JobType.DETECT_CHANGE, JobType.CLASSIFY_COMMUNITIES}
+    assert worker._dispatcher.job_types == {
+        JobType.ASSESS_PASS,
+        JobType.REEVALUATE_PASS,
+        JobType.DETECT_CHANGE,
+        JobType.CLASSIFY_COMMUNITIES,
+    }
 
 
 def test_every_job_type_has_a_use_case_once_its_algorithm_is_given():

@@ -91,7 +91,11 @@ jobs:
         run: |
           pw="$(openssl rand -hex 16)"
           echo "::add-mask::$pw"
+          token="$(openssl rand -hex 16)"
+          echo "::add-mask::$token"
+          # The worker starts with the stack and polls the backend's worker API with this token
           echo "MYSQL_ROOT_PASSWORD=$pw" > .env
+          echo "WORKER_TOKEN=$token" >> .env
           docker compose up -d --build
 
       - name: Stack - smoke test
@@ -101,4 +105,4 @@ jobs:
         if: failure()
         run: |
           docker compose ps -a
-          docker compose logs --no-color backend mysql
+          docker compose logs --no-color backend worker mysql

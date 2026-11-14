@@ -2,12 +2,15 @@
 
 A community's class comes from every evaluated pass it has data on:
   - no_data:    no evaluated pass has data on it;
-  - monitored:  at least one pass found it a water route (connected or at risk);
-  - inland:     every pass found it isolated with the nearest water farther than the access radius;
-  - unresolved: it has data and water within reach, but no pass ever found it a route.
+  - inland:     no pass found water within the access radius: it does not depend on the river;
+  - unresolved: water nearby, but no pass linked it to the hub through a channel at least as wide as the narrowest
+                width level. Its channels are narrower than the radar resolves reliably (one-pixel creeks come and go
+                between passes), so calling it isolated would be a false alarm;
+  - monitored:  linked that way on at least one pass, so isolation means it lost a route it had.
 
-Per-pass counts are over monitored communities only. An isolation is unconfirmed when the community was not isolated
-on its previous pass with data (or has none): it counts as at risk until a second pass confirms it.
+Per-pass counts are over monitored communities only, so "isolated" always means a lost route. An isolation is
+unconfirmed when the community was not isolated on its previous pass with data (or has none): it counts as at risk
+until a second pass confirms it.
 """
 
 from dataclasses import dataclass
@@ -88,6 +91,7 @@ def classify(
 
 
 _NO_DATA = RouteResult(RouteStatus.NO_DATA, None, None)
+_LINKED = (RouteStatus.CONNECTED, RouteStatus.AT_RISK)
 
 
 def _route(evaluated: EvaluatedPass, community_id: str) -> RouteResult:
@@ -98,11 +102,12 @@ def _class_of(routes: list[RouteResult], access_radius_m: float) -> CommunityCla
     seen = [route for route in routes if route.status != RouteStatus.NO_DATA]
     if not seen:
         return CommunityClass.NO_DATA
-    if any(route.status in (RouteStatus.CONNECTED, RouteStatus.AT_RISK) for route in seen):
-        return CommunityClass.MONITORED
     if all(route.distance_to_water_m is not None and route.distance_to_water_m > access_radius_m for route in seen):
         return CommunityClass.INLAND
-    return CommunityClass.UNRESOLVED
+    # A bottleneck of 0 is a link only through channels narrower than the narrowest width level
+    if not any(route.status in _LINKED and route.bottleneck_m for route in seen):
+        return CommunityClass.UNRESOLVED
+    return CommunityClass.MONITORED
 
 
 def _isolated_before(routes: list[RouteResult], index: int) -> bool:
