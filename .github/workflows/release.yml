@@ -115,6 +115,11 @@ jobs:
       - name: Smoke test - public URL
         run: scripts/smoke.sh "$PUBLIC_URL" 30
 
+      # Only after a healthy deploy: keeps the running SHA's images and removes this app's older ones
+      - name: Remove old images
+        continue-on-error: true
+        run: ssh pi "bash -s -- $IMAGE $TAG" < scripts/prune-images.sh
+
       # Only backend and MySQL: Caddy/nginx logs hold visitors' IPs and this repo's Actions logs are public
       - name: Logs
         if: failure()
