@@ -1,0 +1,726 @@
+openapi: 3.1.0
+info:
+  title: River Lifeline internal worker API
+  version: "1"
+  summary: The only interface between the backend and the processing worker.
+  description: |
+    Contract version 1 (`contractVersion`). See `docs/contracts/README.md` for the rules behind it.
+
+    The worker pulls jobs, downloads the rasters they reference, uploads the rasters of its result and posts the
+    result or the failure. It calls nothing else, stores nothing and parses no file format: rasters are raw
+    little-endian arrays described by `RasterMeta`.
+
+    Served on the backend's internal address only (`BACKEND_URL`, never behind the public proxy). Every request
+    carries the shared secret in `X-Worker-Token`.
+servers:
+  - url: http://backend:8080
+    description: Backend on the internal network (compose)
+security:
+  - workerToken: []
+
+paths:
+  /internal/worker/jobs/next:
+    get:
+      operationId: nextJob
+      summary: Lease the next pending job this worker can run
+      description: |
+        Only jobs of the listed types and contract versions whose rasters are all ready to download are handed out.
+        The job is leased to the caller for `leaseSeconds`.
+      parameters:
+        - name: types
+          in: query
+          required: true
+          description: Job types the worker runs, comma separated.
+          schema: { type: string, example: "assess_pass,reevaluate_pass,detect_change,classify_communities" }
+        - name: contract
+          in: query
+          required: true
+          description: Contract versions the worker speaks, comma separated.
+          schema: { type: string, example: "1" }
+      responses:
+        "200":
+          description: A leased job
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+        "204": { description: "Nothing to do" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /internal/worker/jobs/{jobId}/heartbeat:
+    post:
+      operationId: heartbeat
+      summary: Extend the lease of a job still running
+      parameters: [{ $ref: "#/components/parameters/JobId" }]
+      responses:
+        "200":
+          description: Lease extended
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [leaseSeconds]
+                properties:
+                  leaseSeconds: { type: integer, minimum: 1 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/NotLeased" }
+
+  /internal/worker/rasters/{rasterId}:
+    get:
+      operationId: downloadRaster
+      summary: Raw body of a raster referenced by a job (`RasterRef.href`)
+      parameters:
+        - name: rasterId
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[A-Za-z0-9_-]{1,128}$" }
+      responses:
+        "200":
+          description: |
+            `width × height` values of `dtype`, little-endian, row-major, row 0 first, nothing else. May be sent with
+            `Content-Encoding: gzip` when the request accepts it.
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { description: "Unknown raster, or no longer referenced by a leased job" }
+
+  /internal/worker/jobs/{jobId}/rasters/{name}:
+    put:
+      operationId: uploadRaster
+      summary: Upload one raster of the result before posting the result
+      description: |
+        `name` is a key of the result's `rasters`. Uploading the same name again replaces it. The backend checks the
+        length against the result's `RasterMeta` when the result arrives.
+      parameters:
+        - { $ref: "#/components/parameters/JobId" }
+        - name: name
+          in: path
+          required: true
+          schema: { $ref: "#/components/schemas/ResultRasterName" }
+      requestBody:
+        required: true
+        description: "Raw little-endian array; `Content-Encoding: gzip` allowed."
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "204": { description: "Stored until the result arrives or the lease ends" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/NotLeased" }
+        "413": { description: "Larger than the area grid allows" }
+
+  /internal/worker/jobs/{jobId}/result:
+    post:
+      operationId: completeJob
+      summary: Post the result of a job
+      parameters: [{ $ref: "#/components/parameters/JobId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [data]
+              properties:
+                data: { $ref: "#/components/schemas/JobResultData" }
+      responses:
+        "204": { description: "Stored; follow-up jobs scheduled" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/NotLeased" }
+        "422": { description: "The result does not match the job type, or a declared raster is missing or has the wrong length" }
+
+  /internal/worker/jobs/{jobId}/failure:
+    post:
+      operationId: failJob
+      summary: Report that a job could not be done
+      parameters: [{ $ref: "#/components/parameters/JobId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason, retryable]
+              properties:
+                reason: { type: string, description: "Error type and message, e.g. `InvalidJob: no granule reaches the area`" }
+                retryable: { type: boolean, description: "False for bad inputs (the same job would fail again)" }
+      responses:
+        "204": { description: "Recorded; the job is retried or marked failed" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/NotLeased" }
+
+components:
+  securitySchemes:
+    workerToken:
+      type: apiKey
+      in: header
+      name: X-Worker-Token
+
+  parameters:
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema: { type: string, pattern: "^[A-Za-z0-9_-]{1,80}$" }
+
+  responses:
+    Unauthorized:
+      description: Missing or wrong `X-Worker-Token`
+    NotLeased:
+      description: The job is not leased to this worker any more (lease expired, already done); drop it
+
+  schemas:
+    # --- Jobs -------------------------------------------------------------------------------------------------------
+
+    JobType:
+      type: string
+      enum: [assess_pass, reevaluate_pass, detect_change, classify_communities, train_drought_model, forecast_drought]
+
+    Job:
+      type: object
+      required: [id, type, contractVersion, leaseSeconds, inputs]
+      properties:
+        id: { type: string }
+        type: { $ref: "#/components/schemas/JobType" }
+        contractVersion: { type: integer, const: 1 }
+        leaseSeconds: { type: integer, minimum: 1, description: "Post a result, a failure or a heartbeat before it runs out" }
+        inputs:
+          description: Everything the job needs; its shape depends on `type`.
+          oneOf:
+            - $ref: "#/components/schemas/AssessPassInputs"
+            - $ref: "#/components/schemas/ReevaluatePassInputs"
+            - $ref: "#/components/schemas/DetectChangeInputs"
+            - $ref: "#/components/schemas/ClassifyCommunitiesInputs"
+            - $ref: "#/components/schemas/TrainDroughtModelInputs"
+            - $ref: "#/components/schemas/ForecastDroughtInputs"
+      allOf:
+        - if: { properties: { type: { const: assess_pass } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/AssessPassInputs" } } }
+        - if: { properties: { type: { const: reevaluate_pass } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/ReevaluatePassInputs" } } }
+        - if: { properties: { type: { const: detect_change } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/DetectChangeInputs" } } }
+        - if: { properties: { type: { const: classify_communities } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/ClassifyCommunitiesInputs" } } }
+        - if: { properties: { type: { const: train_drought_model } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/TrainDroughtModelInputs" } } }
+        - if: { properties: { type: { const: forecast_drought } } }
+          then: { properties: { inputs: { $ref: "#/components/schemas/ForecastDroughtInputs" } } }
+
+    JobResultData:
+      description: The result of a job; its shape depends on the job's type.
+      oneOf:
+        - $ref: "#/components/schemas/PassAssessment"
+        - $ref: "#/components/schemas/ChangeResult"
+        - $ref: "#/components/schemas/Classification"
+        - $ref: "#/components/schemas/TrainedDroughtModel"
+        - $ref: "#/components/schemas/DroughtForecast"
+
+    # --- Rasters ----------------------------------------------------------------------------------------------------
+
+    RasterMeta:
+      type: object
+      description: |
+        Layout of a raw raster body: `width × height` values of `dtype`, little-endian, row-major, row 0 first.
+        `origin` is the centre of pixel (0, 0) in `crs`; pixel (r, c) is centred on
+        (origin.x + c × step.x, origin.y + r × step.y).
+      required: [width, height, dtype, nodata, unit, crs, origin, step]
+      properties:
+        width: { type: integer, minimum: 1 }
+        height: { type: integer, minimum: 1 }
+        dtype: { type: string, enum: [uint8, int16, float32] }
+        nodata:
+          description: Value meaning no data; "NaN" for float rasters, null when every value is data.
+          oneOf: [{ type: number }, { type: string, const: "NaN" }, { type: "null" }]
+        unit: { type: string, enum: [linear_power, db, percent, class] }
+        crs: { type: string, pattern: "^EPSG:[0-9]+$", examples: ["EPSG:4326", "EPSG:32720"] }
+        origin: { $ref: "#/components/schemas/XY" }
+        step:
+          allOf: [{ $ref: "#/components/schemas/XY" }]
+          description: Signed pixel size in CRS units; negative y for north-up grids.
+
+    RasterRef:
+      description: A raster the worker downloads from the backend.
+      allOf:
+        - $ref: "#/components/schemas/RasterMeta"
+        - type: object
+          required: [href]
+          properties:
+            href: { type: string, pattern: "^/internal/worker/rasters/", description: "Backend path, never an absolute URL" }
+
+    ResultRasterName:
+      type: string
+      enum: [water, radar, sentinel1, change]
+      description: |
+        water      class, area grid: 0 dry, 1 wide water, 2 narrow water, 3 water under vegetation, 255 no data
+        radar      db, float32, NaN no data: filtered HH averaged over 2 × 2 area pixels (odd last row/column dropped)
+        sentinel1  class, area grid: 0 undecided, 1 water, 2 land, 255 not seen
+        change     class, area grid: 0 unchanged, 1 water lost, 2 water gained, 255 not judged
+
+    XY:
+      type: object
+      required: [x, y]
+      properties:
+        x: { type: number }
+        y: { type: number }
+
+    LonLat:
+      type: object
+      required: [lon, lat]
+      properties:
+        lon: { type: number, minimum: -180, maximum: 180 }
+        lat: { type: number, minimum: -90, maximum: 90 }
+
+    # --- Area ---------------------------------------------------------------------------------------------------
+
+    AreaGrid:
+      type: object
+      description: The area's fixed lon/lat grid (EPSG:4326), the same for every pass. Derived by the backend from the area file.
+      required: [crs, width, height, origin, step, pixelM, bbox]
+      properties:
+        crs: { type: string, const: "EPSG:4326" }
+        width: { type: integer, minimum: 1 }
+        height: { type: integer, minimum: 1 }
+        origin: { $ref: "#/components/schemas/XY" }
+        step: { $ref: "#/components/schemas/XY" }
+        pixelM: { type: number, exclusiveMinimum: 0, description: "Geometric mean of the pixel's width and height in metres" }
+        bbox:
+          type: array
+          description: "[lon0, lat0, lon1, lat1], outer edges of the grid"
+          items: { type: number }
+          minItems: 4
+          maxItems: 4
+        circle:
+          description: When set, only pixels within the circle belong to the area; the rest is never water nor a gap.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [lon, lat, radiusKm]
+              properties:
+                lon: { type: number }
+                lat: { type: number }
+                radiusKm: { type: number, exclusiveMinimum: 0 }
+
+    Target:
+      type: object
+      required: [name, lon, lat, radiusM]
+      properties:
+        name: { type: string }
+        lon: { type: number }
+        lat: { type: number }
+        radiusM: { type: number, exclusiveMinimum: 0, description: "Water within this distance counts as reaching it" }
+        access:
+          description: Where people reach the water (pier, port); routes start here when set.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/LonLat" }]
+
+    Community:
+      type: object
+      required: [id, name, place, lon, lat, access]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        place: { type: string, description: "OpenStreetMap place kind: city, town, village, hamlet..." }
+        lon: { type: number }
+        lat: { type: number }
+        access:
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/LonLat" }]
+
+    Method:
+      type: object
+      description: Parameters of the method, from the area file (`server/src/main/resources/areas/<id>.json`).
+      required: [accessRadiusM, minCoverage, minCoverageShown, validFloorDb, edgeMarginM, waterDb, waterDbWeak,
+                 speckle, widthsM, safeWidthM, vegetatedWater, waterDbAdaptive, lowWater, sentinel1]
+      properties:
+        accessRadiusM: { type: number, description: "access_radius_m" }
+        minCoverage: { type: number, minimum: 0, maximum: 1, description: "min_coverage: below it a pass is shown but not evaluated" }
+        minCoverageShown: { type: number, minimum: 0, maximum: 1, description: "min_coverage_shown: below it a pass is hidden" }
+        validFloorDb: { type: number, description: "valid_floor_db: lower values are fill, not data" }
+        edgeMarginM: { type: number, minimum: 0, description: "edge_margin_m" }
+        waterDb: { type: number, description: "water_db" }
+        waterDbWeak: { type: [number, "null"], description: "water_db_weak (hysteresis)" }
+        waterDbAdaptive:
+          description: water_db_adaptive (off in Tefé)
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [rangeDb, tileM, minTiles]
+              properties:
+                rangeDb: { type: array, items: { type: number }, minItems: 2, maxItems: 2 }
+                tileM: { type: number }
+                minTiles: { type: integer }
+        speckle:
+          type: object
+          required: [filter, looks, windowM]
+          properties:
+            filter: { type: string, enum: [refined_lee, box] }
+            looks: { type: [number, "null"], description: "speckle_looks (refined_lee)" }
+            windowM: { type: [number, "null"], description: "speckle_m (box)" }
+        widthsM: { type: array, items: { type: number, exclusiveMinimum: 0 }, minItems: 1 }
+        safeWidthM: { type: number, exclusiveMinimum: 0 }
+        vegetatedWater:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [hhMinDb, ratioMinDb, nearWaterM]
+              properties:
+                hhMinDb: { type: number }
+                ratioMinDb: { type: number }
+                nearWaterM: { type: number }
+        lowWater:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [gaugeMaxCm, seasonalPct, patchRadiusM, vetoRadiusM]
+              properties:
+                gaugeMaxCm: { type: number }
+                seasonalPct: { type: array, items: { type: number }, minItems: 2, maxItems: 2 }
+                patchRadiusM: { type: number }
+                vetoRadiusM: { type: number }
+        sentinel1:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [maxDays, levelToleranceCm, waterDb, weakDb, landDb]
+              properties:
+                maxDays: { type: integer, minimum: 0 }
+                levelToleranceCm: { type: number, minimum: 0 }
+                waterDb: { type: number }
+                weakDb: { type: [number, "null"] }
+                landDb: { type: number }
+
+    AreaSpec:
+      type: object
+      required: [id, name, grid, hub, river, communities, method]
+      properties:
+        id: { type: string, pattern: "^[A-Za-z0-9_-]+$" }
+        name: { type: string }
+        grid: { $ref: "#/components/schemas/AreaGrid" }
+        hub: { $ref: "#/components/schemas/Target" }
+        river:
+          allOf: [{ $ref: "#/components/schemas/Target" }]
+          description: A point on the main river, to report the hub ↔ main river link.
+        communities: { type: array, items: { $ref: "#/components/schemas/Community" } }
+        method: { $ref: "#/components/schemas/Method" }
+
+    # --- Passes -------------------------------------------------------------------------------------------------
+
+    PassInfo:
+      type: object
+      required: [id, date, timeUtc, track, direction]
+      properties:
+        id: { type: string, examples: ["2026-10-23_t161A"] }
+        date: { type: string, format: date }
+        timeUtc: { type: string, pattern: "^[0-2][0-9]:[0-5][0-9]$" }
+        track: { type: integer }
+        direction: { type: string, enum: [ascending, descending] }
+
+    Granule:
+      type: object
+      description: |
+        The area's window of one NISAR L2 GCOV frame (frequency A), as the backend read it: covariance terms in
+        linear power, in the product's projection and pixel spacing. The worker masks fill, converts to dB, filters
+        speckle and resamples onto the area grid.
+      required: [id, frame, bands]
+      properties:
+        id: { type: string, description: "Granule file name" }
+        frame: { type: integer }
+        bands:
+          type: object
+          required: [HH]
+          properties:
+            HH: { $ref: "#/components/schemas/RasterRef" }
+            HV:
+              description: Present on dual-polarisation frames
+              $ref: "#/components/schemas/RasterRef"
+
+    Sentinel1Date:
+      type: object
+      description: |
+        Sentinel-1 RTC VV scenes of one date within `method.sentinel1.maxDays` of the pass, cropped to the area's bbox,
+        in linear power, at a pixel no larger than the area grid's (a COG overview when there is one). Tiles in
+        priority order: where several have data, the first wins.
+      required: [date, tiles]
+      properties:
+        date: { type: string, format: date }
+        tiles: { type: array, items: { $ref: "#/components/schemas/RasterRef" }, minItems: 1 }
+
+    GaugeDay:
+      type: object
+      required: [day, levelCm]
+      properties:
+        day: { type: string, format: date }
+        levelCm: { type: number, description: "Daily median level at the area's gauge" }
+
+    Gauge:
+      type: object
+      description: Official river level at the area's gauge (ANA), the days around the pass the method may look at (pass date ± maxDays + 1).
+      required: [station, days]
+      properties:
+        station: { type: string }
+        days: { type: array, items: { $ref: "#/components/schemas/GaugeDay" } }
+
+    AssessPassInputs:
+      type: object
+      required: [area, pass, granules, gauge, occurrence, sentinel1Candidates]
+      properties:
+        area: { $ref: "#/components/schemas/AreaSpec" }
+        pass: { $ref: "#/components/schemas/PassInfo" }
+        granules: { type: array, items: { $ref: "#/components/schemas/Granule" }, minItems: 1 }
+        gauge: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Gauge" }] }
+        occurrence:
+          description: Water occurrence on the area grid (uint8 percent, 255 no data); null when the area has none.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/RasterRef" }]
+        sentinel1Candidates:
+          description: Every date in the window; the worker drops the ones the gauge rules out. Empty without scenes or without method.sentinel1.
+          type: array
+          items: { $ref: "#/components/schemas/Sentinel1Date" }
+
+    ReevaluatePassInputs:
+      type: object
+      required: [area, pass, water, sentinel1, gauge, occurrence]
+      properties:
+        area: { $ref: "#/components/schemas/AreaSpec" }
+        pass: { $ref: "#/components/schemas/PassInfo" }
+        water:
+          allOf: [{ $ref: "#/components/schemas/RasterRef" }]
+          description: The pass's stored `water` result raster
+        sentinel1:
+          description: The Sentinel-1 classes the pass used, as stored from its result; null when it used none.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [dates, classes]
+              properties:
+                dates: { type: array, items: { type: string, format: date } }
+                classes: { $ref: "#/components/schemas/RasterRef" }
+        gauge: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Gauge" }] }
+        occurrence: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/RasterRef" }] }
+
+    DetectChangeInputs:
+      type: object
+      required: [grid, passId, sincePassId, previous, current]
+      properties:
+        grid: { $ref: "#/components/schemas/AreaGrid" }
+        passId: { type: string }
+        sincePassId: { type: string, description: "Previous shown pass of the same track" }
+        previous: { $ref: "#/components/schemas/RasterRef" }
+        current: { $ref: "#/components/schemas/RasterRef" }
+
+    RouteResult:
+      type: object
+      description: A target's route to the hub on one pass.
+      required: [status, bottleneckM, distanceToWaterM]
+      properties:
+        status: { $ref: "#/components/schemas/RouteStatus" }
+        bottleneckM: { type: [integer, "null"], description: "Widest channel width level that still links it; null without a route" }
+        distanceToWaterM: { type: [integer, "null"], description: "From its water access to the nearest water; null when not covered" }
+
+    RouteStatus:
+      type: string
+      enum: [connected, at_risk, isolated, no_data]
+
+    CommunityRoute:
+      allOf:
+        - $ref: "#/components/schemas/RouteResult"
+        - type: object
+          required: [communityId]
+          properties:
+            communityId: { type: string }
+
+    Sentinel1Agreement:
+      type: object
+      required: [dates, judgedKm2, agreement, bothWaterKm2, nisarOnlyKm2, sentinel1OnlyKm2, mudKm2]
+      properties:
+        dates: { type: array, items: { type: string, format: date }, description: "Scene dates used, closest first" }
+        judgedKm2: { type: number }
+        agreement: { type: [number, "null"], minimum: 0, maximum: 1 }
+        bothWaterKm2: { type: number }
+        nisarOnlyKm2: { type: number }
+        sentinel1OnlyKm2: { type: number }
+        mudKm2: { type: number, description: "NISAR water that the low-water rule left out as a drained bed" }
+
+    PassAssessment:
+      type: object
+      description: Result of `assess_pass` and `reevaluate_pass`.
+      required: [passId, coverage, shown, evaluated, waterKm2, narrowKm2, vegetatedKm2, threshold, riverLevelCm,
+                 lowWater, hubLink, communities, unverifiedRoute, sentinel1, rasters]
+      properties:
+        passId: { type: string }
+        coverage: { type: number, minimum: 0, maximum: 1, description: "Share of the area with data" }
+        shown: { type: boolean }
+        evaluated: { type: boolean, description: "When false, hubLink is null and communities is empty" }
+        waterKm2: { type: number }
+        narrowKm2: { type: number }
+        vegetatedKm2: { type: [number, "null"], description: "Null on single-polarisation passes" }
+        threshold:
+          type: object
+          required: [source, strongDb, weakDb]
+          properties:
+            source: { type: string, enum: [fixed, adaptive] }
+            strongDb: { type: number }
+            weakDb: { type: [number, "null"] }
+            measuredDb: { type: number }
+            tiles: { type: integer }
+        riverLevelCm: { type: [number, "null"] }
+        lowWater: { type: [boolean, "null"], description: "Whether the low-water rule applied; null when the area has none" }
+        hubLink: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/RouteResult" }] }
+        communities: { type: array, items: { $ref: "#/components/schemas/CommunityRoute" } }
+        unverifiedRoute: { type: array, items: { type: string }, description: "Communities held at risk by unverified low-water ground" }
+        sentinel1: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Sentinel1Agreement" }] }
+        stats:
+          type: object
+          description: Informative only.
+          properties:
+            seconds: { type: number }
+            spacingM: { type: [number, "null"], description: "Pixel spacing of the NISAR product" }
+        rasters:
+          type: object
+          description: Uploaded with PUT /jobs/{id}/rasters/{name} before the result. `radar` only from assess_pass, `sentinel1` only when scenes were used.
+          required: [water]
+          properties:
+            water: { $ref: "#/components/schemas/RasterMeta" }
+            radar: { $ref: "#/components/schemas/RasterMeta" }
+            sentinel1: { $ref: "#/components/schemas/RasterMeta" }
+          additionalProperties: false
+
+    ChangeResult:
+      type: object
+      required: [passId, sincePassId, lostKm2, gainedKm2, rasters]
+      properties:
+        passId: { type: string }
+        sincePassId: { type: string }
+        lostKm2: { type: number, minimum: 0 }
+        gainedKm2: { type: number, minimum: 0 }
+        rasters:
+          type: object
+          required: [change]
+          properties:
+            change: { $ref: "#/components/schemas/RasterMeta" }
+          additionalProperties: false
+
+    # --- Whole record -------------------------------------------------------------------------------------------
+
+    ClassifyCommunitiesInputs:
+      type: object
+      required: [areaId, accessRadiusM, communityIds, passes]
+      properties:
+        areaId: { type: string }
+        accessRadiusM: { type: number }
+        communityIds: { type: array, items: { type: string } }
+        passes:
+          description: Every evaluated pass of the area, oldest first (date, then time).
+          type: array
+          items:
+            type: object
+            required: [passId, date, timeUtc, communities]
+            properties:
+              passId: { type: string }
+              date: { type: string, format: date }
+              timeUtc: { type: string }
+              communities:
+                description: A community missing here (added after the pass) counts as no data on it.
+                type: array
+                items: { $ref: "#/components/schemas/CommunityRoute" }
+
+    StatusCounts:
+      type: object
+      required: [connected, atRisk, isolated, noData]
+      properties:
+        connected: { type: integer, minimum: 0 }
+        atRisk: { type: integer, minimum: 0 }
+        isolated: { type: integer, minimum: 0 }
+        noData: { type: integer, minimum: 0 }
+
+    Classification:
+      type: object
+      required: [areaId, classes, totals, passes]
+      properties:
+        areaId: { type: string }
+        classes:
+          type: object
+          additionalProperties: { type: string, enum: [monitored, unresolved, inland, no_data] }
+        totals:
+          type: object
+          required: [monitored, unresolved, inland, noData]
+          properties:
+            monitored: { type: integer }
+            unresolved: { type: integer }
+            inland: { type: integer }
+            noData: { type: integer }
+        passes:
+          type: array
+          items:
+            type: object
+            required: [passId, counts, unconfirmed]
+            properties:
+              passId: { type: string }
+              counts:
+                allOf: [{ $ref: "#/components/schemas/StatusCounts" }]
+                description: Over monitored communities; an unconfirmed isolation counts as at risk
+              unconfirmed: { type: array, items: { type: string }, description: "Isolated on this pass but not on the previous one with data" }
+
+    # --- Droughts -----------------------------------------------------------------------------------------------
+
+    WeatherDay:
+      type: object
+      required: [day, precipitationMm, temperatureC, soilMoisture]
+      properties:
+        day: { type: string, format: date }
+        precipitationMm: { type: number }
+        temperatureC: { type: number }
+        soilMoisture: { type: [number, "null"] }
+
+    Drought:
+      type: object
+      required: [start, end, severity]
+      properties:
+        start: { type: string, format: date }
+        end: { type: string, format: date }
+        severity: { type: integer }
+
+    DroughtModel:
+      type: object
+      description: A trained model as plain data. The backend stores it as is; it is never executable code.
+      required: [kind, version, lookbackDays, parameters]
+      properties:
+        kind: { type: string, examples: ["baseline"] }
+        version: { type: integer, minimum: 1 }
+        lookbackDays: { type: integer, minimum: 1, description: "Days of weather before asOf a forecast job must carry" }
+        parameters: { type: object, additionalProperties: true }
+
+    TrainDroughtModelInputs:
+      type: object
+      required: [region, observations, droughts]
+      properties:
+        region: { type: string }
+        observations: { type: array, items: { $ref: "#/components/schemas/WeatherDay" }, minItems: 1 }
+        droughts: { type: array, items: { $ref: "#/components/schemas/Drought" } }
+
+    TrainedDroughtModel:
+      type: object
+      required: [region, observations, droughts, model]
+      properties:
+        region: { type: string }
+        observations: { type: integer }
+        droughts: { type: integer }
+        model: { $ref: "#/components/schemas/DroughtModel" }
+
+    ForecastDroughtInputs:
+      type: object
+      required: [region, horizonDays, asOf, model, recent]
+      properties:
+        region: { type: string }
+        horizonDays: { type: integer, minimum: 1 }
+        asOf: { type: string, format: date }
+        model: { $ref: "#/components/schemas/DroughtModel" }
+        recent: { type: array, items: { $ref: "#/components/schemas/WeatherDay" } }
+
+    DroughtForecast:
+      type: object
+      required: [region, horizonDays, asOf, probability, riskLevel]
+      properties:
+        region: { type: string }
+        horizonDays: { type: integer }
+        asOf: { type: string, format: date }
+        probability: { type: number, minimum: 0, maximum: 1 }
+        riskLevel: { type: string, enum: [low, medium, high] }
