@@ -5,6 +5,12 @@ const DEFAULT_CENTER = [-3.354, -64.711];
 const REGION_ZOOM = 9;
 const COMMUNITY_ZOOM = 11;
 
+// Esri's dark gray canvas: no API key needed, and rivers stand out. Labels come as a separate layer on top.
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas";
+export const BASEMAP_URL = `${ESRI}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`;
+export const LABELS_URL = `${ESRI}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`;
+const ESRI_ATTRIBUTION = "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors";
+
 let map;
 const markers = new Map();
 
@@ -14,11 +20,8 @@ export async function createMap(hub, communities, onSelect) {
     hub ? [hub.lat, hub.lng] : DEFAULT_CENTER,
     REGION_ZOOM,
   );
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap &copy; CARTO",
-    subdomains: "abcd",
-    maxZoom: 18,
-  }).addTo(map);
+  L.tileLayer(BASEMAP_URL, { attribution: ESRI_ATTRIBUTION, maxZoom: 16 }).addTo(map);
+  L.tileLayer(LABELS_URL, { maxZoom: 16 }).addTo(map);
   const layer = L.layerGroup().addTo(map);
 
   if (hub) {

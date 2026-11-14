@@ -31,7 +31,7 @@ export function installChart() {
 
 /** Installs a fake Leaflet `L` and returns what the app did with it (markers, map moves). */
 export function installLeaflet({ zoom = 2 } = {}) {
-  const recorded = { mapContainer: null, markers: [], flights: [], invalidated: false };
+  const recorded = { mapContainer: null, tileLayers: [], markers: [], flights: [], invalidated: false };
   const map = {
     setView: () => map,
     invalidateSize: () => {
@@ -46,7 +46,10 @@ export function installLeaflet({ zoom = 2 } = {}) {
       recorded.mapContainer = container;
       return map;
     },
-    tileLayer: () => addable,
+    tileLayer: (url, options) => {
+      recorded.tileLayers.push({ url, options });
+      return addable;
+    },
     layerGroup: () => addable,
     circleMarker: (latLng, options) => {
       const marker = {
