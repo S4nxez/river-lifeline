@@ -69,6 +69,12 @@ jobs:
           ruff check .
           pytest
 
+      # The Pi deploys with podman-compose, which expands variables unlike docker compose (used below); same version
+      - name: Stack - podman-compose expands every variable
+        run: |
+          pip install podman-compose==1.3.0
+          scripts/check-compose.sh
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

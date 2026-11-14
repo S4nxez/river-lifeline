@@ -34,8 +34,9 @@ services:
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_PROFILES_ACTIVE: spring
       RIVER_DATA_DIR: /data
-      # The area /health and /meta describe; empty = the first one found
-      DEFAULT_AOI: ${DEFAULT_AOI:-}
+      # The area /health and /meta describe; empty = the first one found. The .env variable has another name on
+      # purpose: podman-compose 1.3 leaves `NAME: ${NAME:-}` unexpanded when NAME is unset (scripts/check-compose.sh)
+      DEFAULT_AOI: ${RIVER_DEFAULT_AOI:-}
     volumes:
       - ${RIVER_DATA_HOST_DIR:-./fixtures/data}:/data:ro,Z
     networks:
