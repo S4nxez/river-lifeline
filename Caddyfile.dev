@@ -4,6 +4,12 @@
 :80 {
 	header Cache-Control no-store
 
+	# The page's runtime settings, from the repository's .env (CARTO_API_KEY: the basemaps key). See Caddyfile.
+	handle /config.js {
+		header Content-Type "text/javascript; charset=utf-8"
+		respond `window.RIVER_LIFELINE_CONFIG = { cartoApiKey: "{$CARTO_API_KEY}" };`
+	}
+
 	handle /api/* {
 		reverse_proxy {$BACKEND}
 	}

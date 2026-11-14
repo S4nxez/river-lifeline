@@ -1,4 +1,12 @@
 :80 {
+    # The page's runtime settings, from the .env next to podman-compose.yml (CARTO_API_KEY: the basemaps key,
+    # which keeps the map tiles free of the "API key required" watermark). Kept out of git on purpose.
+    handle /config.js {
+        header Content-Type "text/javascript; charset=utf-8"
+        header Cache-Control no-store
+        respond `window.RIVER_LIFELINE_CONFIG = { cartoApiKey: "{$CARTO_API_KEY}" };`
+    }
+
     handle /api/* {
         reverse_proxy backend:8080
     }

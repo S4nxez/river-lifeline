@@ -25,4 +25,4 @@
 - The frontend uses relative URLs (`./api/...`): the app is served under `/river-lifeline/`.
 - Do not develop in `/opt/HACKATHON-NISAR-SAR-Change-Detection` on the Pi: it is the production checkout and the deploy runs `git pull --ff-only` there.
 
-**Configuration:** secrets `CLIENT_ID`/`CLIENT_SECRET` (Tailscale OAuth client, tag `tag:ci`), `SSH_PRIVATE_KEY`, `DEPLOY_HOST` (the Pi's Tailscale IP) and `DEPLOY_USER`. On the Pi: a `.env` with `MYSQL_ROOT_PASSWORD` next to `podman-compose.yml`, and Funnel `/river-lifeline` → `127.0.0.1:8091`. Recommended on GitHub: protect `main` against force pushes and deletion, and require a PR with the `checks` status check.
+**Configuration:** secrets `CLIENT_ID`/`CLIENT_SECRET` (Tailscale OAuth client, tag `tag:ci`), `SSH_PRIVATE_KEY`, `DEPLOY_HOST` (the Pi's Tailscale IP) and `DEPLOY_USER`. On the Pi: a `.env` with `MYSQL_ROOT_PASSWORD` and `CARTO_API_KEY` (the CARTO basemaps key; without it the map tiles are watermarked) next to `podman-compose.yml`, and Funnel `/river-lifeline` → `127.0.0.1:8091`. Recommended on GitHub: protect `main` against force pushes and deletion, and require a PR with the `checks` status check.
