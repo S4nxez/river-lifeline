@@ -2,7 +2,6 @@ package com.nisarsar.dao.model;
 
 import java.util.List;
 
-
 public record SarSite(
         String id,
         String name,
@@ -15,5 +14,4 @@ public record SarSite(
         String description,
         double confidence,
         List<Double> vv,
-        List<Double> vh
-) {}
+        List<Double> vh) {}

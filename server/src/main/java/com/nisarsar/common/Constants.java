@@ -5,6 +5,5 @@ public class Constants {
     public static final String SITES = "/sites";
     public static final String OBSERVATIONS = "/observations";
 
-    public Constants() {
-    }
+    public Constants() {}
 }

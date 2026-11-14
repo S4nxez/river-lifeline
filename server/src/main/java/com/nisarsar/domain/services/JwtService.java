@@ -6,6 +6,14 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,21 +22,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @Service
 public class JwtService {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
+
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
+
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
@@ -37,7 +38,8 @@ public class JwtService {
     }
 
     public Collection<GrantedAuthority> extractAuthorities(String token) {
-        ArrayList<LinkedTreeMap<String, Object>> auth = extractClaim(token, claims -> (ArrayList<LinkedTreeMap<String, Object>>) claims.get("auth"));
+        ArrayList<LinkedTreeMap<String, Object>> auth =
+                extractClaim(token, claims -> (ArrayList<LinkedTreeMap<String, Object>>) claims.get("auth"));
 
         if (auth == null || auth.isEmpty())
             throw new IllegalArgumentException("El token no contiene autoridades válidas");
@@ -56,10 +58,7 @@ public class JwtService {
         return generateToken(Map.of("auth", userDetails.getAuthorities()), userDetails);
     }
 
-    public String generateToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails
-    ) {
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -67,13 +66,8 @@ public class JwtService {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
-    private String buildToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails,
-            long expiration
-    ) {
-        return Jwts
-                .builder()
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
+        return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -97,8 +91,7 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         try {
-            return Jwts
-                    .parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(getSignInKey())
                     .build()
                     .parseClaimsJws(token)
@@ -113,8 +106,7 @@ public class JwtService {
         try {
             digest = MessageDigest.getInstance("SHA-512");
             digest.update(secretKey.getBytes(StandardCharsets.UTF_8));
-            final SecretKeySpec key2 = new SecretKeySpec(
-                    digest.digest(), 0, 64, "AES");
+            final SecretKeySpec key2 = new SecretKeySpec(digest.digest(), 0, 64, "AES");
             return Keys.hmacShaKeyFor(key2.getEncoded());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);

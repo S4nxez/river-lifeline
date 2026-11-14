@@ -4,16 +4,21 @@
 
 | Workflow | When | What it does |
 |---|---|---|
-| `ci.yml` | Every PR (and the first stage of Release) | Frontend `node --check`, `mvn verify`, starts the full stack with `compose.build.yml` and runs `scripts/smoke.sh` |
-| `release.yml` | Push to `main` | CI → `:latest` and `:<sha>` images on GHCR (native ARM runner) → over Tailscale + SSH: `git pull`, `podman pull`, `podman-compose up` → smoke tests on the Pi and on the public URL. On failure it prints the backend logs |
+| `ci.yml` | Every PR (and the first stage of Release) | Frontend `node --check` and Prettier check, `mvn verify` (tests + Spotless check), starts the full stack with `compose.build.yml` and runs `scripts/smoke.sh` |
+| `release.yml` | Push to `main` | CI → `:latest` and `:<sha>` images on GHCR (native ARM runner) → over Tailscale + SSH: `git pull`, `podman pull`, `podman-compose up` → smoke tests on the Pi and on the public URL. On failure it prints the backend logs; on success it removes this app's older images from the Pi (`scripts/prune-images.sh`) |
 
 **Smoke test** (`scripts/smoke.sh URL [seconds]`): `/api/sites` returns the catalog (Spring, Flyway and MySQL are up) and `/` serves the page. Works locally too.
 
 **Rollback** (no rebuild): `gh workflow run release.yml -f tag=<full SHA of a good commit>`. The next push to `main` deploys the latest code again.
 
 **Local**
-- Database only, for the IDE: `docker compose -f compose.dev.yml up -d` (root/root, same as `application.properties`).
+- `docker compose -f compose.dev.yml up -d`: MySQL (root/root, same as `application.properties`) and the frontend on http://localhost:5500, served from disk (reload to see edits) with `/api` proxied to the backend on the host's port 8080. Run the backend from the IDE or with `mvn spring-boot:run`.
 - Full stack as in production: `mvn -f server/pom.xml -DskipTests package`, then `docker compose -f podman-compose.yml -f compose.build.yml up -d --build` → http://127.0.0.1:8091
+
+**Formatting** (120 columns, LF line endings via `.gitattributes`)
+- Frontend: Prettier, version pinned in `frontend/package.json`. Server: Spotless with palantir-java-format (`server/pom.xml`).
+- Once per clone: `npm --prefix frontend install`. It installs Prettier and enables `.githooks/pre-commit`, which formats the staged files on every commit.
+- By hand: `npm --prefix frontend run format` and `mvn -f server/pom.xml spotless:apply`. CI rejects unformatted code.
 
 **Team rules**
 - Flyway migrations: claim a version number before creating one (`V4__` A, `V5__` B…). Never edit a merged migration: Flyway refuses to start on a checksum mismatch.

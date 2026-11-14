@@ -1,0 +1,13 @@
+{
+  "name": "river-lifeline-frontend",
+  "private": true,
+  "description": "Dev tooling only: the app is served as plain files, nothing is bundled",
+  "scripts": {
+    "prepare": "git -C .. config core.hooksPath .githooks",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.10.1"
+  }
+}

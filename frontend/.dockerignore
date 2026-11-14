@@ -1,0 +1,5 @@
+# nginx serves everything copied into the image: ship only the app
+*
+!index.html
+!src/
+!public/
