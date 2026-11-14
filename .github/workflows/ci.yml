@@ -17,9 +17,9 @@ jobs:
       COMPOSE_FILE: podman-compose.yml:compose.build.yml
       COMPOSE_PROJECT_NAME: ci
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
 
@@ -32,7 +32,7 @@ jobs:
           done
           exit "$rc"
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
