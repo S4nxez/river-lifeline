@@ -41,8 +41,7 @@ public class JwtService {
         ArrayList<LinkedTreeMap<String, Object>> auth =
                 extractClaim(token, claims -> (ArrayList<LinkedTreeMap<String, Object>>) claims.get("auth"));
 
-        if (auth == null || auth.isEmpty())
-            throw new IllegalArgumentException("El token no contiene autoridades válidas");
+        if (auth == null || auth.isEmpty()) throw new IllegalArgumentException("The token has no valid authorities");
 
         return auth.stream()
                 .map(map -> new SimpleGrantedAuthority("ROLE_" + map.get("role").toString()))
@@ -97,7 +96,7 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "El token ha expirado", e);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The token has expired", e);
         }
     }
 

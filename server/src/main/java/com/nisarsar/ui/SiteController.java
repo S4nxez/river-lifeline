@@ -31,7 +31,7 @@ public class SiteController {
         return siteCatalogService.getCatalog().sites().stream()
                 .filter(site -> site.id().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sar site not found" + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SAR site not found: " + id));
     }
 
     @GetMapping(Constants.SITES + "/{id}" + Constants.OBSERVATIONS)
