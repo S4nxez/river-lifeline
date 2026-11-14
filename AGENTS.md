@@ -45,6 +45,7 @@ The pre-commit hook applies them (enable it once per clone with `npm --prefix fr
 
 - Short-lived branch, pull request to `main`, green CI, merge. Release then deploys `main` to production on its own.
 - Conventional commits: `feat(scope): ...`, `fix`, `test`, `chore`, `docs`, `style`.
+- Flyway: never edit a migration that has been merged; add a new `V<n>__` file, and agree on the number with the team.
 - Data contract: the files processing writes and the `/api/v1` JSON follow CONTRACTS.md. Changing them means a PR
   that updates the contract, `fixtures/data` and every layer together.
 - The frontend calls the API with relative URLs (`./api/...`) because the app is served under a path prefix.

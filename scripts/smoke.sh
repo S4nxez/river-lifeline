@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Waits until the stack behind Caddy works end to end: the API is up and has loaded a catalog from the data folder
-# (/api/v1/health says "ok" only then), and the frontend page loads.
+# Waits until the stack behind Caddy works end to end: the API is up (Spring only starts once MySQL answers and the
+# Flyway migrations ran) and has loaded a catalog from the data folder (/api/v1/health says "ok" only then), and the
+# frontend page loads.
 #
 # Usage: scripts/smoke.sh BASE_URL [TIMEOUT_SECONDS]   (default timeout: 120)
 # Exits 0 when both checks pass, 1 on timeout. Does not read stdin, so it can run as `ssh host bash -s < smoke.sh`.
