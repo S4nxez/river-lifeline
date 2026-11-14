@@ -18,7 +18,7 @@ become. Sentinel-1 is only used to cross-check each result.
 
 | Layer | Technology |
 |---|---|
-| Backend | Java 21, Spring Boot, MySQL 8, Flyway: read-only API over the processing output files, hexagonal architecture |
+| Backend | Java 21, Spring Boot, MySQL 8, Flyway |
 | Frontend | Vanilla JavaScript (ES modules), Leaflet |
 | Worker | Python 3.12: water route mapping on NISAR passes, Sentinel-1 cross-check, drought forecasting |
 | Infrastructure | Podman + Caddy on a Raspberry Pi, published with Tailscale Funnel |
@@ -33,42 +33,38 @@ flowchart LR
     subgraph pi["Raspberry Pi · Podman"]
         caddy["Caddy<br/>reverse proxy"]
         frontend["Frontend<br/>nginx · vanilla JS"]
-        backend["Backend<br/>Spring Boot · read-only"]
+        backend["Backend<br/>Spring Boot"]
         db[("MySQL<br/>Flyway migrations")]
-        data[("RIVER_DATA_DIR<br/>aois/&lt;id&gt;/catalog.json,<br/>statuses, layer PNGs")]
-        worker["Processing<br/>Python · every 6 h"]
+        worker["Worker<br/>Python"]
     end
 
-    subgraph external["External data"]
-        earthdata["ASF / NASA Earthdata<br/>NISAR"]
-        s1["Sentinel-1, JRC, OSM, ANA"]
+    subgraph external["External APIs"]
+        earthdata["NASA Earthdata<br/>NISAR, Sentinel-1"]
+        weather["Weather APIs"]
     end
 
     user -->|"HTTPS · Tailscale Funnel"| caddy
     caddy -->|"/"| frontend
-    caddy -->|"/api/v1/*"| backend
-    backend -->|"reads"| data
+    caddy -->|"/api/*"| backend
     backend --> db
-    worker -.->|"writes"| data
-    worker -.-> earthdata
-    worker -.-> s1
+    backend -.->|"scenes"| earthdata
+    backend -.->|"weather, drought history"| weather
+    worker -.->|"pulls jobs, sends results · /internal/worker/*"| backend
 
     classDef planned stroke-dasharray: 5 5
-    class worker,earthdata,s1 planned
+    class worker,earthdata,weather planned
 ```
 
-Dashed: planned, not running yet. The layers only meet through two contracts (CONTRACTS.md): processing writes files
-to `RIVER_DATA_DIR` and never serves requests; the backend reads, validates and serves them under `/api/v1` and never
-computes science; the browser only talks to the backend. Every study area is a folder `aois/<id>/` with its own
-coordinates and thresholds, so a new area needs no code change. Until real passes exist, the backend serves the
-hand-made fixtures of `fixtures/data`.
+Dashed: planned, not running yet. The browser only talks to the backend (through Caddy), the backend is the only part
+that calls external APIs, and the worker only talks to the backend: it pulls jobs and their inputs, and posts results
+back. Details: [worker/README.md](worker/README.md) and [AGENTS.md](AGENTS.md).
 
 ## Run it locally
 
 ```bash
 npm --prefix frontend install               # once per clone: Prettier + the pre-commit hook
 docker compose -f compose.dev.yml up -d    # MySQL + frontend on http://localhost:5500 (/api -> :8080)
-cd server && mvn spring-boot:run            # backend on :8080, using that MySQL, serving ../fixtures/data
+cd server && mvn spring-boot:run            # backend on :8080, using that MySQL
 ```
 
 Full stack, as in production: see `compose.build.yml`. CI/CD, deployment and rollback: [docs/devops.md](docs/devops.md).

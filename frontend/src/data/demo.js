@@ -1,4 +1,5 @@
-// Shown when the API can't be reached: a synthetic drought, in the page's view model (what services/api.js returns).
+// Shown when the API can't be reached: the same synthetic drought as the backend's demo data
+// (server/src/main/resources/db/migration/V4__river_connectivity.sql), in the API's shapes.
 import { countByStatus, latestKnown } from "../status.js";
 
 const hub = { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 };
@@ -63,7 +64,7 @@ function assessments(track) {
   });
 }
 
-/** The demo overview, as `loadOverview` returns it. */
+/** The demo `GET /api/communities`. */
 export function demoOverview() {
   const statuses = communities.map(({ place, track }) => ({ ...place, latest: latestKnown(assessments(track)) }));
   const last = passes.at(-1);
@@ -87,7 +88,7 @@ export function demoOverview() {
   };
 }
 
-/** The demo history of a community, as `loadHistory` returns it, or null for an unknown id. */
+/** The demo `GET /api/communities/{id}`, or null for an unknown id. */
 export function demoHistory(id) {
   const community = communities.find(({ place }) => place.id === id);
   return community ? { ...community.place, assessments: assessments(community.track) } : null;

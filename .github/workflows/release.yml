@@ -70,8 +70,7 @@ jobs:
     timeout-minutes: 10
     env:
       TAG: ${{ inputs.tag || github.sha }}
-      # The Pi's checkout of this repo: it holds podman-compose.yml, Caddyfile, the fixtures and the .env with the DB
-      # password (and optionally RIVER_DATA_HOST_DIR, the folder the processing pipeline writes to)
+      # The Pi's checkout of this repo: it holds podman-compose.yml, Caddyfile and the .env with the DB password
       APP_DIR: /opt/HACKATHON-NISAR-SAR-Change-Detection
     steps:
       - uses: actions/checkout@v5

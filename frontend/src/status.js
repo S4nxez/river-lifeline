@@ -10,14 +10,7 @@ export const STATUSES = {
   connected: { label: "Connected", color: "#68b6a3", severity: 3 },
 };
 
-export const KIND_LABELS = {
-  hub: "Hub",
-  town: "Town",
-  village: "Village",
-  hamlet: "Hamlet",
-  indigenous_village: "Indigenous village",
-  other: "Community",
-};
+export const KIND_LABELS = { hub: "Hub", town: "Town", village: "Village" };
 
 /** The status code of a community: its latest assessment's, or no_data if it was never assessed. */
 export function statusOf(community) {
