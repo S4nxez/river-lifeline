@@ -1,0 +1,283 @@
+{
+  "schema_version": "1.0.0",
+  "aoi_id": "tefe",
+  "pass_id": "nisar-20261015t214033z-t154-f088",
+  "acquired_at": "2026-10-15T21:40:33Z",
+  "evaluated": true,
+  "communities": [
+    {
+      "community_id": "osm-node-2984471123",
+      "status": "connected",
+      "reason": "route_ge_60m",
+      "min_width_class_m": 200,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": false,
+      "bottleneck": {
+        "location": [
+          -64.64465,
+          -3.3431
+        ],
+        "width_class_m": 200
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.5905,
+            -3.316
+          ],
+          [
+            -64.64465,
+            -3.3431
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "manual-caiambe",
+      "status": "at_risk",
+      "reason": "no_route_unconfirmed",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": true,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223344",
+      "status": "at_risk",
+      "reason": "narrow_route",
+      "min_width_class_m": 40,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": true,
+      "bottleneck": {
+        "location": [
+          -64.778,
+          -3.33365
+        ],
+        "width_class_m": 40
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.8572,
+            -3.2971
+          ],
+          [
+            -64.778,
+            -3.33365
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "osm-node-3011223345",
+      "status": "connected",
+      "reason": "route_ge_60m",
+      "min_width_class_m": 60,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": false,
+      "bottleneck": {
+        "location": [
+          -64.8254,
+          -3.4156
+        ],
+        "width_class_m": 60
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.952,
+            -3.461
+          ],
+          [
+            -64.8254,
+            -3.4156
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "osm-node-3011223346",
+      "status": "at_risk",
+      "reason": "route_unverified",
+      "min_width_class_m": 100,
+      "route_verified": false,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": true,
+      "bottleneck": {
+        "location": [
+          -64.6603,
+          -3.49335
+        ],
+        "width_class_m": 100
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.6218,
+            -3.6165
+          ],
+          [
+            -64.6603,
+            -3.49335
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "osm-way-415522330",
+      "status": "connected",
+      "reason": "route_ge_60m",
+      "min_width_class_m": 400,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": false,
+      "bottleneck": {
+        "location": [
+          -64.7015,
+          -3.29485
+        ],
+        "width_class_m": 400
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.7042,
+            -3.2195
+          ],
+          [
+            -64.7015,
+            -3.29485
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "osm-node-3011223347",
+      "status": "at_risk",
+      "reason": "no_route_unconfirmed",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": true,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "manual-bom-jesus",
+      "status": "no_data",
+      "reason": "outside_coverage",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": true,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223348",
+      "status": "connected",
+      "reason": "route_ge_60m",
+      "min_width_class_m": 100,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": false,
+      "bottleneck": {
+        "location": [
+          -64.7913,
+          -3.48705
+        ],
+        "width_class_m": 100
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.8838,
+            -3.6039
+          ],
+          [
+            -64.7913,
+            -3.48705
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    },
+    {
+      "community_id": "osm-node-3011223349",
+      "status": "connected",
+      "reason": "route_ge_60m",
+      "min_width_class_m": 200,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20260704t214011z-t154-f088",
+      "changed": false,
+      "bottleneck": {
+        "location": [
+          -64.74445,
+          -3.4355
+        ],
+        "width_class_m": 200
+      },
+      "route": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -64.7901,
+            -3.5008
+          ],
+          [
+            -64.74445,
+            -3.4355
+          ],
+          [
+            -64.7188,
+            -3.3542
+          ]
+        ]
+      }
+    }
+  ]
+}
