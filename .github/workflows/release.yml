@@ -1,0 +1,124 @@
+name: Release
+
+# push to main: CI -> images tagged latest + <commit SHA> -> deploy that SHA to the Pi -> smoke tests.
+# Rollback: run it by hand with `tag` = the full SHA of an earlier good commit (skips CI and build):
+#   gh workflow run release.yml -f tag=<sha>
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag to deploy (full commit SHA). Empty builds and deploys the current commit
+        required: false
+        default: ''
+
+# One release at a time, in push order: an older run must never overwrite a newer deployment
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection
+  PUBLIC_URL: https://raspberrypi.tail0a4b52.ts.net/river-lifeline
+
+jobs:
+  ci:
+    if: ${{ !inputs.tag }}
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: ci
+    # Native ARM runner: the Pi is the only consumer of these images, so no QEMU or multi-arch build
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: server/target
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        run: |
+          for part in back:server front:frontend; do
+            name="$IMAGE-${part%%:*}"
+            docker build \
+              --label org.opencontainers.image.revision="$GITHUB_SHA" \
+              -t "$name:$GITHUB_SHA" -t "$name:latest" "${part#*:}"
+            docker push --all-tags "$name"
+          done
+
+  deploy:
+    needs: build
+    if: ${{ !cancelled() && (needs.build.result == 'success' || inputs.tag) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TAG: ${{ inputs.tag || github.sha }}
+      # The Pi's checkout of this repo: it holds podman-compose.yml, Caddyfile and the .env with the DB password
+      APP_DIR: /opt/HACKATHON-NISAR-SAR-Change-Detection
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag
+        run: '[[ "$TAG" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::tag must be a full commit SHA, got $TAG"; exit 1; }'
+
+      - uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.CLIENT_ID }}
+          oauth-secret: ${{ secrets.CLIENT_SECRET }}
+          tags: tag:ci
+          version: latest
+          # Keep the runner's DNS: the public URL check below must resolve through the internet, not the tailnet
+          args: --accept-dns=false
+
+      - name: SSH setup
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_NAME: ${{ secrets.DEPLOY_USER }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          printf 'Host pi\n  HostName %s\n  User %s\n  BatchMode yes\n  ConnectTimeout 10\n  ServerAliveInterval 30\n' \
+            "$HOST" "$USER_NAME" >> ~/.ssh/config
+
+      # git pull brings this commit's podman-compose.yml and Caddyfile; IMAGE_TAG pins the images to the SHA
+      - name: Deploy
+        run: |
+          ssh pi "set -e
+            cd $APP_DIR
+            git pull --ff-only
+            podman pull $IMAGE-back:$TAG $IMAGE-front:$TAG
+            IMAGE_TAG=$TAG podman-compose up -d --force-recreate"
+
+      - name: Smoke test - on the Pi
+        run: ssh pi "bash -s -- http://127.0.0.1:8091 150" < scripts/smoke.sh
+
+      - name: Smoke test - public URL
+        run: scripts/smoke.sh "$PUBLIC_URL" 30
+
+      # Only backend and MySQL: Caddy/nginx logs hold visitors' IPs and this repo's Actions logs are public
+      - name: Logs
+        if: failure()
+        run: ssh pi "cd $APP_DIR && podman-compose ps; podman-compose logs backend 2>&1 | tail -n 150" || true
+
+      - name: Disconnect Tailscale
+        if: always()
+        run: sudo tailscale logout || true
