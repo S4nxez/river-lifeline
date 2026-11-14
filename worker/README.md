@@ -33,33 +33,26 @@ one entry in the dispatcher. Use cases are tested with the in-memory fakes in `t
 
 ## Backend contract
 
-All endpoints are on the backend's internal address (`BACKEND_URL`, `http://backend:8080` in compose), never behind the
-public proxy, and require the shared secret in the `X-Worker-Token` header.
+The contract the worker is moving to is [`api/worker-api.md`](../api/worker-api.md) (OpenAPI spec:
+[`worker-api.yaml`](../api/worker-api.yaml)): every job carries all its inputs, rasters travel as raw arrays
+the backend serves and receives, and the worker stores nothing (no `DATA_DIR`, no scene files, no model files) and
+parses no file format.
+
+The code in `src/` still speaks the previous version, summarised here until it is migrated:
 
 | Endpoint | Answer |
 |---|---|
 | `GET /internal/worker/jobs/next` | `204`, or `200 {"id", "type", "params"}` |
 | `POST /internal/worker/jobs/{id}/result` | body `{"data": {...}}` |
 | `POST /internal/worker/jobs/{id}/failure` | body `{"reason": "..."}` |
-| `GET /internal/worker/jobs/{id}/scenes` | `[{"id", "mission", "acquiredOn", "polarization", "downloadUrl"}]`, `mission` `NISAR` or `SENTINEL-1`, `downloadUrl` a backend path |
+| `GET /internal/worker/jobs/{id}/scenes` | `[{"id", "mission", "acquiredOn", "polarization", "downloadUrl"}]` |
 | `GET /internal/worker/area` | `{"hub": {"id", "name", "lat", "lng"}, "communities": [...]}` |
 | `GET /internal/worker/weather?region=&from=&to=` | `[{"day", "precipitationMm", "temperatureC", "soilMoisture"}]` |
 | `GET /internal/worker/droughts?region=` | `[{"start", "end", "severity"}]` |
 
 Job types and their `params`: `assess_connectivity` (none: the scenes come from the job), `train_drought_model`
-(`region`, `from`, `to`), `forecast_drought` (`region`, `horizonDays`, `asOf`).
-
-`assess_connectivity` assesses the job's latest NISAR scene and cross-checks it with the Sentinel-1 scene closest to it,
-if one is at most 4 days away. Its result is what the backend stores in `radar_pass` and `connectivity_assessment`:
-
-```json
-{"passId": "...", "mission": "NISAR", "acquiredOn": "2026-09-09",
- "assessments": [{"communityId": "uarini", "status": "at_risk", "routeWidthM": 40,
-                  "sentinel1": {"sceneOn": "2026-09-08", "agrees": true}}]}
-```
-
-`status` is `connected` (route at least 60 m wide), `at_risk` (narrower), `isolated` (no water route) or `no_data`
-(the pass missed the community or its route); `sentinel1` is null without a scene to compare.
+(`region`, `from`, `to`), `forecast_drought` (`region`, `horizonDays`, `asOf`). All endpoints are on the backend's internal address (`BACKEND_URL`, `http://backend:8080` in compose), never behind the
+public proxy, and require the shared secret in the `X-Worker-Token` header.
 
 ## Run
 
