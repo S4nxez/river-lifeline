@@ -1,0 +1,41 @@
+#!/bin/sh
+# Formats what is being committed, so every commit uses the same style and merges don't conflict on formatting:
+#   frontend/  -> Prettier (frontend/package.json)
+#   server/    -> Spotless + palantir-java-format (server/pom.xml)
+# Enabled once per clone by `npm --prefix frontend install` (or `git config core.hooksPath .githooks`).
+# Skip it for one commit with `git commit --no-verify`; CI still rejects unformatted code.
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+
+staged() { git diff --cached --name-only --diff-filter=ACMR -- "$@"; }
+front=$(staged 'frontend/*.js' 'frontend/*.css' 'frontend/*.html' 'frontend/*.json' 'frontend/*.md')
+java=$(staged 'server/*.java')
+[ -n "$front$java" ] || exit 0
+
+# Formatted files are staged whole: a file that also has unstaged changes would sneak them into the commit
+# shellcheck disable=SC2086 # file names without spaces, split on purpose
+partial=$(git diff --name-only -- $front $java)
+if [ -n "$partial" ]; then
+  echo "pre-commit: these files have unstaged changes, stage them fully (git add) or stash them first:" >&2
+  echo "$partial" | sed 's/^/  /' >&2
+  exit 1
+fi
+
+if [ -n "$front" ]; then
+  if [ ! -e frontend/node_modules/.bin/prettier ]; then
+    echo "pre-commit: Prettier is not installed, run: npm --prefix frontend install" >&2
+    exit 1
+  fi
+  # shellcheck disable=SC2086
+  (cd frontend && node_modules/.bin/prettier --write --log-level warn $(echo "$front" | sed 's|^frontend/||'))
+  # shellcheck disable=SC2086
+  git add -- $front
+fi
+
+if [ -n "$java" ]; then
+  if command -v mvn >/dev/null 2>&1; then mvn=mvn; else mvn=./mvnw; fi
+  # The whole project, which is already formatted: in practice only the files being committed change
+  (cd server && $mvn -q -B spotless:apply)
+  # shellcheck disable=SC2086
+  git add -- $java
+fi
