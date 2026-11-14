@@ -1,51 +1,61 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { installLeaflet, site } from "./helpers/browser.js";
+import { community, installLeaflet } from "./helpers/browser.js";
 import { createMap } from "../src/services/mapService.js";
 
-const leaflet = installLeaflet({ zoom: 2 });
+const leaflet = installLeaflet({ zoom: 9 });
 const selected = [];
-const sites = [
-  site({ id: "amazonas", name: "Amazonas basin", level: "high", change: "+18%", lat: -3.1, lng: -60 }),
-  site({ id: "delta", name: "Nile Delta", level: "medium", change: "+9%", lat: 30.9, lng: 31.2 }),
-  site({ id: "valencia", name: "Valencia coast", level: "low", change: "+3%", lat: 39.5, lng: -0.4 }),
+const hub = { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 };
+const communities = [
+  community({ id: "nogueira", name: "Nogueira", lat: -3.295, lng: -64.86, latest: { status: "isolated" } }),
+  community({ id: "uarini", name: "Uarini", lat: -2.99, lng: -65.113, latest: { status: "at_risk" } }),
+  community({ id: "alvaraes", name: "Alvarães", lat: -3.221, lng: -64.804, latest: { status: "connected" } }),
+  community({ id: "caiambe", name: "Caiambé", lat: -3.545, lng: -64.4, latest: null }),
 ];
-const controls = await createMap(sites, (id) => selected.push(id));
+const controls = await createMap(hub, communities, (id) => selected.push(id));
+const [hubMarker, ...communityMarkers] = leaflet.markers;
 
-test("draws the map in the #map element and resizes it once laid out", () => {
+test("draws the map in #map and resizes it once laid out", () => {
   assert.equal(leaflet.mapContainer, "map");
   assert.equal(leaflet.invalidated, true);
 });
 
-test("places one marker per site, coloured by change level", () => {
+test("marks the hub apart from the communities", () => {
+  assert.deepEqual(hubMarker.latLng, [-3.354, -64.711]);
+  assert.equal(hubMarker.tooltip, "Tefé · hub");
+});
+
+test("colours each community by its status", () => {
   assert.deepEqual(
-    leaflet.markers.map((marker) => [marker.latLng, marker.options.fillColor]),
+    communityMarkers.map((marker) => [marker.latLng, marker.options.fillColor]),
     [
-      [[-3.1, -60], "#e47759"],
-      [[30.9, 31.2], "#e4b65c"],
-      [[39.5, -0.4], "#68b6a3"],
+      [[-3.295, -64.86], "#e47759"],
+      [[-2.99, -65.113], "#e4b65c"],
+      [[-3.221, -64.804], "#68b6a3"],
+      [[-3.545, -64.4], "#6d8491"],
     ],
   );
-  assert.equal(leaflet.markers[1].tooltip, "Nile Delta · +9%");
+  assert.equal(communityMarkers[1].tooltip, "Uarini · At risk");
 });
 
-test("clicking a marker reports its site", () => {
-  leaflet.markers[2].handlers.click();
+test("clicking a community marker reports it", () => {
+  communityMarkers[2].handlers.click();
 
-  assert.deepEqual(selected, ["valencia"]);
+  assert.deepEqual(selected, ["alvaraes"]);
 });
 
-test("selectSite flies to the site, zooming in to at least 4, and opens its tooltip", () => {
-  controls.selectSite("delta");
+test("selectCommunity flies to it, zooming in to at least 11, and opens its tooltip", () => {
+  controls.selectCommunity("uarini");
 
-  assert.deepEqual(leaflet.flights.at(-1), { latLng: [30.9, 31.2], zoom: 4 });
-  assert.equal(leaflet.markers[1].tooltipOpen, true);
+  assert.deepEqual(leaflet.flights.at(-1), { latLng: [-2.99, -65.113], zoom: 11 });
+  assert.equal(communityMarkers[1].tooltipOpen, true);
 });
 
-test("selectSite ignores unknown sites", () => {
+test("selectCommunity ignores unknown ids, the hub included", () => {
   const flights = leaflet.flights.length;
 
-  controls.selectSite("atlantis");
+  controls.selectCommunity("tefe");
+  controls.selectCommunity("atlantis");
 
   assert.equal(leaflet.flights.length, flights);
 });

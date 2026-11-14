@@ -19,7 +19,9 @@ class Crashes:
 def worker_for(queue, handler, sleeps: list[float] | None = None) -> Worker:
     """A worker with a 7 s poll interval whose waits are recorded in `sleeps` instead of slept."""
     recorded = sleeps if sleeps is not None else []
-    return Worker(queue, Dispatcher({JobType.DETECT_CHANGES: handler}), poll_interval_seconds=7, sleep=recorded.append)
+    return Worker(
+        queue, Dispatcher({JobType.ASSESS_CONNECTIVITY: handler}), poll_interval_seconds=7, sleep=recorded.append
+    )
 
 
 def test_with_no_pending_job_there_is_nothing_to_do():
@@ -27,7 +29,7 @@ def test_with_no_pending_job_there_is_nothing_to_do():
 
 
 def test_a_finished_job_reports_its_result():
-    queue = FakeQueue(Job("1", JobType.DETECT_CHANGES))
+    queue = FakeQueue(Job("1", JobType.ASSESS_CONNECTIVITY))
 
     assert worker_for(queue, Succeeds()).run_once() is True
 
@@ -36,7 +38,7 @@ def test_a_finished_job_reports_its_result():
 
 
 def test_a_crashing_job_is_reported_as_failed_with_the_reason():
-    queue = FakeQueue(Job("1", JobType.DETECT_CHANGES))
+    queue = FakeQueue(Job("1", JobType.ASSESS_CONNECTIVITY))
 
     worker_for(queue, Crashes()).run_once()
 
@@ -54,7 +56,7 @@ def test_a_job_type_without_handler_is_reported_as_failed():
 
 
 def test_runs_jobs_back_to_back_and_waits_only_when_idle():
-    queue = FakeQueue(Job("1", JobType.DETECT_CHANGES), Job("2", JobType.DETECT_CHANGES))
+    queue = FakeQueue(Job("1", JobType.ASSESS_CONNECTIVITY), Job("2", JobType.ASSESS_CONNECTIVITY))
     sleeps = []
     rounds = iter([False, False, False, True])
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Waits until the stack behind Caddy works end to end: the API serves the site catalog
-# from MySQL (Spring + Flyway + DB are up) and the frontend page loads.
+# Waits until the stack behind Caddy works end to end: the API serves the communities and
+# their river connectivity from MySQL (Spring + Flyway + DB are up) and the frontend page loads.
 #
 # Usage: scripts/smoke.sh BASE_URL [TIMEOUT_SECONDS]   (default timeout: 120)
 # Exits 0 when both checks pass, 1 on timeout. Does not read stdin, so it can run as `ssh host bash -s < smoke.sh`.
@@ -18,7 +18,7 @@ expect() {
 }
 
 last=""
-until expect "$base/api/sites" '"sites"' && expect "$base/" '<html'; do
+until expect "$base/api/communities" '"communities"' && expect "$base/" '<html'; do
   if ((SECONDS >= deadline)); then
     echo "FAIL $last"
     exit 1

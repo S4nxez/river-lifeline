@@ -1,10 +1,11 @@
-"""Client of the backend's internal worker API: implements JobQueue, ImageryProvider and WeatherProvider.
+"""Client of the backend's internal worker API: implements JobQueue, ImageryProvider, AreaProvider and WeatherProvider.
 
 Endpoints (see worker/README.md), all under the backend's internal network address, never through the public proxy:
     GET  /internal/worker/jobs/next            204, or 200 {"id", "type", "params"}
     POST /internal/worker/jobs/{id}/result     {"data": {...}}
     POST /internal/worker/jobs/{id}/failure    {"reason": "..."}
     GET  /internal/worker/jobs/{id}/scenes     [{"id", "mission", "acquiredOn", "polarization", "downloadUrl"}]
+    GET  /internal/worker/area                 {"hub": {"id", "name", "lat", "lng"}, "communities": [...]}
     GET  /internal/worker/weather?region=&from=&to=   [{"day", "precipitationMm", "temperatureC", "soilMoisture"}]
     GET  /internal/worker/droughts?region=            [{"start", "end", "severity"}]
 Every request carries the shared secret in the X-Worker-Token header.
@@ -17,6 +18,7 @@ from typing import Any
 from urllib.parse import quote, urlencode
 
 from worker.adapters.backend.http import HttpRequest, HttpResponse, Transport, urllib_transport
+from worker.domain.connectivity import Community, MonitoredArea
 from worker.domain.drought import DroughtEvent, WeatherObservation
 from worker.domain.errors import BackendUnavailable, InvalidJob
 from worker.domain.imagery import Scene
@@ -72,6 +74,14 @@ class BackendClient:
             path=path,
         )
 
+    # --- AreaProvider ---------------------------------------------------------------------------------------------
+
+    def monitored_area(self) -> MonitoredArea:
+        body = json.loads(self._send("GET", f"{API}/area").body)
+        return MonitoredArea(
+            hub=_community(body["hub"]), communities=[_community(item) for item in body["communities"]]
+        )
+
     # --- WeatherProvider --------------------------------------------------------------------------------------
 
     def observations(self, region: str, start: date, end: date) -> list[WeatherObservation]:
@@ -121,3 +131,7 @@ class BackendClient:
                 raise InvalidJob(f"refusing to call {path}: not a backend URL")
             return path
         return f"{self._base_url}/{path.lstrip('/')}"
+
+
+def _community(item: dict[str, Any]) -> Community:
+    return Community(id=item["id"], name=item["name"], lat=item["lat"], lng=item["lng"])

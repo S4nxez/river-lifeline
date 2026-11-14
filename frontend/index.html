@@ -4,8 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#101b25" />
-    <meta name="description" content="SAR Observatory — explore satellite radar observations and surface change." />
-    <title>SAR Observatory | Earth Change Explorer</title>
+    <meta
+      name="description"
+      content="River Lifeline — which riverside communities around Tefé can still reach the town by water, from NISAR radar."
+    />
+    <title>River Lifeline | Tefé</title>
     <link rel="preconnect" href="https://unpkg.com" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="./src/styles/main.css" />
@@ -20,12 +23,13 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="#" aria-label="SAR Observatory home"
-          ><span class="brand-mark">S</span
-          ><span><strong>SAR OBSERVATORY</strong><small>EARTH CHANGE EXPLORER</small></span></a
+        <a class="brand" href="#" aria-label="River Lifeline home"
+          ><span class="brand-mark">R</span
+          ><span><strong>RIVER LIFELINE</strong><small>TEFÉ · AMAZONAS</small></span></a
         >
         <div class="mission-status">
-          <span class="status-dot"></span> INTERACTIVE DEMO <span class="status-divider">/</span> SENTINEL-1 SAR
+          <span class="status-dot"></span> <span id="data-mode">DEMO DATA</span>
+          <span class="status-divider">/</span> NISAR L-BAND · SENTINEL-1 CROSS-CHECK
         </div>
       </header>
 
@@ -34,37 +38,42 @@
           <div>
             <p class="eyebrow">SPACE APPS CHALLENGE · 2026</p>
             <h1>
-              Earth is always<br class="mobile-break" />
-              <span>changing.</span>
+              Who can still<br class="mobile-break" />
+              <span>reach Tefé?</span>
             </h1>
-            <p class="intro-copy">Explore radar observations to spot surface changes — through clouds, day or night.</p>
+            <p class="intro-copy">
+              In droughts the rivers drop and riverside communities lose their only road: the water route to Tefé for
+              food, fuel, health care and school. Every NISAR pass shows which routes are still open.
+            </p>
           </div>
           <div class="intro-note">
             <span class="note-icon">↗</span>
             <div>
-              <strong>Radar, not a photograph</strong>
-              <p>Synthetic Aperture Radar measures backscatter to reveal changes in the surface.</p>
+              <strong>Radar sees the water</strong>
+              <p>
+                NISAR's L-band radar maps rivers through clouds, smoke and the forest canopy. Sentinel-1 only
+                cross-checks its results.
+              </p>
             </div>
           </div>
         </section>
 
         <section class="stats-grid" aria-label="Overview metrics">
           <article class="stat-card">
-            <span class="stat-label">AREAS MONITORED</span><strong id="stat-areas">04</strong
-            ><span class="stat-foot">Example study sites</span>
+            <span class="stat-label">COMMUNITIES</span><strong id="stat-communities">--</strong
+            ><span class="stat-foot">Monitored around Tefé</span>
           </article>
           <article class="stat-card">
-            <span class="stat-label">CHANGE SIGNALS</span><strong id="stat-signals">12</strong
-            ><span class="stat-foot"><i class="dot dot-amber"></i> Illustrative detections</span>
+            <span class="stat-label">ISOLATED</span><strong id="stat-isolated" class="status-isolated">--</strong
+            ><span class="stat-foot"><i class="dot status-bg-isolated"></i> No water route left</span>
           </article>
           <article class="stat-card">
-            <span class="stat-label">LATEST OBSERVATION</span
-            ><strong class="stat-date">18 <small>SEP 2026</small></strong
-            ><span class="stat-foot">Demo timestamp</span>
+            <span class="stat-label">AT RISK</span><strong id="stat-at-risk" class="status-at_risk">--</strong
+            ><span class="stat-foot"><i class="dot status-bg-at_risk"></i> Route narrowing</span>
           </article>
           <article class="stat-card">
-            <span class="stat-label">DATA SOURCE</span><strong class="stat-source">Sentinel-1</strong
-            ><span class="stat-foot">C-band radar · ESA / Copernicus</span>
+            <span class="stat-label">LATEST NISAR PASS</span><strong class="stat-date" id="stat-pass">--</strong
+            ><span class="stat-foot" id="stat-river">River level</span>
           </article>
         </section>
 
@@ -72,32 +81,36 @@
           <div class="map-panel panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">01 / GEOGRAPHIC OVERVIEW</p>
-                <h2>Change map</h2>
+                <p class="eyebrow">01 / RIVER NETWORK</p>
+                <h2>Communities and their route to Tefé</h2>
               </div>
-              <span class="live-label"><span class="status-dot"></span> STUDY AREAS</span>
+              <span class="live-label"><span class="status-dot"></span> LATEST STATUS</span>
             </div>
             <div class="map-key">
-              <span><i class="key-dot key-high"></i>High change</span
-              ><span><i class="key-dot key-medium"></i>Moderate change</span
-              ><span><i class="key-dot key-low"></i>Low change</span>
+              <span><i class="key-dot status-bg-connected"></i>Connected</span
+              ><span><i class="key-dot status-bg-at_risk"></i>At risk</span
+              ><span><i class="key-dot status-bg-isolated"></i>Isolated</span
+              ><span><i class="key-dot status-bg-no_data"></i>No data</span>
             </div>
-            <div id="map" role="img" aria-label="Map showing example SAR study areas around the world"></div>
+            <div
+              id="map"
+              role="img"
+              aria-label="Map of the communities around Tefé coloured by river connectivity"
+            ></div>
             <div class="map-footer">
-              <span><span class="map-pin">●</span> Select a site on the map or in the list</span
-              ><span class="demo-tag">SAMPLE DATA</span>
+              <span><span class="map-pin">●</span> Select a community on the map or in the list</span
+              ><span class="demo-tag">TEFÉ · HUB</span>
             </div>
           </div>
 
           <aside class="site-panel panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">02 / SITE SELECTION</p>
-                <h2>Study areas</h2>
+                <p class="eyebrow">02 / COMMUNITIES</p>
+                <h2>Most in need first</h2>
               </div>
-              <span class="count-pill">04 SITES</span>
             </div>
-            <div id="site-list" class="site-list"></div>
+            <div id="community-list" class="site-list"></div>
             <div class="selected-summary" id="selected-summary" aria-live="polite"></div>
           </aside>
         </section>
@@ -106,39 +119,41 @@
           <article class="panel analysis-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">03 / TEMPORAL SIGNAL</p>
-                <h2>Backscatter trend</h2>
+                <p class="eyebrow">03 / ROUTE OVER TIME</p>
+                <h2>Narrowest point of the route</h2>
               </div>
-              <span class="unit-label">RELATIVE dB</span>
+              <span class="unit-label">METRES</span>
             </div>
-            <p class="section-copy">Illustrative radar response across recent observations for the selected site.</p>
-            <div class="chart-wrap"><canvas id="trend-chart" aria-label="Backscatter trend chart"></canvas></div>
+            <p class="section-copy">
+              Width of the narrowest channel between the community and Tefé on every NISAR pass. Zero: no route.
+            </p>
+            <div class="chart-wrap"><canvas id="route-chart" aria-label="Route width chart"></canvas></div>
             <div class="chart-legend">
-              <span><i class="legend-line"></i> VV polarisation</span
-              ><span><i class="legend-line legend-blue"></i> VH polarisation</span>
+              <span><i class="legend-line legend-blue"></i> Route width</span
+              ><span><i class="legend-line"></i> Connected threshold</span>
             </div>
           </article>
           <article class="panel insight-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">04 / CHANGE INTERPRETATION</p>
-                <h2>What stands out</h2>
+                <p class="eyebrow">04 / STATUS</p>
+                <h2>What it means</h2>
               </div>
               <span class="insight-symbol">⌁</span>
             </div>
-            <div id="insight-content"></div>
+            <div id="status-content"></div>
             <div class="method-note">
               <strong>How to read this</strong>
               <p>
-                Radar changes are signals, not proof of a specific event. Compare acquisitions and validate with
-                contextual data before drawing conclusions.
+                One radar image can be spoiled by wind or rain: confirm an isolation with the next pass, and with the
+                Sentinel-1 cross-check, before acting on it.
               </p>
             </div>
           </article>
         </section>
         <footer class="footer">
-          <span>SAR OBSERVATORY <span class="footer-sep">/</span> SPACE APPS 2026</span
-          ><span>Prototype interface · illustrative data only · not an operational alert system</span>
+          <span>RIVER LIFELINE <span class="footer-sep">/</span> SPACE APPS 2026</span
+          ><span>Prototype · synthetic demo data until NISAR passes are processed · not an official alert system</span>
         </footer>
       </main>
     </div>

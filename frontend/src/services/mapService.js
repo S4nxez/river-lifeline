@@ -1,35 +1,53 @@
-const colors = { high: "#e47759", medium: "#e4b65c", low: "#68b6a3" };
+import { STATUSES, statusOf } from "../status.js";
+
+// Tefé, when the API has no hub to centre on
+const DEFAULT_CENTER = [-3.354, -64.711];
+const REGION_ZOOM = 9;
+const COMMUNITY_ZOOM = 11;
+
 let map;
-let markerLayer;
 const markers = new Map();
 
-export async function createMap(sites, onSelect) {
-  map = L.map("map", { zoomControl: true, scrollWheelZoom: false, worldCopyJump: true }).setView([20, 5], 2);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_4hx7_1_b016ecf4f001497ebf19ce2d", {
+/** Draws the hub and every community, coloured by status; returns the controls to focus one. */
+export async function createMap(hub, communities, onSelect) {
+  map = L.map("map", { zoomControl: true, scrollWheelZoom: false }).setView(
+    hub ? [hub.lat, hub.lng] : DEFAULT_CENTER,
+    REGION_ZOOM,
+  );
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: "&copy; OpenStreetMap &copy; CARTO",
     subdomains: "abcd",
     maxZoom: 18,
   }).addTo(map);
-  markerLayer = L.layerGroup().addTo(map);
-  sites.forEach((site) => {
-    const marker = L.circleMarker([site.lat, site.lng], {
-      radius: 8,
+  const layer = L.layerGroup().addTo(map);
+
+  if (hub) {
+    L.circleMarker([hub.lat, hub.lng], { radius: 9, color: "#edf4f7", weight: 3, fillColor: "#101b25", fillOpacity: 1 })
+      .bindTooltip(`${hub.name} · hub`, { direction: "top", offset: [0, -8] })
+      .addTo(layer);
+  }
+  communities.forEach((community) => {
+    const status = statusOf(community);
+    const marker = L.circleMarker([community.lat, community.lng], {
+      radius: 7,
       color: "#101b25",
       weight: 2,
-      fillColor: colors[site.level],
+      fillColor: STATUSES[status].color,
       fillOpacity: 1,
-    }).bindTooltip(`${site.name} · ${site.change}`, { direction: "top", offset: [0, -7] });
-    marker.on("click", () => onSelect(site.id));
-    marker.addTo(markerLayer);
-    markers.set(site.id, marker);
+    }).bindTooltip(`${community.name} · ${STATUSES[status].label}`, { direction: "top", offset: [0, -7] });
+    marker.on("click", () => onSelect(community.id));
+    marker.addTo(layer);
+    markers.set(community.id, marker);
   });
+
   await new Promise((resolve) => setTimeout(resolve, 80));
   map.invalidateSize();
-  return { selectSite };
+  return { selectCommunity };
 }
-function selectSite(id) {
+
+function selectCommunity(id) {
   const marker = markers.get(id);
   if (!marker) return;
-  map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 4), { duration: 0.5 });
+  map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), COMMUNITY_ZOOM), { duration: 0.5 });
   marker.openTooltip();
 }

@@ -28,16 +28,20 @@
   margin-top: 3px;
 }
 
-.level-high {
+.status-isolated {
   color: var(--red) !important;
 }
 
-.level-medium {
+.status-at_risk {
   color: var(--amber) !important;
 }
 
-.level-low {
+.status-connected {
   color: var(--green) !important;
+}
+
+.status-no_data {
+  color: var(--faint) !important;
 }
 
 .selected-summary {
@@ -139,19 +143,29 @@
   display: inline-block;
 }
 
-.level-bg-high {
+.status-bg-isolated {
   background: var(--red);
 }
 
-.level-bg-medium {
+.status-bg-at_risk {
   background: var(--amber);
 }
 
-.level-bg-low {
+.status-bg-connected {
   background: var(--green);
 }
 
-#insight-content h3 {
+.status-bg-no_data {
+  background: var(--faint);
+}
+
+.crosscheck {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+#status-content h3 {
   font: 600 19px/1.25 "Space Grotesk";
   margin: 9px 0;
 }
