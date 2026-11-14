@@ -11,9 +11,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ForeignKeyConstraintError.class)
-    public ResponseEntity<Object> handleForeingKeyConstrainError(ForeignKeyConstraintError ex){
+    public ResponseEntity<Object> handleForeingKeyConstrainError(ForeignKeyConstraintError ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
     @ExceptionHandler(DuplicatedUserError.class)
     public ResponseEntity<Object> handleDuplicatedUserError(DuplicatedUserError ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());

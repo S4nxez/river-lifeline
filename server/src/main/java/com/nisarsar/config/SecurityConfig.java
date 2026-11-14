@@ -26,16 +26,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req ->
-                        req.requestMatchers(Constants.API + Constants.SITES + "/**").permitAll()
-                                .anyRequest()
-                                .authenticated()
-                )
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(req -> req.requestMatchers(Constants.API + Constants.SITES + "/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .exceptionHandling(configurer ->
-                        configurer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                )
+                        configurer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

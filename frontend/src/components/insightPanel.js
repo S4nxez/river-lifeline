@@ -1,7 +1,19 @@
 const interpretations = {
-  high: { title: "Significant signal variation", tag: "PRIORITY REVIEW", copy: "The latest readings differ from the earlier baseline. Review the paired acquisitions and local context to determine what changed." },
-  medium: { title: "Moderate signal variation", tag: "COMPARE BASELINE", copy: "The signal has shifted, but seasonal and moisture effects may explain part or all of the difference." },
-  low: { title: "Small signal variation", tag: "ROUTINE MONITORING", copy: "The observed difference is relatively small. Keep this site in view and reassess when another acquisition is available." }
+  high: {
+    title: "Significant signal variation",
+    tag: "PRIORITY REVIEW",
+    copy: "The latest readings differ from the earlier baseline. Review the paired acquisitions and local context to determine what changed.",
+  },
+  medium: {
+    title: "Moderate signal variation",
+    tag: "COMPARE BASELINE",
+    copy: "The signal has shifted, but seasonal and moisture effects may explain part or all of the difference.",
+  },
+  low: {
+    title: "Small signal variation",
+    tag: "ROUTINE MONITORING",
+    copy: "The observed difference is relatively small. Keep this site in view and reassess when another acquisition is available.",
+  },
 };
 export function renderInsight(container, site) {
   const item = interpretations[site.level];

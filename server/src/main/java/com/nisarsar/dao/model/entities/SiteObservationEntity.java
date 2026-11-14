@@ -1,9 +1,8 @@
 package com.nisarsar.dao.model.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.math.BigDecimal;
+import lombok.Data;
 
 @Entity
 @Data
