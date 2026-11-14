@@ -1,7 +1,15 @@
 // app.js wires everything up as soon as it is imported, so each test sets the page up and imports a fresh copy.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { assessment, community, installChart, installDom, installLeaflet, waitFor } from "./helpers/browser.js";
+import {
+  apiFeature,
+  apiHistoryEntry,
+  apiOverview,
+  installChart,
+  installDom,
+  installLeaflet,
+  waitFor,
+} from "./helpers/browser.js";
 
 const PAGE = `
   <span id="data-mode"></span>
@@ -10,16 +18,13 @@ const PAGE = `
   <div id="map"></div><div id="community-list"></div><div id="selected-summary"></div>
   <canvas id="route-chart"></canvas><div id="status-content"></div>`;
 
-const OVERVIEW = {
-  hub: { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 },
-  latestPass: { id: "p4", mission: "NISAR", acquiredOn: "2026-09-09", riverLevelCm: 980, counts: {} },
-  communities: [
-    community({ id: "alvaraes", name: "Alvarães", latest: { status: "connected" } }),
-    community({ id: "uarini", name: "Uarini", latest: { status: "isolated" } }),
-    community({ id: "nogueira", name: "Nogueira", latest: { status: "isolated" } }),
-    community({ id: "caiambe", name: "Caiambé", latest: { status: "at_risk" } }),
-  ],
-};
+const API = "./api/v1/aois/tefe";
+const OVERVIEW = apiOverview([
+  apiFeature({ id: "alvaraes", name: "Alvarães", status: "connected" }),
+  apiFeature({ id: "uarini", name: "Uarini", status: "isolated" }),
+  apiFeature({ id: "nogueira", name: "Nogueira", status: "isolated" }),
+  apiFeature({ id: "caiambe", name: "Caiambé", status: "at_risk" }),
+]);
 
 let copies = 0;
 
@@ -40,10 +45,19 @@ async function startApp(api, { leaflet = true } = {}) {
   return { document, charts, requests };
 }
 
-const liveApi = (url) =>
-  url === "./api/communities"
-    ? OVERVIEW
-    : { assessments: [assessment("2026-08-28", "at_risk", 40), assessment("2026-09-09", "isolated")] };
+function liveApi(url) {
+  if (url === API) return OVERVIEW.aoi;
+  if (url === `${API}/summary`) return OVERVIEW.summary;
+  if (url === `${API}/passes/latest/communities`) return OVERVIEW.collection;
+  const id = url.slice(`${API}/communities/`.length);
+  return {
+    id,
+    name: id,
+    kind: "village",
+    village_location: [-64.6, -3.3],
+    history: [apiHistoryEntry("2026-08-28", "at_risk", 40), apiHistoryEntry("2026-09-09", "isolated")],
+  };
+}
 
 test("shows the live monitor: counts, latest pass and the communities most in need first", async () => {
   const { document } = await startApp(liveApi);
@@ -64,7 +78,7 @@ test("selects the community most in need and charts its history", async () => {
   const { document, charts, requests } = await startApp(liveApi);
 
   assert.equal(document.querySelector("#selected-summary h3").textContent, "Nogueira");
-  assert.ok(requests.includes("./api/communities/nogueira"));
+  assert.ok(requests.includes(`${API}/communities/nogueira`));
   assert.deepEqual(charts.at(-1).config.data.datasets[0].data, [40, 0]);
 });
 
@@ -75,7 +89,7 @@ test("selecting another community shows it and loads its history", async () => {
 
   assert.equal(document.querySelector("#selected-summary h3").textContent, "Alvarães");
   assert.equal(document.querySelector("#status-content h3").textContent, "Water route open");
-  await waitFor(() => requests.includes("./api/communities/alvaraes"));
+  await waitFor(() => requests.includes(`${API}/communities/alvaraes`));
 });
 
 test("falls back to the demo data when the API is unreachable", async (t) => {
@@ -86,7 +100,7 @@ test("falls back to the demo data when the API is unreachable", async (t) => {
 
   assert.equal(document.querySelector("#data-mode").textContent, "DEMO DATA");
   assert.equal(document.querySelector("#stat-communities").textContent, "04");
-  assert.deepEqual(requests, ["./api/communities"]);
+  assert.deepEqual(requests.sort(), [API, `${API}/passes/latest/communities`, `${API}/summary`]);
 });
 
 test("tells the user when the map cannot load", async (t) => {

@@ -81,8 +81,8 @@ export function installLeaflet({ zoom = 2 } = {}) {
 }
 
 /**
- * A community as `GET /api/communities` describes it. `latest` overrides merge into its latest assessment;
- * `latest: null` is a community no pass assessed yet.
+ * A community in the page's view model (what `loadOverview` returns). `latest` overrides merge into its latest
+ * assessment; `latest: null` is a community no pass assessed yet.
  */
 export function community({ latest = {}, ...overrides } = {}) {
   const defaults = {
@@ -103,9 +103,38 @@ export function community({ latest = {}, ...overrides } = {}) {
   };
 }
 
-/** An assessment as the API's community history lists it. */
+/** An assessment in the page's view model, as `loadHistory` lists it. */
 export function assessment(acquiredOn, status, routeWidthM = null) {
   return { passId: `nisar-${acquiredOn}`, acquiredOn, status, routeWidthM, sentinel1: null };
+}
+
+/** A feature of `GET /api/v1/aois/{aoi}/passes/{pass}/communities`: the geometry is the boarding point. */
+export function apiFeature({ id = "uarini", name = "Uarini", kind = "town", status = "at_risk", width = 40 } = {}) {
+  return {
+    type: "Feature",
+    id,
+    geometry: { type: "Point", coordinates: [-65.113, -2.99] },
+    properties: { id, name, kind, status, min_width_class_m: width, village_location: [-65.114, -2.991] },
+  };
+}
+
+/** The bodies of the contract endpoints the overview is built from, for a pass acquired on `day`. */
+export function apiOverview(features, day = "2026-09-09") {
+  return {
+    aoi: { id: "tefe", name: "Tefé", destination: { name: "Port of Tefé", location: [-64.711, -3.354] } },
+    summary: {
+      pass_id: `nisar-${day}`,
+      acquired_at: `${day}T09:45:12Z`,
+      river_level_m: 9.8,
+      counts: { connected: 1, at_risk: 1, isolated: 2, no_data: 0 },
+    },
+    collection: { type: "FeatureCollection", pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, features },
+  };
+}
+
+/** A history entry of `GET /api/v1/aois/{aoi}/communities/{id}`. */
+export function apiHistoryEntry(day, status, width = null) {
+  return { pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, status, min_width_class_m: width };
 }
 
 /** Resolves once `condition()` is true, failing after `timeoutMs`. */

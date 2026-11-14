@@ -5,13 +5,16 @@ reach the town by water, according to the latest NISAR passes, with the Sentinel
 
 It only talks to the backend, with relative URLs (the app is served under a path prefix):
 
-| Request                      | Used for                                                           |
-| ---------------------------- | ------------------------------------------------------------------ |
-| `GET ./api/communities`      | The hub, the latest pass and every community's latest known status |
-| `GET ./api/communities/{id}` | The route width of one community on every pass (the chart)         |
+| Request                                             | Used for                                        |
+| --------------------------------------------------- | ----------------------------------------------- |
+| `GET ./api/v1/aois/{aoi}`                           | The area and its reference port (the hub)       |
+| `GET ./api/v1/aois/{aoi}/summary`                   | The latest evaluated pass and its river level   |
+| `GET ./api/v1/aois/{aoi}/passes/latest/communities` | Every monitored community's status on that pass |
+| `GET ./api/v1/aois/{aoi}/communities/{id}`          | The route width of one community on every pass  |
 
-When the API can't be reached, or has no communities yet, the page shows the demo data of `src/data/demo.js`
-(the same synthetic drought as the backend's V4 migration) and says DEMO DATA in the header.
+The area comes from the page URL (`?aoi=...`, default `tefe`). `src/services/api.js` maps the responses (contract 2
+of CONTRACTS.md) into the page's own view model. When the API can't be reached, or has no communities yet, the page
+shows the demo data of `src/data/demo.js` and says DEMO DATA in the header.
 
 ## Structure
 
