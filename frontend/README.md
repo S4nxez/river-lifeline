@@ -30,6 +30,6 @@ http://localhost:5500 with `/api` proxied to the backend (see `docs/devops.md`).
 
 The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
 
-The CARTO basemaps API key stays out of git: put `CARTO_API_KEY=...` in the `.env` at the repository root (on the
-Pi, next to `podman-compose.yml`) and Caddy serves it to the page as `./config.js`. Without it the map still works,
-but CARTO watermarks the tiles with "API key required".
+The CARTO basemaps API key is a constant in `src/services/mapService.js`: it is public by design (every tile URL
+carries it), so it is protected on CARTO's side instead, restricted to our domains, to basemaps and to a quota.
+Without a key CARTO watermarks the tiles with "API key required".
