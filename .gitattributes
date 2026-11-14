@@ -1,0 +1,5 @@
+# LF everywhere, whatever the OS: Windows checkouts with CRLF would otherwise conflict on every line
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.png binary
+*.ico binary

@@ -43,3 +43,6 @@ build/
 SpringBoot/.idea/modules.xml
 SpringBoot/.idea/modules.xml
 .env
+
+### Node ###
+node_modules/

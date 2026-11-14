@@ -1,0 +1,15 @@
+# Local frontend (compose.dev.yml, http://localhost:5500): serves ./frontend straight from disk, so a browser
+# reload shows every edit, and proxies /api to the backend running on the host (IDE or `mvn spring-boot:run`).
+# Same origin and same relative URLs (./api/...) as production, so no CORS or URL changes are needed.
+:80 {
+	header Cache-Control no-store
+
+	handle /api/* {
+		reverse_proxy {$BACKEND}
+	}
+
+	handle {
+		root * /srv
+		file_server
+	}
+}

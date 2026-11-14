@@ -22,6 +22,15 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Same pinned Prettier as the pre-commit hook: catches commits made without it (or with --no-verify)
+      - name: Frontend - formatting
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npx prettier --check .
 
       # The frontend ships native ES modules as-is: one syntax error blanks the whole page
       - name: Frontend - syntax check
@@ -38,7 +47,8 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Backend - build and test
+      # verify also runs spotless:check, which fails on unformatted Java
+      - name: Backend - build, test and formatting
         run: mvn -B -ntp -f server/pom.xml verify
 
       # Release builds the images from this jar instead of compiling again

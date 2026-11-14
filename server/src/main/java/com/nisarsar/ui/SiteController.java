@@ -26,7 +26,7 @@ public class SiteController {
         return siteCatalogService.getCatalog();
     }
 
-    @GetMapping( Constants.SITES+ "/{id}")
+    @GetMapping(Constants.SITES + "/{id}")
     public SarSite getSite(@PathVariable String id) {
         return siteCatalogService.getCatalog().sites().stream()
                 .filter(site -> site.id().equals(id))
@@ -39,11 +39,6 @@ public class SiteController {
         SarSite site = getSite(id);
 
         return new SiteObservationSeries(
-                null,
-                site.id(),
-                siteCatalogService.getCatalog().observationDates(),
-                site.vv(),
-                site.vh()
-        );
+                null, site.id(), siteCatalogService.getCatalog().observationDates(), site.vv(), site.vh());
     }
 }
