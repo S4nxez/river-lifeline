@@ -26,14 +26,14 @@ public class SiteCatalogService {
 
         List<SiteObservationEntity> observations = siteObservationSeriesRepository.findAll();
 
-        // Fechas globales, ordenadas cronológicamente.
+        // Every observation date across all sites, in chronological order.
         List<String> dates = observations.stream()
                 .map(SiteObservationEntity::getObservationDate)
                 .distinct()
                 .sorted()
                 .toList();
 
-        // Agrupar observaciones por sitio y fecha.
+        // Observations grouped by site, then by date.
         Map<String, Map<String, SiteObservationEntity>> observationsBySite = observations.stream()
                 .collect(Collectors.groupingBy(
                         SiteObservationEntity::getSiteId,

@@ -18,6 +18,14 @@ jobs:
       COMPOSE_PROJECT_NAME: ci
     steps:
       - uses: actions/checkout@v5
+        with:
+          # The whole history, to diff the pull request against its base
+          fetch-depth: 0
+
+      # AGENTS.md: every change ships with unit tests
+      - name: Pull request - code changes come with tests
+        if: github.event_name == 'pull_request'
+        run: scripts/check-tests-changed.sh "origin/${{ github.base_ref }}"
 
       - uses: actions/setup-node@v5
         with:
@@ -40,6 +48,11 @@ jobs:
             node --input-type=module --check < "$f" || { echo "::error file=$f::syntax error"; rc=1; }
           done
           exit "$rc"
+
+      # node:test + jsdom, with Leaflet, Chart.js and fetch faked (frontend/tests)
+      - name: Frontend - unit tests
+        working-directory: frontend
+        run: npm test
 
       - uses: actions/setup-java@v5
         with:
