@@ -1,8 +1,6 @@
 import { STATUSES, statusOf } from "../status.js";
 
-// Tefé, when the API has no hub to centre on
-const DEFAULT_CENTER = [-3.354, -64.711];
-const REGION_ZOOM = 9;
+const FALLBACK_ZOOM = 9;
 const COMMUNITY_ZOOM = 11;
 
 // CARTO basemaps: Voyager (day) and Dark Matter (night). Keyless tiles are watermarked "API key required". The key
@@ -18,10 +16,27 @@ const CARTO_ATTRIBUTION =
 const OSM_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
+// The satellite basemap: EOX's cloudless Sentinel-2 mosaic, a photo to read the radar against. Free with attribution
+// for non-commercial use. Like the map tiles, it is a basemap, not data: the monitor's own images come from the API.
+export const SATELLITE_URL = "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2023_3857/default/g/{z}/{y}/{x}.jpg";
+const SATELLITE_ATTRIBUTION =
+  '<a href="https://s2maps.eu">Sentinel-2 cloudless</a> by <a href="https://eox.at">EOX</a> (Copernicus Sentinel data 2023)';
+
+// The monitor's images sit between the basemap (tile pane, 200) and the markers (overlay pane, 400)
+const IMAGERY_PANE = "imagery";
+
 let map;
-let tiles;
-let usingFallback = false;
+let baseTiles;
+let basemap = "map";
+let theme = "light";
+let cartoRefused = false;
+let hubLayer;
+let markerLayer;
+let imageryLayer;
+let visibleStatuses = new Set(Object.keys(STATUSES));
+let onImageError = () => {};
 const markers = new Map();
+const images = new Map();
 
 /** The CARTO tile URL of the day ("light") or night ("dark") map, with the API key. */
 export function tileUrl(theme) {
@@ -29,21 +44,107 @@ export function tileUrl(theme) {
   return `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`;
 }
 
-/** Draws the hub and every community, coloured by status; returns the controls to focus one and to switch theme. */
-export async function createMap(hub, communities, onSelect, theme = "light") {
-  map = L.map("map", { zoomControl: true, scrollWheelZoom: false }).setView(
-    hub ? [hub.lat, hub.lng] : DEFAULT_CENTER,
-    REGION_ZOOM,
-  );
-  tiles = L.tileLayer(tileUrl(theme), { attribution: CARTO_ATTRIBUTION, subdomains: "abcd", maxZoom: 18 }).addTo(map);
-  tiles.on("tileerror", useOpenStreetMap);
-  const layer = L.layerGroup().addTo(map);
+/**
+ * Draws the area, its hub and every community, coloured by status. Returns the controls the page drives it with.
+ * `onImageError(layerId)` hears of every image the API fails to serve.
+ */
+export async function createMap({
+  area,
+  hub,
+  communities,
+  onSelect,
+  theme: initialTheme = "light",
+  onImageError: report,
+}) {
+  // A new map starts from nothing: no tiles, images or markers of a previous one
+  theme = initialTheme;
+  onImageError = report ?? (() => {});
+  baseTiles = null;
+  basemap = "map";
+  cartoRefused = false;
+  visibleStatuses = new Set(Object.keys(STATUSES));
+  markers.clear();
+  images.clear();
+  map = L.map("map", { zoomControl: false, scrollWheelZoom: false });
+  frame(area, hub, communities);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
+  map.createPane(IMAGERY_PANE).style.zIndex = 300;
+  drawBasemap();
+  imageryLayer = L.layerGroup().addTo(map);
+  hubLayer = L.layerGroup().addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
 
   if (hub) {
     L.circleMarker([hub.lat, hub.lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#111214", fillOpacity: 1 })
       .bindTooltip(`${hub.name} · hub`, { direction: "top", offset: [0, -8] })
-      .addTo(layer);
+      .addTo(hubLayer);
   }
+  setCommunities(communities, onSelect);
+
+  await new Promise((resolve) => setTimeout(resolve, 80));
+  map.invalidateSize();
+  return {
+    selectCommunity,
+    setTheme,
+    setBasemap,
+    setCommunities: (next) => setCommunities(next, onSelect),
+    setVisibleStatuses,
+    showImagery,
+  };
+}
+
+/** Frames the area: its bounds, else every place on it, else its centre. */
+function frame(area, hub, communities) {
+  if (area?.bounds) {
+    map.fitBounds(area.bounds);
+    return;
+  }
+  const places = [hub, ...communities].filter(Boolean).map((place) => [place.lat, place.lng]);
+  if (places.length > 1) map.fitBounds(places, { padding: [40, 40] });
+  else if (places.length === 1) map.setView(places[0], FALLBACK_ZOOM);
+  else if (area?.center) map.setView([area.center.lat, area.center.lng], FALLBACK_ZOOM);
+}
+
+/** Replaces the basemap tiles with the ones the basemap choice, the theme and CARTO's answer call for. */
+function drawBasemap() {
+  if (baseTiles) map.removeLayer(baseTiles);
+  if (basemap === "satellite") {
+    baseTiles = L.tileLayer(SATELLITE_URL, { attribution: SATELLITE_ATTRIBUTION, maxNativeZoom: 15, maxZoom: 18 });
+  } else if (cartoRefused) {
+    baseTiles = L.tileLayer(OSM_URL, { attribution: OSM_ATTRIBUTION, maxZoom: 19 });
+  } else {
+    baseTiles = L.tileLayer(tileUrl(theme), { attribution: CARTO_ATTRIBUTION, subdomains: "abcd", maxZoom: 18 });
+    baseTiles.on("tileerror", useOpenStreetMap);
+  }
+  baseTiles.addTo(map);
+  // Only the OpenStreetMap fallback needs darkening at night: the satellite photo stays as it is
+  map.getContainer().classList.toggle("map-fallback", basemap === "map" && cartoRefused);
+}
+
+/** "map" (CARTO, or OpenStreetMap where CARTO refuses the key) or "satellite". */
+function setBasemap(next) {
+  if (next === basemap) return;
+  basemap = next;
+  drawBasemap();
+}
+
+/** Switches the map basemap to the day ("light") or night ("dark") style. */
+function setTheme(next) {
+  theme = next;
+  if (basemap === "map" && !cartoRefused) baseTiles.setUrl(tileUrl(theme));
+}
+
+/** CARTO refused a tile: use OpenStreetMap for good, instead of leaving the map without a background. */
+function useOpenStreetMap() {
+  if (cartoRefused) return;
+  cartoRefused = true;
+  console.warn("CARTO refused the basemap tiles (is this domain allowed for the key?): using OpenStreetMap instead.");
+  if (basemap === "map") drawBasemap();
+}
+
+/** Draws the communities of a pass, replacing the previous pass's. */
+function setCommunities(communities, onSelect) {
+  markers.clear();
   communities.forEach((community) => {
     const status = statusOf(community);
     const marker = L.circleMarker([community.lat, community.lng], {
@@ -54,34 +155,53 @@ export async function createMap(hub, communities, onSelect, theme = "light") {
       fillOpacity: 1,
     }).bindTooltip(`${community.name} · ${STATUSES[status].label}`, { direction: "top", offset: [0, -7] });
     marker.on("click", () => onSelect(community.id));
-    marker.addTo(layer);
-    markers.set(community.id, marker);
+    markers.set(community.id, { marker, status });
   });
+  drawMarkers();
+}
 
-  await new Promise((resolve) => setTimeout(resolve, 80));
-  map.invalidateSize();
-  return { selectCommunity, setTheme };
+/** Shows only the communities in `statuses` (status codes). */
+function setVisibleStatuses(statuses) {
+  visibleStatuses = new Set(statuses);
+  drawMarkers();
+}
+
+function drawMarkers() {
+  markerLayer.clearLayers();
+  for (const { marker, status } of markers.values()) {
+    if (visibleStatuses.has(status)) marker.addTo(markerLayer);
+  }
 }
 
 function selectCommunity(id) {
-  const marker = markers.get(id);
-  if (!marker) return;
-  map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), COMMUNITY_ZOOM), { duration: 0.5 });
-  marker.openTooltip();
+  const entry = markers.get(id);
+  if (!entry) return;
+  map.flyTo(entry.marker.getLatLng(), Math.max(map.getZoom(), COMMUNITY_ZOOM), { duration: 0.5 });
+  if (visibleStatuses.has(entry.status)) entry.marker.openTooltip();
 }
 
-/** Switches the basemap to the day ("light") or night ("dark") style. */
-function setTheme(theme) {
-  // The OpenStreetMap fallback has a single style; the CSS of the theme darkens it
-  if (!usingFallback) tiles.setUrl(tileUrl(theme));
-}
-
-/** CARTO refused a tile: swap to OpenStreetMap for good, instead of leaving the map without a background. */
-function useOpenStreetMap() {
-  if (usingFallback) return;
-  usingFallback = true;
-  console.warn("CARTO refused the basemap tiles (is this domain allowed for the key?): using OpenStreetMap instead.");
-  map.removeLayer(tiles);
-  tiles = L.tileLayer(OSM_URL, { attribution: OSM_ATTRIBUTION, maxZoom: 19 }).addTo(map);
-  map.getContainer().classList.add("map-fallback");
+/**
+ * Draws exactly `layers` ({ id, url, bounds, opacity }, bottom to top) over the basemap. An image already on the map
+ * is kept and only its opacity changes, so dragging the opacity slider never reloads it.
+ */
+function showImagery(layers) {
+  const wanted = new Set(layers.map((layer) => layer.url));
+  for (const [url, image] of images) {
+    if (!wanted.has(url)) {
+      imageryLayer.removeLayer(image);
+      images.delete(url);
+    }
+  }
+  for (const layer of layers) {
+    let image = images.get(layer.url);
+    if (image) {
+      image.setOpacity(layer.opacity);
+    } else {
+      image = L.imageOverlay(layer.url, layer.bounds, { opacity: layer.opacity, pane: IMAGERY_PANE, alt: layer.id });
+      image.on("error", () => onImageError(layer.id));
+      image.addTo(imageryLayer);
+      images.set(layer.url, image);
+    }
+    image.bringToFront();
+  }
 }

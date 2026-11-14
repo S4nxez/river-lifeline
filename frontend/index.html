@@ -35,7 +35,10 @@
     <div class="app-shell">
       <header class="topbar">
         <a class="brand" href="#" aria-label="River Lifeline home"
-          ><span><strong>RIVER LIFELINE</strong><small>TEFÉ · AMAZONAS</small></span></a
+          ><span
+            ><strong>RIVER LIFELINE</strong
+            ><small><span data-area-name>Tefé</span> · <span data-area-region>Amazonas</span></small></span
+          ></a
         >
         <div class="topbar-end">
           <div class="mission-status">
@@ -64,7 +67,7 @@
             <p class="eyebrow">SPACE APPS CHALLENGE · 2026</p>
             <h1>
               Who can still<br class="mobile-break" />
-              <span>reach Tefé?</span>
+              <span>reach <span data-area-name>Tefé</span>?</span>
             </h1>
             <p class="intro-copy">
               In droughts the rivers drop and riverside communities lose their only road: the water route to Tefé for
@@ -85,7 +88,9 @@
         <section class="stats-grid" aria-label="Overview metrics">
           <article class="stat-card">
             <span class="stat-label">COMMUNITIES</span><strong id="stat-communities">--</strong
-            ><span class="stat-foot">Monitored around Tefé</span>
+            ><span class="stat-foot"
+              ><span>Monitored around <span data-area-name>Tefé</span></span></span
+            >
           </article>
           <article class="stat-card">
             <span class="stat-label">ISOLATED</span><strong id="stat-isolated" class="status-isolated">--</strong
@@ -96,46 +101,66 @@
             ><span class="stat-foot"><i class="dot status-bg-at_risk"></i> Route narrowing</span>
           </article>
           <article class="stat-card">
-            <span class="stat-label">LATEST NISAR PASS</span><strong class="stat-date" id="stat-pass">--</strong
+            <span class="stat-label">NISAR PASS SHOWN</span><strong class="stat-date" id="stat-pass">--</strong
             ><span class="stat-foot" id="stat-river">River level</span>
           </article>
         </section>
 
-        <section class="workspace">
-          <div class="map-panel panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">01 / RIVER NETWORK</p>
-                <h2>Communities and their route to Tefé</h2>
-              </div>
-              <span class="live-label">LATEST STATUS</span>
+        <section class="map-section" aria-labelledby="map-title">
+          <div class="panel-heading map-heading">
+            <div>
+              <p class="eyebrow">01 / RIVER NETWORK</p>
+              <h2 id="map-title">Communities and their route to <span data-area-name>Tefé</span></h2>
             </div>
-            <div class="map-key">
-              <span><i class="key-dot status-bg-connected"></i>Connected</span
-              ><span><i class="key-dot status-bg-at_risk"></i>At risk</span
-              ><span><i class="key-dot status-bg-isolated"></i>Isolated</span
-              ><span><i class="key-dot status-bg-no_data"></i>No data</span>
-            </div>
+            <span class="live-label">ONE NISAR PASS AT A TIME</span>
+          </div>
+          <div class="map-stage">
             <div
               id="map"
-              role="img"
-              aria-label="Map of the communities around Tefé coloured by river connectivity"
+              role="region"
+              aria-label="Map of the communities coloured by river connectivity, with the radar images of the pass"
             ></div>
-            <div class="map-footer">
-              <span>Select a community on the map or in the list</span><span class="demo-tag">TEFÉ · HUB</span>
-            </div>
-          </div>
 
-          <aside class="site-panel panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">02 / COMMUNITIES</p>
-                <h2>Most in need first</h2>
+            <aside class="map-card site-panel" aria-labelledby="communities-title">
+              <div class="map-card-head">
+                <h3 id="communities-title">Most in need first</h3>
+                <button
+                  id="communities-toggle"
+                  class="card-toggle"
+                  type="button"
+                  aria-expanded="true"
+                  aria-controls="communities-body"
+                >
+                  <span class="card-toggle-open">Hide</span><span class="card-toggle-closed">Show</span>
+                </button>
               </div>
+              <div id="communities-body" class="map-card-body">
+                <div id="community-list" class="site-list"></div>
+                <div class="selected-summary" id="selected-summary" aria-live="polite"></div>
+              </div>
+            </aside>
+
+            <div class="map-card layers-panel">
+              <button
+                id="layers-toggle"
+                class="layers-toggle"
+                type="button"
+                aria-expanded="true"
+                aria-controls="layer-controls"
+              >
+                Layers
+              </button>
+              <div id="layer-controls" class="layer-controls"></div>
             </div>
-            <div id="community-list" class="site-list"></div>
-            <div class="selected-summary" id="selected-summary" aria-live="polite"></div>
-          </aside>
+
+            <div
+              id="status-filter"
+              class="map-card status-filter"
+              role="group"
+              aria-label="Show communities by status"
+            ></div>
+          </div>
+          <p class="map-footer">Select a community on the map or in the list. Filter by status with the legend.</p>
         </section>
 
         <section class="analysis-grid">

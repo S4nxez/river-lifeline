@@ -18,7 +18,7 @@ const expected = {
 
 for (const [status, { tag, title }] of Object.entries(expected)) {
   test(`a ${status} community gets the ${tag} interpretation`, () => {
-    renderStatusPanel(container, community({ latest: { status } }));
+    renderStatusPanel(container, community({ latest: { status } }), { thresholdM: 60, hubName: "Tefé" });
 
     assert.equal(container.querySelector(".insight-status span:last-child").textContent, tag);
     assert.equal(container.querySelector("h3").textContent, title);
@@ -60,4 +60,24 @@ test("a community never assessed shows no data", () => {
   const [width, pass] = container.querySelectorAll(".insight-metrics strong");
   assert.equal(width.textContent, "—");
   assert.equal(pass.textContent, "—");
+});
+
+test("the explanation uses the area's connected width and the name of the town the route leads to", () => {
+  renderStatusPanel(container, community({ latest: { status: "connected" } }), { thresholdM: 100, hubName: "Coari" });
+  assert.equal(
+    container.querySelector(".insight-copy").textContent,
+    "A channel at least 100 m wide still links the community to Coari.",
+  );
+
+  renderStatusPanel(container, community({ latest: { status: "at_risk" } }), { thresholdM: 100, hubName: "Coari" });
+  assert.match(container.querySelector(".insight-copy").textContent, /narrower than 100 m/);
+});
+
+test("without the area's figures the explanation still reads", () => {
+  renderStatusPanel(container, community({ latest: { status: "connected" } }));
+
+  assert.equal(
+    container.querySelector(".insight-copy").textContent,
+    "A channel wide enough for boats still links the community to the hub.",
+  );
 });

@@ -12,14 +12,18 @@ test("isolation plots as zero width and a pass without data as a gap", () => {
   assert.equal(plottedWidth(assessment("2026-09-09", "no_data")), null);
 });
 
-test("plots the route width of every pass against the connected threshold", () => {
-  renderRouteChart(canvas, {
-    assessments: [
-      assessment("2026-08-04", "connected", 200),
-      assessment("2026-08-16", "at_risk", 40),
-      assessment("2026-08-28", "isolated"),
-    ],
-  });
+test("plots the route width of every pass against the area's connected threshold", () => {
+  renderRouteChart(
+    canvas,
+    {
+      assessments: [
+        assessment("2026-08-04", "connected", 200),
+        assessment("2026-08-16", "at_risk", 40),
+        assessment("2026-08-28", "isolated"),
+      ],
+    },
+    { thresholdM: 60 },
+  );
 
   const { canvas: target, config } = charts.at(-1);
   const [widths, threshold] = config.data.datasets;
@@ -28,6 +32,13 @@ test("plots the route width of every pass against the connected threshold", () =
   assert.deepEqual(widths.data, [200, 40, 0]);
   assert.deepEqual(widths.pointBackgroundColor, ["#0b7a52", "#a15c07", "#b42318"]);
   assert.deepEqual(threshold.data, [60, 60, 60]);
+  assert.equal(threshold.label, "Connected (60 m)");
+});
+
+test("without the area's threshold there is no threshold line", () => {
+  renderRouteChart(canvas, { assessments: [assessment("2026-08-04", "connected", 200)] });
+
+  assert.equal(charts.at(-1).config.data.datasets.length, 1);
 });
 
 test("a missing history draws an empty chart", () => {
@@ -50,7 +61,7 @@ test("draws in the light palette by default and in the dark one for the dark the
   renderRouteChart(canvas, { assessments: [] });
   assert.equal(charts.at(-1).config.data.datasets[0].borderColor, CHART_COLORS.light.line);
 
-  renderRouteChart(canvas, { assessments: [] }, "dark");
+  renderRouteChart(canvas, { assessments: [] }, { theme: "dark", thresholdM: 60 });
   const { data, options } = charts.at(-1).config;
   assert.equal(data.datasets[0].borderColor, CHART_COLORS.dark.line);
   assert.equal(data.datasets[1].borderColor, CHART_COLORS.dark.threshold);

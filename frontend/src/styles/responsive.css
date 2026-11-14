@@ -33,10 +33,15 @@ a:focus-visible {
   .intro-note {
     max-width: 480px;
   }
-  .workspace,
   .analysis-grid {
     grid-template-columns: 1fr;
     gap: 72px;
+  }
+  .site-panel {
+    width: 280px;
+  }
+  .layers-panel {
+    width: 260px;
   }
   .analysis-grid {
     margin-top: 72px;
@@ -71,97 +76,105 @@ a:focus-visible {
     font-size: 11px;
   }
 
-  /* The map comes first on phones: main becomes one column whose order CSS sets, so the desktop layout and the
-     HTML order (and with it the reading order of screen readers) stay as they are */
-  main {
-    display: flex;
-    flex-direction: column;
+  /* A little about the monitor, then the map with all its controls */
+  .intro {
+    padding: 24px 0 20px;
   }
-  .workspace,
-  .analysis-grid {
-    display: contents;
+  .intro-note {
+    display: none;
   }
-  .map-panel {
-    order: 1;
+  .stats-grid {
+    margin-bottom: 28px;
+  }
+  .map-section {
+    padding-top: 16px;
+  }
+  .map-heading {
+    margin-bottom: 12px;
+  }
+  .map-heading h2 {
+    font-size: 20px;
+  }
+  .live-label {
+    display: none;
+  }
+
+  /* Edge to edge; the filter and the communities follow it instead of covering it */
+  .map-stage {
     display: flex;
     flex-direction: column;
     margin: 0 -16px;
-    padding-top: 0;
-    border-top: 0;
   }
-  .site-panel {
-    order: 2;
-    margin-top: 40px;
-  }
-  .insight-panel {
-    order: 3;
-    margin-top: 56px;
-  }
-  .analysis-panel {
-    order: 4;
-    margin-top: 56px;
-  }
-  .stats-grid {
-    order: 5;
-    margin: 56px 0 0;
-  }
-  .intro {
-    order: 6;
-    padding: 56px 0 0;
-  }
-  .footer {
-    order: 7;
-  }
-
-  /* Edge to edge, as tall as the screen allows while leaving room to scroll past it */
   #map {
     order: 1;
-    height: 58vh;
-    min-height: 320px;
-    max-height: 560px;
-    border: 0;
-    border-bottom: 1px solid var(--line);
+    height: 72vh;
+    min-height: 420px;
+    border-inline: 0;
     border-radius: 0;
   }
-  .map-key {
+  .status-filter {
     order: 2;
-    padding: 14px 16px 0;
+    position: static;
+    max-width: none;
+    margin: 8px 12px 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .site-panel {
+    order: 3;
+    position: static;
+    width: auto;
+    max-height: none;
+    margin: 24px 16px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .site-panel .map-card-head,
+  .site-panel .selected-summary {
+    padding-inline: 0;
+  }
+  .site-panel .site-item {
+    padding-inline: 8px;
+  }
+  .layers-panel {
+    top: 12px;
+    right: 12px;
+    width: min(290px, calc(100% - 24px));
+    max-height: calc(72vh - 24px);
   }
   .map-footer {
-    order: 3;
     padding: 8px 16px 0;
   }
-  /* Its title stays for screen readers only: on a phone the map speaks for itself */
-  .map-panel .panel-heading {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
   .intro h1 {
-    font-size: 46px;
+    font-size: 36px;
   }
   .mobile-break {
     display: block;
   }
   .intro-copy {
-    font-size: 16px;
-    margin-top: 20px;
+    font-size: 15px;
+    margin-top: 16px;
   }
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .stat-card,
   .stat-card + .stat-card {
-    padding: 20px 0;
+    padding: 14px 0;
   }
   .stat-card:nth-child(even) {
     padding-left: 16px;
   }
   .stat-card > strong {
-    font-size: 32px;
+    font-size: 28px;
+    margin: 6px 0 4px;
   }
   .stat-card > .stat-date {
     font-size: 22px;
@@ -172,12 +185,6 @@ a:focus-visible {
   }
   .panel-heading h2 {
     font-size: 24px;
-  }
-  .map-key {
-    gap: 14px;
-  }
-  .map-footer {
-    justify-content: space-between;
   }
   .site-item {
     padding: 14px 8px;

@@ -29,19 +29,32 @@ export function installChart() {
   return instances;
 }
 
-/** Installs a fake Leaflet `L` and returns what the app did with it (markers, map moves). */
+/**
+ * Installs a fake Leaflet `L` and returns what the app did with it: the map's framing and moves, every tile layer
+ * (the current one last), every marker, every image overlay and which ones are on the map.
+ */
 export function installLeaflet({ zoom = 2 } = {}) {
-  // tiles: every tile layer created, the current one last; each records its url, options, handlers and removal
   const recorded = {
     mapContainer: null,
+    view: null,
     tiles: [],
-    containerClasses: [],
+    containerClasses: new Set(),
     markers: [],
+    images: [],
+    panes: {},
+    zoomControl: null,
     flights: [],
     invalidated: false,
   };
   const map = {
-    setView: () => map,
+    setView: (center, viewZoom) => {
+      recorded.view = { center, zoom: viewZoom };
+      return map;
+    },
+    fitBounds: (bounds, options) => {
+      recorded.view = { bounds, options };
+      return map;
+    },
     invalidateSize: () => {
       recorded.invalidated = true;
     },
@@ -50,52 +63,104 @@ export function installLeaflet({ zoom = 2 } = {}) {
     removeLayer: (layer) => {
       layer.removed = true;
     },
-    getContainer: () => ({ classList: { add: (name) => recorded.containerClasses.push(name) } }),
+    createPane: (name) => {
+      recorded.panes[name] = { style: {} };
+      return recorded.panes[name];
+    },
+    getContainer: () => ({
+      classList: {
+        toggle: (name, on) => (on ? recorded.containerClasses.add(name) : recorded.containerClasses.delete(name)),
+      },
+    }),
   };
-  const addable = { addTo: () => addable };
+
+  /** A layer group that knows what is on it. */
+  function group() {
+    const layers = new Set();
+    return {
+      layers,
+      addTo() {
+        return this;
+      },
+      addLayer(layer) {
+        layers.add(layer);
+      },
+      removeLayer(layer) {
+        layers.delete(layer);
+        layer.removed = true;
+      },
+      clearLayers() {
+        layers.clear();
+      },
+    };
+  }
+
+  /** What every layer can do: be added to the map or to a group, and take event handlers. */
+  const layer = (fields) => ({
+    ...fields,
+    handlers: {},
+    removed: false,
+    on(event, handler) {
+      this.handlers[event] = handler;
+      return this;
+    },
+    addTo(target) {
+      target?.addLayer?.(this);
+      return this;
+    },
+  });
+
   globalThis.L = {
     map: (container) => {
       recorded.mapContainer = container;
       return map;
     },
+    control: {
+      zoom: (options) => {
+        recorded.zoomControl = options;
+        return { addTo: () => {} };
+      },
+    },
     tileLayer: (url, options) => {
-      const tiles = {
+      const tiles = layer({
         url,
         options,
-        handlers: {},
-        removed: false,
-        on(event, handler) {
-          this.handlers[event] = handler;
-          return this;
-        },
         setUrl(next) {
           this.url = next;
           return this;
         },
-        addTo() {
-          return this;
-        },
-      };
+      });
       recorded.tiles.push(tiles);
       return tiles;
     },
-    layerGroup: () => addable,
+    layerGroup: group,
+    imageOverlay: (url, bounds, options) => {
+      const image = layer({
+        url,
+        bounds,
+        options,
+        opacity: options.opacity,
+        frontCount: 0,
+        setOpacity(opacity) {
+          this.opacity = opacity;
+          return this;
+        },
+        bringToFront() {
+          this.frontCount += 1;
+          return this;
+        },
+      });
+      recorded.images.push(image);
+      return image;
+    },
     circleMarker: (latLng, options) => {
-      const marker = {
+      const marker = layer({
         latLng,
         options,
         tooltip: null,
         tooltipOpen: false,
-        handlers: {},
         bindTooltip(text) {
           this.tooltip = text;
-          return this;
-        },
-        on(event, handler) {
-          this.handlers[event] = handler;
-          return this;
-        },
-        addTo() {
           return this;
         },
         getLatLng() {
@@ -104,7 +169,7 @@ export function installLeaflet({ zoom = 2 } = {}) {
         openTooltip() {
           this.tooltipOpen = true;
         },
-      };
+      });
       recorded.markers.push(marker);
       return marker;
     },
@@ -153,7 +218,15 @@ export function apiFeature({ id = "uarini", name = "Uarini", kind = "town", stat
 /** The bodies of the contract endpoints the overview is built from, for a pass acquired on `day`. */
 export function apiOverview(features, day = "2026-09-09") {
   return {
-    aoi: { id: "tefe", name: "Tefé", destination: { name: "Port of Tefé", location: [-64.711, -3.354] } },
+    aoi: {
+      id: "tefe",
+      name: "Tefé",
+      region: "Amazonas",
+      center: [-64.75, -3.4],
+      bbox: [-65.2, -3.9, -64.3, -2.9],
+      destination: { name: "Port of Tefé", location: [-64.711, -3.354] },
+      parameters: { connected_min_width_m: 60 },
+    },
     summary: {
       pass_id: `nisar-${day}`,
       acquired_at: `${day}T09:45:12Z`,
@@ -161,6 +234,45 @@ export function apiOverview(features, day = "2026-09-09") {
       counts: { connected: 1, at_risk: 1, isolated: 2, no_data: 0 },
     },
     collection: { type: "FeatureCollection", pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, features },
+  };
+}
+
+/** `GET /api/v1/meta`: the layer catalog, as the contract defines it. */
+export function apiMeta() {
+  return {
+    layers: [
+      { id: "radar_hh", label: "Radar (HH)", default_visible: true, default_opacity: 1 },
+      { id: "water", label: "Open water", default_visible: true, default_opacity: 0.8 },
+      { id: "change", label: "Change vs previous pass", default_visible: false, default_opacity: 0.9 },
+    ],
+  };
+}
+
+/** An item of `GET /api/v1/aois/{aoi}/passes` (oldest first, as the API lists them). */
+export function apiPassItem(day, { evaluated = true, coverage = 0.97, riverLevelM = 9.8, track = 81 } = {}) {
+  return {
+    id: `nisar-${day}`,
+    acquired_at: `${day}T09:45:12Z`,
+    platform: "NISAR",
+    track,
+    evaluated,
+    coverage_fraction: coverage,
+    river_level_m: riverLevelM,
+  };
+}
+
+/** `GET /api/v1/aois/{aoi}/passes/{pass}`: its layers, each served from the server root as the API gives them. */
+export function apiPassDetail(day, layerIds = ["radar_hh", "water", "change"]) {
+  return {
+    id: `nisar-${day}`,
+    acquired_at: `${day}T09:45:12Z`,
+    layers: layerIds.map((id) => ({
+      id,
+      url: `/api/v1/aois/tefe/passes/nisar-${day}/layers/${id}.png`,
+      bounds: [-65.2, -3.9, -64.3, -2.9],
+      width_px: 256,
+      height_px: 256,
+    })),
   };
 }
 

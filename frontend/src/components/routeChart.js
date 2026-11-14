@@ -1,5 +1,5 @@
 import { formatDay } from "../format.js";
-import { CONNECTED_MIN_WIDTH_M, STATUSES } from "../status.js";
+import { STATUSES } from "../status.js";
 
 let chart;
 
@@ -31,8 +31,11 @@ export function plottedWidth(assessment) {
   return assessment.routeWidthM ?? null;
 }
 
-/** The narrowest point of the community's route on every NISAR pass, against the connected threshold. */
-export function renderRouteChart(canvas, history, theme = "light") {
+/**
+ * The narrowest point of the community's route on every NISAR pass, against the area's connected threshold
+ * (`thresholdM`, from the API; no threshold line without it).
+ */
+export function renderRouteChart(canvas, history, { theme = "light", thresholdM = null } = {}) {
   const colors = CHART_COLORS[theme] ?? CHART_COLORS.light;
   if (chart) chart.destroy();
   const assessments = history?.assessments ?? [];
@@ -53,14 +56,18 @@ export function renderRouteChart(canvas, history, theme = "light") {
           tension: 0.25,
           spanGaps: false,
         },
-        {
-          label: `Connected (${CONNECTED_MIN_WIDTH_M} m)`,
-          data: assessments.map(() => CONNECTED_MIN_WIDTH_M),
-          borderColor: colors.threshold,
-          borderDash: [6, 4],
-          borderWidth: 1.5,
-          pointRadius: 0,
-        },
+        ...(thresholdM == null
+          ? []
+          : [
+              {
+                label: `Connected (${thresholdM} m)`,
+                data: assessments.map(() => thresholdM),
+                borderColor: colors.threshold,
+                borderDash: [6, 4],
+                borderWidth: 1.5,
+                pointRadius: 0,
+              },
+            ]),
       ],
     },
     options: {
