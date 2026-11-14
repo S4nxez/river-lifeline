@@ -1,6 +1,18 @@
 # River Lifeline
 
-NISAR SAR change detection: a map and dashboard of monitored sites with their radar backscatter (VV/VH) time series.
+Which riverside communities around Tefé (Amazonas, Brazil) can still reach the town by water?
+
+In severe droughts the rivers drop and communities lose their only road to Tefé, where they get food, fuel, health care
+and school. River Lifeline uses every pass of the NISAR radar (L-band: it sees water through clouds, smoke and the
+forest canopy) to tell, community by community, whether a water route to Tefé still exists and how narrow it has
+become. Sentinel-1 is only used to cross-check each result.
+
+| Status | Meaning |
+|---|---|
+| Connected | A water route at least 60 m wide links the community to Tefé |
+| At risk | A route remains, narrower than 60 m |
+| Isolated | No water route left |
+| No data | The pass did not cover the community or its route |
 
 **Demo:** https://raspberrypi.tail0a4b52.ts.net/river-lifeline/
 
@@ -8,7 +20,7 @@ NISAR SAR change detection: a map and dashboard of monitored sites with their ra
 |---|---|
 | Backend | Java 21, Spring Boot, MySQL 8, Flyway |
 | Frontend | Vanilla JavaScript (ES modules), Leaflet |
-| Worker | Python 3.12: SAR image processing and drought forecasting |
+| Worker | Python 3.12: water route mapping on NISAR passes, Sentinel-1 cross-check, drought forecasting |
 | Infrastructure | Podman + Caddy on a Raspberry Pi, published with Tailscale Funnel |
 | CI/CD | GitHub Actions, images on GHCR |
 

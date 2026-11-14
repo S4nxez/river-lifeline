@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "worker"
 version = "0.1.0"
-description = "Processing worker: SAR change detection and drought forecasting, driven by the backend"
+description = "Processing worker: river connectivity from NISAR (Sentinel-1 cross-check) and drought forecasting"
 requires-python = ">=3.12"
 # Runtime dependencies go here as the adapters get implemented (e.g. numpy, rasterio, scikit-learn)
 dependencies = []
