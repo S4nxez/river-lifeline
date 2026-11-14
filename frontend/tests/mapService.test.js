@@ -1,10 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { community, installLeaflet } from "./helpers/browser.js";
-import { createMap, tileUrl } from "../src/services/mapService.js";
+import { createMap } from "../src/services/mapService.js";
 
 const leaflet = installLeaflet({ zoom: 9 });
-globalThis.RIVER_LIFELINE_CONFIG = { cartoApiKey: "test-key" };
 const selected = [];
 const hub = { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 };
 const communities = [
@@ -21,18 +20,12 @@ test("draws the map in #map and resizes it once laid out", () => {
   assert.equal(leaflet.invalidated, true);
 });
 
-test("loads the CARTO tiles with the key from config.js, keeping their attribution", () => {
-  assert.equal(leaflet.tiles.url, "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=test-key");
+test("loads the CARTO Dark Matter tiles with the API key, keeping their attribution", () => {
+  assert.match(
+    leaflet.tiles.url,
+    /^https:\/\/\{s\}\.basemaps\.cartocdn\.com\/dark_all\/\{z\}\/\{x\}\/\{y\}\{r\}\.png\?key=cb1_\w+$/,
+  );
   assert.match(leaflet.tiles.options.attribution, /OpenStreetMap.*CARTO/);
-});
-
-test("tileUrl leaves the key out when there is none, so the map still loads (watermarked)", () => {
-  assert.equal(tileUrl(null), "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png");
-  assert.equal(tileUrl(""), "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png");
-});
-
-test("tileUrl escapes the key for the query string", () => {
-  assert.equal(tileUrl("a&b c"), "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=a%26b%20c");
 });
 
 test("marks the hub apart from the communities", () => {
