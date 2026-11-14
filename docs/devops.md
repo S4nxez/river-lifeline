@@ -12,7 +12,7 @@
 **Rollback** (no rebuild): `gh workflow run release.yml -f tag=<full SHA of a good commit>`. The next push to `main` deploys the latest code again.
 
 **Local**
-- Database only, for the IDE: `docker compose -f compose.dev.yml up -d` (root/root, same as `application.properties`).
+- `docker compose -f compose.dev.yml up -d`: MySQL (root/root, same as `application.properties`) and the frontend on http://localhost:5500, served from disk (reload to see edits) with `/api` proxied to the backend on the host's port 8080. Run the backend from the IDE or with `mvn spring-boot:run`.
 - Full stack as in production: `mvn -f server/pom.xml -DskipTests package`, then `docker compose -f podman-compose.yml -f compose.build.yml up -d --build` → http://127.0.0.1:8091
 
 **Formatting** (120 columns, LF line endings via `.gitattributes`)
