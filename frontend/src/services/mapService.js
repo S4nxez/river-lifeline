@@ -4,6 +4,11 @@ import { STATUSES, statusOf } from "../status.js";
 const DEFAULT_CENTER = [-3.354, -64.711];
 const REGION_ZOOM = 9;
 const COMMUNITY_ZOOM = 11;
+// CARTO Dark Matter tiles. Keyless tiles are watermarked "API key required". The key is public by design (every
+// tile URL carries it): what protects it is the CARTO dashboard, which restricts it to our domains, to basemaps
+// and to a quota.
+const CARTO_API_KEY = "cb1_58s2_1_e8ce9388cc9827c921fc7005";
+const TILE_URL = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`;
 
 let map;
 const markers = new Map();
@@ -14,7 +19,7 @@ export async function createMap(hub, communities, onSelect) {
     hub ? [hub.lat, hub.lng] : DEFAULT_CENTER,
     REGION_ZOOM,
   );
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  L.tileLayer(TILE_URL, {
     attribution: "&copy; OpenStreetMap &copy; CARTO",
     subdomains: "abcd",
     maxZoom: 18,

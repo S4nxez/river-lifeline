@@ -14,6 +14,7 @@
 **Local**
 - `docker compose -f compose.dev.yml up -d`: MySQL (root/root, same as `application.properties`) and the frontend on http://localhost:5500, served from disk (reload to see edits) with `/api` proxied to the backend on the host's port 8080. Run the backend from the IDE or with `mvn spring-boot:run` in `server/`: it serves the API from `../fixtures/data` (env `RIVER_DATA_DIR`, `PORT`, `DEFAULT_AOI`, `CORS_ORIGINS` override it).
 - Full stack as in production: `mvn -f server/pom.xml -DskipTests package`, then `docker compose -f podman-compose.yml -f compose.build.yml up -d --build` → http://127.0.0.1:8091
+- Everything at once on Windows: `scripts/local-stack.ps1`, or the IntelliJ run configuration "Local stack" (`.run/`). It builds the jar, starts the full stack plus the `front` of `compose.dev.yml` on http://localhost:5500 (the frontend from disk, so a reload shows every edit, with `/api` proxied to :8091; open to other devices such as a phone on the tailnet), opens the browser and follows the backend logs. Stopping it runs `docker compose down`.
 
 **Formatting** (120 columns, LF line endings via `.gitattributes`)
 - Frontend: Prettier, version pinned in `frontend/package.json`. Server: Spotless with palantir-java-format (`server/pom.xml`). Worker: Ruff (`worker/pyproject.toml`), run from its virtualenv (`worker/README.md`).
