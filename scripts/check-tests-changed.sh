@@ -23,6 +23,7 @@ require() {
 
 require Backend '^server/src/main/java/' '^server/src/test/java/'
 require Frontend '^frontend/src/.*\.js$' '^frontend/tests/'
+require Worker '^worker/src/.*\.py$' '^worker/tests/'
 
 if [[ "$failed" -eq 0 ]]; then echo "OK: code changes come with test changes"; fi
 exit "$failed"

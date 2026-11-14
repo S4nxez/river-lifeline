@@ -2,6 +2,7 @@
 # Formats what is being committed, so every commit uses the same style and merges don't conflict on formatting:
 #   frontend/  -> Prettier (frontend/package.json)
 #   server/    -> Spotless + palantir-java-format (server/pom.xml)
+#   worker/    -> Ruff format + import sorting (worker/pyproject.toml)
 # Enabled once per clone by `npm --prefix frontend install` (or `git config core.hooksPath .githooks`).
 # Skip it for one commit with `git commit --no-verify`; CI still rejects unformatted code.
 set -eu
@@ -10,11 +11,12 @@ cd "$(git rev-parse --show-toplevel)"
 staged() { git diff --cached --name-only --diff-filter=ACMR -- "$@"; }
 front=$(staged 'frontend/*.js' 'frontend/*.css' 'frontend/*.html' 'frontend/*.json' 'frontend/*.md')
 java=$(staged 'server/*.java')
-[ -n "$front$java" ] || exit 0
+python=$(staged 'worker/*.py')
+[ -n "$front$java$python" ] || exit 0
 
 # Formatted files are staged whole: a file that also has unstaged changes would sneak them into the commit
 # shellcheck disable=SC2086 # file names without spaces, split on purpose
-partial=$(git diff --name-only -- $front $java)
+partial=$(git diff --name-only -- $front $java $python)
 if [ -n "$partial" ]; then
   echo "pre-commit: these files have unstaged changes, stage them fully (git add) or stash them first:" >&2
   echo "$partial" | sed 's/^/  /' >&2
@@ -38,4 +40,22 @@ if [ -n "$java" ]; then
   (cd server && $mvn -q -B spotless:apply)
   # shellcheck disable=SC2086
   git add -- $java
+fi
+
+if [ -n "$python" ]; then
+  # The worker's virtualenv (worker/README.md), on Unix or Windows, else a ruff on the PATH
+  for candidate in worker/.venv/bin/ruff worker/.venv/Scripts/ruff.exe; do
+    [ -x "$candidate" ] && ruff="$PWD/$candidate" && break
+  done
+  if [ -z "${ruff:-}" ]; then
+    if command -v ruff >/dev/null 2>&1; then ruff=ruff; else
+      echo "pre-commit: Ruff is not installed, see worker/README.md (pip install -e \".[dev]\" in worker/.venv)" >&2
+      exit 1
+    fi
+  fi
+  # shellcheck disable=SC2086
+  (cd worker && files=$(echo "$python" | sed 's|^worker/||') && "$ruff" check --quiet --select I --fix $files &&
+    "$ruff" format --quiet $files)
+  # shellcheck disable=SC2086
+  git add -- $python
 fi

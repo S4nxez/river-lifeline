@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "worker"
+version = "0.1.0"
+description = "Processing worker: SAR change detection and drought forecasting, driven by the backend"
+requires-python = ">=3.12"
+# Runtime dependencies go here as the adapters get implemented (e.g. numpy, rasterio, scikit-learn)
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest==8.4.2", "ruff==0.12.9"]
+
+[project.scripts]
+worker = "worker.entrypoints.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import order, pyupgrade, bugbear
+select = ["E", "F", "I", "UP", "B"]
