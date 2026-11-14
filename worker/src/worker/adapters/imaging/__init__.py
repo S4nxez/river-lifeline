@@ -1,1 +1,1 @@
-"""Image processing: implementations of ChangeDetector (one module per algorithm)."""
+"""Image processing: implementations of RouteMapper (one module per method)."""

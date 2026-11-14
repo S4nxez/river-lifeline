@@ -3,14 +3,21 @@
 from datetime import date
 from pathlib import Path
 
+from worker.domain.connectivity import Community, MonitoredArea, RouteMeasurement
 from worker.domain.drought import DroughtEvent, WeatherObservation
 from worker.domain.errors import ModelNotFound
-from worker.domain.imagery import ChangeReport, Scene
+from worker.domain.imagery import NISAR, Scene
 from worker.domain.jobs import Job, JobResult
 
 
-def scene(scene_id: str, acquired_on: str) -> Scene:
-    return Scene(scene_id, "NISAR", date.fromisoformat(acquired_on), "VV", Path(f"/tmp/{scene_id}.tif"))
+def scene(scene_id: str, acquired_on: str, mission: str = NISAR) -> Scene:
+    return Scene(scene_id, mission, date.fromisoformat(acquired_on), "HH", Path(f"/tmp/{scene_id}.tif"))
+
+
+TEFE = Community("tefe", "Tefé", -3.354, -64.711)
+UARINI = Community("uarini", "Uarini", -2.99, -65.113)
+NOGUEIRA = Community("nogueira", "Nogueira", -3.295, -64.86)
+AREA = MonitoredArea(TEFE, [UARINI, NOGUEIRA])
 
 
 def weather(region: str, day: str, precipitation_mm: float = 1.0) -> WeatherObservation:
@@ -55,14 +62,24 @@ class FakeWeather:
         return self._droughts
 
 
-class FakeDetector:
-    def __init__(self, report: ChangeReport) -> None:
-        self.report = report
-        self.compared: list[tuple[Scene, Scene]] = []
+class FakeAreas:
+    def __init__(self, area: MonitoredArea = AREA) -> None:
+        self.area = area
 
-    def detect(self, before: Scene, after: Scene) -> ChangeReport:
-        self.compared.append((before, after))
-        return self.report
+    def monitored_area(self) -> MonitoredArea:
+        return self.area
+
+
+class FakeRouteMapper:
+    """Answers each scene id with canned measurements and records the scenes it measured."""
+
+    def __init__(self, by_scene: dict[str, list[RouteMeasurement]] | None = None) -> None:
+        self.by_scene = by_scene or {}
+        self.measured: list[tuple[Scene, Community, list[Community]]] = []
+
+    def measure(self, scene: Scene, hub: Community, communities: list[Community]) -> list[RouteMeasurement]:
+        self.measured.append((scene, hub, communities))
+        return self.by_scene[scene.id]
 
 
 class FakeModel:
