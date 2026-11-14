@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MvcResult;
 @SpringBootTest(
         properties = {
             WithoutDatabase.PROPERTY,
+            WithoutDatabase.NO_PIPELINE,
             "river.data-dir=../fixtures/data",
             "river.cors-origins=http://localhost:5500"
         })

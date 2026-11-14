@@ -30,14 +30,20 @@ The pre-commit hook applies them (enable it once per clone with `npm --prefix fr
 
 ## Architecture
 
-- Three layers, two contracts (CONTRACTS.md): processing (`worker/`) fetches the satellite data and writes files to
-  `RIVER_DATA_DIR`, and never serves requests; the backend (`server/`) only reads, validates, joins and serves them
-  under `/api/v1` (GET only), and never computes science; the UI talks only to the backend.
-- Nothing is specific to one area: each study area is a folder `aois/<id>/` with its own coordinates and thresholds.
-  Never hardcode an area, a width or a coverage threshold in the backend or the UI.
-- The server follows hexagonal architecture with DDD: `domain` (model, rules) ← `application` (use cases and ports)
-  ← `infrastructure` (web and file system adapters, Spring wiring). Domain and application don't use Spring or
-  Jackson. `server/src/test/java/com/riverlifeline/ArchitectureTest.java` fails the build on a violation.
+- Three layers. The worker (`worker/`) does all the processing and talks only to the backend, through the internal
+  worker API (`api/worker-api.yaml`, explained in `api/worker-api.md`). The backend (`server/`) is the intermediary: it
+  alone calls the external services (ASF, Earthdata, Planetary Computer, ANA, Open-Meteo), keeps the area files, the
+  database and the raster store, hands jobs with all their inputs to the worker and stores its results; it never
+  computes science. The UI talks only to the backend, under `/api/v1` (GET only), which still serves the files of
+  `RIVER_DATA_DIR` (CONTRACTS.md) until it reads the worker's results.
+- Nothing is specific to one area: each study area is a file `server/src/main/resources/areas/<id>.json` (with its
+  communities and occurrence next to it) and, for `/api/v1`, a folder `aois/<id>/`. Never hardcode an area, a width or
+  a coverage threshold in the backend or the UI.
+- The server follows hexagonal architecture with DDD in two bounded contexts, `monitoring` (`/api/v1`) and `pipeline`
+  (the worker API and the external sources): `domain` (model, rules) ← `application` (use cases and ports) ←
+  `infrastructure` (web, database, file system and HTTP adapters, Spring wiring). Domain and application don't use
+  Spring or Jackson, and neither context uses the other. `server/src/test/java/com/riverlifeline/ArchitectureTest.java`
+  fails the build on a violation.
 - The worker follows clean architecture: `domain` ← `application` ← `adapters` ← `entrypoints`, each layer importing
   only the ones inside it. `worker/tests/test_architecture.py` fails the build on a violation.
 

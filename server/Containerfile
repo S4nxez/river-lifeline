@@ -4,9 +4,11 @@ WORKDIR /app
 
 COPY target/*.jar app.jar
 
-# CONTRACTS.md 3.4: the API listens on PORT and reads the processing output from RIVER_DATA_DIR (mounted read-only)
+# CONTRACTS.md 3.4: the API listens on PORT and reads the processing output from RIVER_DATA_DIR (mounted read-only).
+# RIVER_RASTER_DIR holds the raster bodies of the worker pipeline (api/worker-api.md), on a volume.
 ENV PORT=8080 \
-    RIVER_DATA_DIR=/data
+    RIVER_DATA_DIR=/data \
+    RIVER_RASTER_DIR=/var/lib/river-lifeline/rasters
 
 EXPOSE 8080
 

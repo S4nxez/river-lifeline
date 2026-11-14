@@ -12,11 +12,13 @@
     <artifactId>river-lifeline-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>River Lifeline server</name>
-    <description>Read-only HTTP API over the files written by the processing pipeline (CONTRACTS.md, contract 2)</description>
+    <description>River Lifeline backend: the public API of the monitor and the internal API of the worker (api/worker-api.md)</description>
 
     <properties>
         <java.version>21</java.version>
         <archunit.version>1.3.0</archunit.version>
+        <jhdf.version>0.14.0</jhdf.version>
+        <proj4j.version>1.4.3</proj4j.version>
     </properties>
 
     <dependencies>
@@ -56,6 +58,24 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Reads of public products for the worker (api/worker-api.md, "Backend side"), all pure Java:
+             NISAR GCOV windows (HDF5) and the projection of an area's edge into a product's UTM zone -->
+        <dependency>
+            <groupId>io.jhdf</groupId>
+            <artifactId>jhdf</artifactId>
+            <version>${jhdf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.proj4j</groupId>
+            <artifactId>proj4j</artifactId>
+            <version>${proj4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.proj4j</groupId>
+            <artifactId>proj4j-epsg</artifactId>
+            <version>${proj4j.version}</version>
         </dependency>
 
         <!-- Unit tests: JUnit 5, Mockito, AssertJ, MockMvc -->
