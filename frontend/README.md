@@ -28,4 +28,4 @@ When the API can't be reached, or has no communities yet, the page shows the dem
 Locally, `docker compose -f compose.dev.yml up -d` at the repository root serves this folder on
 http://localhost:5500 with `/api` proxied to the backend (see `docs/devops.md`). Tests: `npm test`.
 
-The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
+The map tiles (Esri, no API key), Leaflet and Chart.js load from CDNs.

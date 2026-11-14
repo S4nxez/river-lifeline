@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { community, installLeaflet } from "./helpers/browser.js";
-import { createMap } from "../src/services/mapService.js";
+import { BASEMAP_URL, LABELS_URL, createMap } from "../src/services/mapService.js";
 
 const leaflet = installLeaflet({ zoom: 9 });
 const selected = [];
@@ -18,6 +18,18 @@ const [hubMarker, ...communityMarkers] = leaflet.markers;
 test("draws the map in #map and resizes it once laid out", () => {
   assert.equal(leaflet.mapContainer, "map");
   assert.equal(leaflet.invalidated, true);
+});
+
+test("uses basemap tiles that need no API key, with their attribution", () => {
+  assert.deepEqual(
+    leaflet.tileLayers.map((layer) => layer.url),
+    [BASEMAP_URL, LABELS_URL],
+  );
+  for (const { url } of leaflet.tileLayers) {
+    assert.ok(url.startsWith("https://server.arcgisonline.com/"), url);
+    assert.ok(!/key=/.test(url), url);
+  }
+  assert.match(leaflet.tileLayers[0].options.attribution, /Esri/);
 });
 
 test("marks the hub apart from the communities", () => {
