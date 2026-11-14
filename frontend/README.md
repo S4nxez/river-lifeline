@@ -29,3 +29,7 @@ Locally, `docker compose -f compose.dev.yml up -d` at the repository root serves
 http://localhost:5500 with `/api` proxied to the backend (see `docs/devops.md`). Tests: `npm test`.
 
 The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
+
+The CARTO basemaps API key is a constant in `src/services/mapService.js`: it is public by design (every tile URL
+carries it), so it is protected on CARTO's side instead, restricted to our domains, to basemaps and to a quota.
+Without a key CARTO watermarks the tiles with "API key required".

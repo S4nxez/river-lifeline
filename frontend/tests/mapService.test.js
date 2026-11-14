@@ -20,6 +20,14 @@ test("draws the map in #map and resizes it once laid out", () => {
   assert.equal(leaflet.invalidated, true);
 });
 
+test("loads the CARTO Dark Matter tiles with the API key, keeping their attribution", () => {
+  assert.match(
+    leaflet.tiles.url,
+    /^https:\/\/\{s\}\.basemaps\.cartocdn\.com\/dark_all\/\{z\}\/\{x\}\/\{y\}\{r\}\.png\?key=cb1_\w+$/,
+  );
+  assert.match(leaflet.tiles.options.attribution, /OpenStreetMap.*CARTO/);
+});
+
 test("marks the hub apart from the communities", () => {
   assert.deepEqual(hubMarker.latLng, [-3.354, -64.711]);
   assert.equal(hubMarker.tooltip, "Tefé · hub");
