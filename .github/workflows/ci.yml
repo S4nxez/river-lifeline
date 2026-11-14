@@ -86,6 +86,7 @@ jobs:
           path: server/target/*.jar
           retention-days: 1
 
+      # The backend serves the repository's fixtures (fixtures/data), the default data folder of the compose file
       - name: Stack - start
         run: |
           pw="$(openssl rand -hex 16)"

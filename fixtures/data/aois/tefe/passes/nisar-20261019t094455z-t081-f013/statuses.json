@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "aoi_id": "tefe",
+  "pass_id": "nisar-20261019t094455z-t081-f013",
+  "acquired_at": "2026-10-19T09:44:55Z",
+  "evaluated": false,
+  "communities": [
+    {
+      "community_id": "osm-node-2984471123",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "manual-caiambe",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "at_risk",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223344",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "at_risk",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223345",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223346",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "at_risk",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-way-415522330",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223347",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "at_risk",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "manual-bom-jesus",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "no_data",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223348",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    },
+    {
+      "community_id": "osm-node-3011223349",
+      "status": "no_data",
+      "reason": "pass_not_evaluated",
+      "min_width_class_m": null,
+      "route_verified": true,
+      "previous_status": "connected",
+      "previous_pass_id": "nisar-20261015t214033z-t154-f088",
+      "changed": false,
+      "bottleneck": null,
+      "route": null
+    }
+  ]
+}
