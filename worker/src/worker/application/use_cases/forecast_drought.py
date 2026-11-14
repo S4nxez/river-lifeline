@@ -1,35 +1,30 @@
-from datetime import date, timedelta
-
-from worker.application.ports import DroughtModelStore, WeatherProvider
-from worker.application.use_cases import require_param
-from worker.domain.drought import DroughtForecast
+from worker.application.ports import DroughtForecaster
+from worker.application.use_cases import inputs_of
+from worker.domain.drought import DroughtForecast, ForecastDroughtInputs
+from worker.domain.errors import InvalidJob
 from worker.domain.jobs import Job, JobResult
 
 
 class ForecastDrought:
-    """Forecasts the drought risk of a region from its recent weather, with the region's trained model."""
+    """Forecasts the drought risk of a region from the recent weather and the trained model the job carries."""
 
-    # Recent weather the model looks at
-    LOOKBACK_DAYS = 90
-
-    def __init__(self, weather: WeatherProvider, store: DroughtModelStore) -> None:
-        self._weather = weather
-        self._store = store
+    def __init__(self, forecaster: DroughtForecaster) -> None:
+        self._forecaster = forecaster
 
     def execute(self, job: Job) -> JobResult:
-        region = require_param(job, "region")
-        horizon_days = int(require_param(job, "horizonDays"))
-        today = date.fromisoformat(require_param(job, "asOf"))
+        inputs = inputs_of(job, ForecastDroughtInputs)
+        if any(day.day > inputs.as_of for day in inputs.recent):
+            raise InvalidJob(f"job {job.id} carries weather after its asOf date {inputs.as_of}")
 
-        model = self._store.load(region)
-        recent = self._weather.observations(region, today - timedelta(days=self.LOOKBACK_DAYS), today)
-        forecast = DroughtForecast(region, horizon_days, model.predict(recent, horizon_days))
+        probability = self._forecaster.predict(inputs.model, list(inputs.recent), inputs.horizon_days)
+        forecast = DroughtForecast(inputs.region, inputs.horizon_days, inputs.as_of, probability)
 
         return JobResult(
             job.id,
             {
                 "region": forecast.region,
                 "horizonDays": forecast.horizon_days,
+                "asOf": forecast.as_of.isoformat(),
                 "probability": forecast.probability,
                 "riskLevel": forecast.risk_level,
             },
