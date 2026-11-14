@@ -35,14 +35,25 @@ class TokenFilterTest {
     }
 
     @Test
-    void thePublicSitesApiSkipsTokenChecks() throws Exception {
-        MockHttpServletRequest request = request("/api/sites/ES_VALENCIA_001", "Bearer token");
+    void thePublicMonitorApiSkipsTokenChecks() throws Exception {
+        MockHttpServletRequest request = request("/api/communities/uarini", "Bearer token");
 
         filter().doFilter(request, response, chain);
 
         verify(chain).doFilter(request, response);
         verifyNoInteractions(jwtService);
         assertThat(authentication()).isNull();
+    }
+
+    @Test
+    void aPathThatOnlyStartsLikeAPublicOneIsStillChecked() throws Exception {
+        when(jwtService.extractUsername("token")).thenReturn("alice");
+        when(jwtService.isTokenValid(eq("token"), any())).thenReturn(true);
+        MockHttpServletRequest request = request("/api/communities-admin", "Bearer token");
+
+        filter().doFilter(request, response, chain);
+
+        assertThat(authentication()).isNotNull();
     }
 
     @Test
