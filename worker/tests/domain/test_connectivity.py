@@ -41,6 +41,18 @@ def test_a_community_near_water_that_never_had_a_route_is_unresolved():
     }
 
 
+def test_a_community_linked_only_through_channels_narrower_than_the_narrowest_width_is_unresolved():
+    narrow_only = route(RouteStatus.AT_RISK, 0, 0)
+
+    assert classes_of(evaluated("p1", "2026-01-01", a=narrow_only)) == {"a": CommunityClass.UNRESOLVED}
+
+
+def test_a_community_never_near_water_is_inland_even_with_a_link_to_the_river_far_away():
+    linked_far = route(RouteStatus.ISOLATED, 100, 2000)
+
+    assert classes_of(evaluated("p1", "2026-01-01", a=linked_far)) == {"a": CommunityClass.INLAND}
+
+
 def test_a_community_without_data_on_any_pass_is_no_data_even_when_missing_from_the_passes():
     assert classes_of(evaluated("p1", "2026-01-01", a=NO_DATA), ids=("a", "added_later")) == {
         "a": CommunityClass.NO_DATA,

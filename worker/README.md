@@ -25,7 +25,7 @@ Dependencies point inwards only: `entrypoints → adapters → application → d
 |---|---|---|
 | Domain | `src/worker/domain/` | Entities and business rules: jobs, rasters and their class codes, the area spec, passes and their judgement, whole-record classes, droughts. Pure Python, no I/O |
 | Application | `src/worker/application/` | One use case per job type (`use_cases/`), the ports they need (`ports.py`), the result JSON (`results.py`), the dispatcher, the polling loop and the lease heartbeat |
-| Adapters | `src/worker/adapters/` | Port implementations: `backend/` (HTTP client of the backend and the job JSON), `imaging/` (pass analysis, change map with numpy), `ml/` (drought model) |
+| Adapters | `src/worker/adapters/` | Port implementations: `backend/` (HTTP client of the backend and the job JSON), `imaging/` (pass analysis and change map with numpy, scipy and pyproj), `ml/` (drought model) |
 | Entrypoints | `src/worker/entrypoints/` | `cli.py`: the composition root that wires the adapters into the use cases, and `main()` |
 
 A new algorithm is a new adapter plus one line in `entrypoints/cli.py`. A new job type is a `JobType`, a use case and
@@ -51,9 +51,9 @@ shared secret in the `X-Worker-Token` header.
 
 | Job type | Use case | Algorithm |
 |---|---|---|
-| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer`: **not implemented yet** |
+| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer` (`adapters/imaging/`): HH to dB with fill masked, box speckle filter, nearest-pixel resampling to the area grid (pyproj), water with hysteresis, specks under 1 ha dropped and holes under 2 ha filled, routes by channel width from each water access to the hub, coverage and gaps. Not yet: refined Lee filter (a job asking for it fails), water under vegetation, adaptive threshold, swath edge trim, low-water rule, Sentinel-1 |
 | `detect_change` | `DetectChange` | `NumpyChangeMapper`: open water (classes 1 and 2) lost and gained where both passes have data |
-| `classify_communities` | `ClassifyCommunities` | `domain/connectivity.py`: pure Python |
+| `classify_communities` | `ClassifyCommunities` | `domain/connectivity.py`: pure Python. Inland: never water within the access radius; unresolved: never linked through a channel at least the narrowest width level; monitored: the rest with data |
 | `train_drought_model`, `forecast_drought` | `TrainDroughtModel`, `ForecastDrought` | `BaselineDroughtModel`: **not implemented yet** |
 
 The worker only announces the job types whose algorithm exists (`entrypoints/cli.py`), so the backend keeps the others
