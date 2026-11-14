@@ -3,19 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#101b25" />
+    <meta name="theme-color" content="#fbfbfa" />
     <meta
       name="description"
       content="River Lifeline — which riverside communities around Tefé can still reach the town by water, from NISAR radar."
     />
     <title>River Lifeline | Tefé</title>
+    <script>
+      // The theme before the first paint, so the page never flashes the wrong one: the saved choice, else the
+      // system's. Same storage key as src/theme.js, which handles the switch.
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("river-lifeline-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
     <link rel="preconnect" href="https://unpkg.com" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="./src/styles/main.css" />
     <link rel="stylesheet" href="./src/styles/components.css" />
-    <link rel="stylesheet" href="./src/styles/responsive.css" />
     <link rel="stylesheet" href="./src/styles/details.css" />
-    <link rel="stylesheet" href="./src/styles/overrides.css" />
+    <!-- Last, so the breakpoints override the rules above -->
+    <link rel="stylesheet" href="./src/styles/responsive.css" />
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="./src/app.js"></script>
@@ -24,12 +35,26 @@
     <div class="app-shell">
       <header class="topbar">
         <a class="brand" href="#" aria-label="River Lifeline home"
-          ><span class="brand-mark">R</span
           ><span><strong>RIVER LIFELINE</strong><small>TEFÉ · AMAZONAS</small></span></a
         >
-        <div class="mission-status">
-          <span class="status-dot"></span> <span id="data-mode">DEMO DATA</span>
-          <span class="status-divider">/</span> NISAR L-BAND · SENTINEL-1 CROSS-CHECK
+        <div class="topbar-end">
+          <div class="mission-status">
+            <span id="data-mode">DEMO DATA</span>
+            <span class="mission-detail"
+              ><span class="status-divider">/</span> NISAR L-BAND · SENTINEL-1 CROSS-CHECK</span
+            >
+          </div>
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            role="switch"
+            aria-checked="false"
+            aria-label="Dark mode"
+          >
+            <span class="theme-toggle-label">Dark mode</span>
+            <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+          </button>
         </div>
       </header>
 
@@ -47,7 +72,6 @@
             </p>
           </div>
           <div class="intro-note">
-            <span class="note-icon">↗</span>
             <div>
               <strong>Radar sees the water</strong>
               <p>
@@ -84,7 +108,7 @@
                 <p class="eyebrow">01 / RIVER NETWORK</p>
                 <h2>Communities and their route to Tefé</h2>
               </div>
-              <span class="live-label"><span class="status-dot"></span> LATEST STATUS</span>
+              <span class="live-label">LATEST STATUS</span>
             </div>
             <div class="map-key">
               <span><i class="key-dot status-bg-connected"></i>Connected</span
@@ -98,8 +122,7 @@
               aria-label="Map of the communities around Tefé coloured by river connectivity"
             ></div>
             <div class="map-footer">
-              <span><span class="map-pin">●</span> Select a community on the map or in the list</span
-              ><span class="demo-tag">TEFÉ · HUB</span>
+              <span>Select a community on the map or in the list</span><span class="demo-tag">TEFÉ · HUB</span>
             </div>
           </div>
 
@@ -139,7 +162,6 @@
                 <p class="eyebrow">04 / STATUS</p>
                 <h2>What it means</h2>
               </div>
-              <span class="insight-symbol">⌁</span>
             </div>
             <div id="status-content"></div>
             <div class="method-note">

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { assessment, installChart, installDom } from "./helpers/browser.js";
-import { plottedWidth, renderRouteChart } from "../src/components/routeChart.js";
+import { CHART_COLORS, plottedWidth, renderRouteChart } from "../src/components/routeChart.js";
 
 const charts = installChart();
 const canvas = installDom('<canvas id="chart"></canvas>').querySelector("#chart");
@@ -26,7 +26,7 @@ test("plots the route width of every pass against the connected threshold", () =
   assert.equal(target, canvas);
   assert.deepEqual(config.data.labels, ["4 Aug 2026", "16 Aug 2026", "28 Aug 2026"]);
   assert.deepEqual(widths.data, [200, 40, 0]);
-  assert.deepEqual(widths.pointBackgroundColor, ["#68b6a3", "#e4b65c", "#e47759"]);
+  assert.deepEqual(widths.pointBackgroundColor, ["#0b7a52", "#a15c07", "#b42318"]);
   assert.deepEqual(threshold.data, [60, 60, 60]);
 });
 
@@ -44,4 +44,16 @@ test("replaces the previous chart instead of stacking a new one on it", () => {
 
   assert.equal(previous.destroyed, true);
   assert.equal(charts.at(-1).destroyed, false);
+});
+
+test("draws in the light palette by default and in the dark one for the dark theme", () => {
+  renderRouteChart(canvas, { assessments: [] });
+  assert.equal(charts.at(-1).config.data.datasets[0].borderColor, CHART_COLORS.light.line);
+
+  renderRouteChart(canvas, { assessments: [] }, "dark");
+  const { data, options } = charts.at(-1).config;
+  assert.equal(data.datasets[0].borderColor, CHART_COLORS.dark.line);
+  assert.equal(data.datasets[1].borderColor, CHART_COLORS.dark.threshold);
+  assert.equal(options.scales.y.grid.color, CHART_COLORS.dark.grid);
+  assert.equal(options.plugins.tooltip.backgroundColor, CHART_COLORS.dark.tooltip.background);
 });

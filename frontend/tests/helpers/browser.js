@@ -31,7 +31,15 @@ export function installChart() {
 
 /** Installs a fake Leaflet `L` and returns what the app did with it (markers, map moves). */
 export function installLeaflet({ zoom = 2 } = {}) {
-  const recorded = { mapContainer: null, tiles: null, markers: [], flights: [], invalidated: false };
+  // tiles: every tile layer created, the current one last; each records its url, options, handlers and removal
+  const recorded = {
+    mapContainer: null,
+    tiles: [],
+    containerClasses: [],
+    markers: [],
+    flights: [],
+    invalidated: false,
+  };
   const map = {
     setView: () => map,
     invalidateSize: () => {
@@ -39,6 +47,10 @@ export function installLeaflet({ zoom = 2 } = {}) {
     },
     getZoom: () => zoom,
     flyTo: (latLng, targetZoom) => recorded.flights.push({ latLng, zoom: targetZoom }),
+    removeLayer: (layer) => {
+      layer.removed = true;
+    },
+    getContainer: () => ({ classList: { add: (name) => recorded.containerClasses.push(name) } }),
   };
   const addable = { addTo: () => addable };
   globalThis.L = {
@@ -47,8 +59,25 @@ export function installLeaflet({ zoom = 2 } = {}) {
       return map;
     },
     tileLayer: (url, options) => {
-      recorded.tiles = { url, options };
-      return addable;
+      const tiles = {
+        url,
+        options,
+        handlers: {},
+        removed: false,
+        on(event, handler) {
+          this.handlers[event] = handler;
+          return this;
+        },
+        setUrl(next) {
+          this.url = next;
+          return this;
+        },
+        addTo() {
+          return this;
+        },
+      };
+      recorded.tiles.push(tiles);
+      return tiles;
     },
     layerGroup: () => addable,
     circleMarker: (latLng, options) => {

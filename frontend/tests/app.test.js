@@ -16,7 +16,8 @@ const PAGE = `
   <strong id="stat-communities">--</strong><strong id="stat-isolated">--</strong><strong id="stat-at-risk">--</strong>
   <strong id="stat-pass">--</strong><span id="stat-river"></span>
   <div id="map"></div><div id="community-list"></div><div id="selected-summary"></div>
-  <canvas id="route-chart"></canvas><div id="status-content"></div>`;
+  <canvas id="route-chart"></canvas><div id="status-content"></div>
+  <button id="theme-toggle" type="button" role="switch" aria-checked="false"></button>`;
 
 const API = "./api/v1/aois/tefe";
 const OVERVIEW = apiOverview([
@@ -32,8 +33,8 @@ let copies = 0;
 async function startApp(api, { leaflet = true } = {}) {
   const document = installDom(PAGE);
   const charts = installChart();
-  if (leaflet) installLeaflet();
-  else globalThis.L = undefined;
+  const map = leaflet ? installLeaflet() : null;
+  if (!leaflet) globalThis.L = undefined;
   const requests = [];
   globalThis.fetch = async (url) => {
     requests.push(url);
@@ -42,7 +43,7 @@ async function startApp(api, { leaflet = true } = {}) {
   };
   await import(`../src/app.js?copy=${++copies}`);
   await waitFor(() => document.querySelector("#community-list").children.length > 0 && charts.length > 0);
-  return { document, charts, requests };
+  return { document, charts, requests, map };
 }
 
 function liveApi(url) {
@@ -109,4 +110,27 @@ test("tells the user when the map cannot load", async (t) => {
 
   await waitFor(() => document.querySelector("#map .map-error"));
   assert.match(document.querySelector("#map").textContent, /Map could not load/);
+});
+
+test("the dark mode switch turns the page, the basemap and the chart dark, and back", async () => {
+  const { document, charts, map } = await startApp(liveApi);
+  await waitFor(() => map.tiles.length > 0 && charts.at(-1).config.data.datasets[0].data.length > 0);
+  const toggle = document.querySelector("#theme-toggle");
+  await new Promise((resolve) => setTimeout(resolve, 120)); // the map hands its controls over once laid out
+
+  toggle.click();
+
+  assert.equal(document.documentElement.dataset.theme, "dark");
+  assert.equal(toggle.getAttribute("aria-checked"), "true");
+  assert.match(map.tiles[0].url, /\/dark_all\//);
+  const chart = charts.at(-1).config;
+  assert.equal(chart.data.datasets[0].borderColor, "#ececec");
+  assert.deepEqual(chart.data.datasets[0].data, [40, 0]);
+
+  toggle.click();
+
+  assert.equal(document.documentElement.dataset.theme, "light");
+  assert.equal(toggle.getAttribute("aria-checked"), "false");
+  assert.match(map.tiles[0].url, /\/rastertiles\/voyager\//);
+  assert.equal(charts.at(-1).config.data.datasets[0].borderColor, "#111214");
 });

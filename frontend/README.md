@@ -22,6 +22,7 @@ shows the demo data of `src/data/demo.js` and says DEMO DATA in the header.
 - `src/app.js`: entry point; loads the overview, keeps the selection, wires the components.
 - `src/status.js`: what each status means (labels, colours, severity order) and the connected threshold.
 - `src/format.js`: dates, widths and river levels for display.
+- `src/theme.js`: the light/dark switch.
 - `src/services/api.js`: the backend calls and the demo fallback. `src/services/mapService.js`: Leaflet map.
 - `src/components/`: community list, route width chart, status panel.
 - `tests/`: `node:test` + jsdom, with Leaflet, Chart.js and `fetch` faked.
@@ -36,3 +37,7 @@ The map tiles (CARTO), Leaflet and Chart.js load from CDNs.
 The CARTO basemaps API key is a constant in `src/services/mapService.js`: it is public by design (every tile URL
 carries it), so it is protected on CARTO's side instead, restricted to our domains, to basemaps and to a quota.
 Without a key CARTO watermarks the tiles with "API key required".
+
+The header switch toggles light and dark (`src/theme.js`; the first visit follows the system): the page, the
+basemap (CARTO Voyager by day, Dark Matter by night) and the chart follow it. Where CARTO refuses the key, such as
+on localhost if it isn't allowed there, the map falls back to OpenStreetMap's tiles instead of showing no background.

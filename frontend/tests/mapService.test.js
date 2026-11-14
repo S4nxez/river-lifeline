@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { community, installLeaflet } from "./helpers/browser.js";
-import { createMap } from "../src/services/mapService.js";
+import { createMap, tileUrl } from "../src/services/mapService.js";
 
 const leaflet = installLeaflet({ zoom: 9 });
 const selected = [];
@@ -20,12 +20,26 @@ test("draws the map in #map and resizes it once laid out", () => {
   assert.equal(leaflet.invalidated, true);
 });
 
-test("loads the CARTO Dark Matter tiles with the API key, keeping their attribution", () => {
-  assert.match(
-    leaflet.tiles.url,
-    /^https:\/\/\{s\}\.basemaps\.cartocdn\.com\/dark_all\/\{z\}\/\{x\}\/\{y\}\{r\}\.png\?key=cb1_\w+$/,
-  );
-  assert.match(leaflet.tiles.options.attribution, /OpenStreetMap.*CARTO/);
+test("starts on the CARTO day map (Voyager) with the API key, keeping its attribution", () => {
+  const [tiles] = leaflet.tiles;
+  assert.equal(tiles.url, tileUrl("light"));
+  assert.match(tiles.url, /^https:\/\/\{s\}\.basemaps\.cartocdn\.com\/rastertiles\/voyager\/.*\.png\?key=cb1_\w+$/);
+  assert.match(tiles.options.attribution, /OpenStreetMap.*CARTO/);
+});
+
+test("tileUrl gives Dark Matter for the dark theme and the day map for anything else", () => {
+  assert.match(tileUrl("dark"), /basemaps\.cartocdn\.com\/dark_all\/.*\?key=cb1_/);
+  assert.equal(tileUrl("sepia"), tileUrl("light"));
+});
+
+test("setTheme switches the basemap between day and night", () => {
+  const [tiles] = leaflet.tiles;
+
+  controls.setTheme("dark");
+  assert.equal(tiles.url, tileUrl("dark"));
+
+  controls.setTheme("light");
+  assert.equal(tiles.url, tileUrl("light"));
 });
 
 test("marks the hub apart from the communities", () => {
@@ -37,10 +51,10 @@ test("colours each community by its status", () => {
   assert.deepEqual(
     communityMarkers.map((marker) => [marker.latLng, marker.options.fillColor]),
     [
-      [[-3.295, -64.86], "#e47759"],
-      [[-2.99, -65.113], "#e4b65c"],
-      [[-3.221, -64.804], "#68b6a3"],
-      [[-3.545, -64.4], "#6d8491"],
+      [[-3.295, -64.86], "#b42318"],
+      [[-2.99, -65.113], "#a15c07"],
+      [[-3.221, -64.804], "#0b7a52"],
+      [[-3.545, -64.4], "#8a8f96"],
     ],
   );
   assert.equal(communityMarkers[1].tooltip, "Uarini · At risk");
@@ -66,4 +80,27 @@ test("selectCommunity ignores unknown ids, the hub included", () => {
   controls.selectCommunity("atlantis");
 
   assert.equal(leaflet.flights.length, flights);
+});
+
+// Last: it swaps the map's tiles for good
+test("when CARTO refuses a tile it falls back to OpenStreetMap once, which the dark theme then darkens with CSS", () => {
+  const [carto] = leaflet.tiles;
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    carto.handlers.tileerror();
+    carto.handlers.tileerror();
+  } finally {
+    console.warn = warn;
+  }
+
+  assert.equal(carto.removed, true);
+  assert.equal(leaflet.tiles.length, 2);
+  const osm = leaflet.tiles[1];
+  assert.equal(osm.url, "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+  assert.match(osm.options.attribution, /OpenStreetMap/);
+  assert.deepEqual(leaflet.containerClasses, ["map-fallback"]);
+
+  controls.setTheme("dark");
+  assert.equal(osm.url, "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
 });
