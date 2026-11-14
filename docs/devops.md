@@ -5,7 +5,7 @@
 | Workflow | When | What it does |
 |---|---|---|
 | `ci.yml` | Every PR (and the first stage of Release) | Frontend `node --check` and Prettier check, `mvn verify` (tests + Spotless check), starts the full stack with `compose.build.yml` and runs `scripts/smoke.sh` |
-| `release.yml` | Push to `main` | CI → `:latest` and `:<sha>` images on GHCR (native ARM runner) → over Tailscale + SSH: `git pull`, `podman pull`, `podman-compose up` → smoke tests on the Pi and on the public URL. On failure it prints the backend logs |
+| `release.yml` | Push to `main` | CI → `:latest` and `:<sha>` images on GHCR (native ARM runner) → over Tailscale + SSH: `git pull`, `podman pull`, `podman-compose up` → smoke tests on the Pi and on the public URL. On failure it prints the backend logs; on success it removes this app's older images from the Pi (`scripts/prune-images.sh`) |
 
 **Smoke test** (`scripts/smoke.sh URL [seconds]`): `/api/sites` returns the catalog (Spring, Flyway and MySQL are up) and `/` serves the page. Works locally too.
 
