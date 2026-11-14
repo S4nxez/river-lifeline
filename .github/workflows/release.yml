@@ -54,7 +54,7 @@ jobs:
 
       - name: Build and push
         run: |
-          for part in back:server front:frontend; do
+          for part in back:server worker:worker front:frontend; do
             name="$IMAGE-${part%%:*}"
             docker build \
               --label org.opencontainers.image.revision="$GITHUB_SHA" \
@@ -107,7 +107,7 @@ jobs:
           ssh pi "set -e
             cd $APP_DIR
             git pull --ff-only
-            podman pull $IMAGE-back:$TAG $IMAGE-front:$TAG
+            podman pull $IMAGE-back:$TAG $IMAGE-worker:$TAG $IMAGE-front:$TAG
             IMAGE_TAG=$TAG podman-compose up -d --force-recreate"
 
       - name: Smoke test - on the Pi

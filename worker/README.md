@@ -94,4 +94,4 @@ WORKER_TOKEN=dev BACKEND_URL=http://localhost:8080 python -m worker
 
 Settings: `WORKER_TOKEN` (required), `BACKEND_URL`, `POLL_INTERVAL_SECONDS` (5). Nothing is written to disk.
 
-The worker is not in the compose stack until the backend serves the endpoints above.
+In production the worker is the `worker` service of `podman-compose.yml` (image `...-worker`, built by Release), with the same `WORKER_TOKEN` as the backend. With an empty database the backend's pass search creates an `assess_pass` for every pass of the area, so the first run processes the whole record (backfill) and later runs only the new passes.

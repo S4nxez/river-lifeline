@@ -47,6 +47,21 @@ services:
     networks:
       - NisarSar-net
 
+  # Processing (worker/, api/worker-api.md): leases jobs from the backend's internal API, judges the passes and posts
+  # the results back. Stateless: no volume. It needs the same WORKER_TOKEN as the backend (the .env).
+  worker:
+    image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-worker:${IMAGE_TAG:-latest}
+    # A backend that is down is waited for, not a crash; a restart only follows a crash (e.g. out of memory), and
+    # the backend hands the job out again when its lease expires
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      WORKER_TOKEN: ${WORKER_TOKEN:-}
+      BACKEND_URL: http://backend:8080
+    networks:
+      - NisarSar-net
+
   frontend:
     image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-front:${IMAGE_TAG:-latest}
     restart: always

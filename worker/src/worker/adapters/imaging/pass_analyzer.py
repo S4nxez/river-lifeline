@@ -72,7 +72,8 @@ class RadarPassAnalyzer:
     (from its water access when it has one) and of the main river to the hub by channel width.
 
     reevaluate_pass starts from the stored `water` and `sentinel1` rasters: open water (classes 1 and 2), water under
-    vegetation (class 3) and the Sentinel-1 classes, with the thresholds of the method reported as they are.
+    vegetation (class 3) and the Sentinel-1 classes, with the thresholds of the method reported as they are. It returns
+    the `water` raster only: the backend keeps the Sentinel-1 classes from the assessment.
     """
 
     def __init__(
@@ -134,11 +135,9 @@ class RadarPassAnalyzer:
         # a pass without any vegetated pixel is taken as single-polarisation: the stored raster cannot tell them apart
         vegetated = flagged if method.vegetated_water is not None and flagged.any() else None
 
-        view, result_rasters = None, {}
+        view = None
         if inputs.sentinel1 is not None:
-            classes = rasters.read(inputs.sentinel1.classes)
-            view = sentinel1.decode(classes, inputs.sentinel1.dates, grid)
-            result_rasters["sentinel1"] = classes
+            view = sentinel1.decode(rasters.read(inputs.sentinel1.classes), inputs.sentinel1.dates, grid)
         occurrence = _occurrence(inputs.occurrence, rasters, grid)
         return _judge(
             area,
@@ -146,7 +145,7 @@ class RadarPassAnalyzer:
             inputs.gauge,
             _Masks(water, valid, vegetated, occurrence, view),
             Threshold("fixed", method.water_db, method.water_db_weak),
-            result_rasters,
+            {},
             self._clock() - started,
             None,
         )

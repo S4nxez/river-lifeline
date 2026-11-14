@@ -366,7 +366,7 @@ def test_reevaluates_with_the_stored_sentinel1_classes():
 
     assert result.communities == assessed.communities
     assert result.sentinel1 == assessed.sentinel1
-    assert set(result.rasters) == {"water", "sentinel1"}
+    assert set(result.rasters) == {"water"}  # the backend keeps the Sentinel-1 classes from the assessment
 
 
 def test_reevaluation_keeps_water_under_vegetation_out_of_the_routes():
