@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from worker.config import Settings
@@ -10,25 +8,22 @@ def test_defaults_to_the_backend_on_the_internal_network():
 
     assert settings.backend_url == "http://backend:8080"
     assert settings.poll_interval_seconds == 5
-    assert settings.scenes_dir == Path("/data/scenes")
-    assert settings.models_dir == Path("/data/models")
 
 
 def test_reads_every_setting_from_the_environment():
-    env = {
-        "WORKER_TOKEN": "t",
-        "BACKEND_URL": "http://localhost:8080",
-        "POLL_INTERVAL_SECONDS": "0.5",
-        "DATA_DIR": "/w",
-    }
+    env = {"WORKER_TOKEN": "t", "BACKEND_URL": "http://localhost:8080", "POLL_INTERVAL_SECONDS": "0.5"}
 
     settings = Settings.from_env(env)
 
-    assert (settings.backend_url, settings.poll_interval_seconds, settings.data_dir) == (
+    assert (settings.backend_url, settings.worker_token, settings.poll_interval_seconds) == (
         "http://localhost:8080",
+        "t",
         0.5,
-        Path("/w"),
     )
+
+
+def test_needs_no_data_directory():
+    assert not hasattr(Settings.from_env({"WORKER_TOKEN": "t"}), "data_dir")
 
 
 def test_the_token_is_required():

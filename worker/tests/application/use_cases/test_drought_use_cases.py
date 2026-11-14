@@ -1,60 +1,62 @@
 from datetime import date
 
 import pytest
-from fakes import FakeModel, FakeWeather, InMemoryModelStore, weather
+from fakes import FakeDroughtModel, job, weather
 
 from worker.application.use_cases.forecast_drought import ForecastDrought
 from worker.application.use_cases.train_drought_model import TrainDroughtModel
-from worker.domain.drought import DroughtEvent
-from worker.domain.errors import InvalidJob, ModelNotFound
-from worker.domain.jobs import Job, JobType
+from worker.domain.drought import DroughtEvent, DroughtModel, ForecastDroughtInputs, TrainDroughtModelInputs
+from worker.domain.errors import InvalidJob
+from worker.domain.jobs import JobType
 
-TRAIN = Job("t1", JobType.TRAIN_DROUGHT_MODEL, {"region": "murcia", "from": "2000-01-01", "to": "2024-12-31"})
-FORECAST = Job("f1", JobType.FORECAST_DROUGHT, {"region": "murcia", "horizonDays": 30, "asOf": "2025-06-30"})
-
-
-def test_training_fits_a_new_model_on_the_history_and_stores_it():
-    observations = [weather("murcia", "2000-01-01"), weather("murcia", "2000-01-02")]
-    droughts = [DroughtEvent("murcia", date(2005, 5, 1), date(2005, 9, 1), severity=3)]
-    store = InMemoryModelStore()
-
-    result = TrainDroughtModel(FakeWeather(observations, droughts), FakeModel, store).execute(TRAIN)
-
-    assert store.models["murcia"].trained_on == (observations, droughts)
-    assert result.data == {"region": "murcia", "observations": 2, "droughts": 1}
+DROUGHT = DroughtEvent(date(2024, 8, 1), date(2024, 10, 15), 3)
+MODEL = DroughtModel("fake", 1, 90, {"bias": 0.1})
 
 
-def test_training_asks_for_the_requested_period():
-    source = FakeWeather([weather("murcia", "2000-01-01")])
+def test_training_returns_the_model_as_plain_data():
+    algorithm = FakeDroughtModel()
+    observations = (weather("2024-01-01"), weather("2024-01-02"))
 
-    TrainDroughtModel(source, FakeModel, InMemoryModelStore()).execute(TRAIN)
+    result = TrainDroughtModel(algorithm).execute(
+        job(TrainDroughtModelInputs("tefe", observations, (DROUGHT,)), JobType.TRAIN_DROUGHT_MODEL)
+    )
 
-    assert source.requested == [("murcia", date(2000, 1, 1), date(2024, 12, 31))]
+    assert algorithm.trained_on == (list(observations), [DROUGHT])
+    assert result.data == {
+        "region": "tefe",
+        "observations": 2,
+        "droughts": 1,
+        "model": {"kind": "fake", "version": 1, "lookbackDays": 90, "parameters": {"bias": 0.1}},
+    }
 
 
-def test_training_without_weather_data_is_invalid():
+def test_training_needs_weather():
     with pytest.raises(InvalidJob):
-        TrainDroughtModel(FakeWeather([]), FakeModel, InMemoryModelStore()).execute(TRAIN)
+        TrainDroughtModel(FakeDroughtModel()).execute(
+            job(TrainDroughtModelInputs("tefe", (), ()), JobType.TRAIN_DROUGHT_MODEL)
+        )
 
 
-def test_a_job_without_its_parameters_is_invalid():
-    job = Job("t2", JobType.TRAIN_DROUGHT_MODEL, {"region": "murcia"})
+def test_forecasts_with_the_model_and_weather_of_the_job():
+    algorithm = FakeDroughtModel(probability=0.7)
+    recent = (weather("2026-10-31"), weather("2026-11-01"))
 
-    with pytest.raises(InvalidJob, match="'from'"):
-        TrainDroughtModel(FakeWeather([]), FakeModel, InMemoryModelStore()).execute(job)
+    result = ForecastDrought(algorithm).execute(
+        job(ForecastDroughtInputs("tefe", 30, date(2026, 11, 1), MODEL, recent), JobType.FORECAST_DROUGHT)
+    )
+
+    assert algorithm.predicted_with == (MODEL, list(recent), 30)
+    assert result.data == {
+        "region": "tefe",
+        "horizonDays": 30,
+        "asOf": "2026-11-01",
+        "probability": 0.7,
+        "riskLevel": "high",
+    }
 
 
-def test_forecasting_uses_the_region_model_on_the_last_90_days():
-    store = InMemoryModelStore()
-    store.save("murcia", FakeModel(probability=0.72))
-    source = FakeWeather([weather("murcia", "2025-06-01")])
+def test_a_forecast_never_looks_at_weather_after_its_date():
+    inputs = ForecastDroughtInputs("tefe", 30, date(2026, 11, 1), MODEL, (weather("2026-11-02"),))
 
-    result = ForecastDrought(source, store).execute(FORECAST)
-
-    assert source.requested == [("murcia", date(2025, 4, 1), date(2025, 6, 30))]
-    assert result.data == {"region": "murcia", "horizonDays": 30, "probability": 0.72, "riskLevel": "high"}
-
-
-def test_forecasting_needs_a_trained_model():
-    with pytest.raises(ModelNotFound):
-        ForecastDrought(FakeWeather([]), InMemoryModelStore()).execute(FORECAST)
+    with pytest.raises(InvalidJob):
+        ForecastDrought(FakeDroughtModel()).execute(job(inputs, JobType.FORECAST_DROUGHT))

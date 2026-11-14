@@ -5,17 +5,17 @@ route to the town and how narrow it is, cross-checked with Sentinel-1 when a sce
 droughts from weather history. It never talks to the UI or to external APIs: the backend is the only party it talks to.
 
 ```
- UI ──────▶ Backend (Spring) ──────▶ Earthdata, weather APIs...
+ UI ──────▶ Backend (Spring) ──────▶ Earthdata, Planetary Computer, ANA...
               ▲          │
-  next job,   │          │  jobs, scene files,
-  results     │          ▼  weather and drought history
+  rasters,    │          │  jobs with all their inputs,
+  results     │          ▼  raw rasters
              Worker (Python, this service)
 ```
 
-**The worker pulls, the backend orchestrates.** The worker asks the backend for the next job, fetches the inputs the
-backend gathered for it, and posts back the result or the failure. It needs no inbound port, any number of workers can
-run side by side, and the backend keeps the state of every job (it should hand a job out again if no result arrives in
-time).
+**The worker pulls, the backend orchestrates.** The worker leases the next job, downloads the rasters it references,
+uploads the rasters of its result and posts the result or the failure. It needs no inbound port, keeps no state (no
+volume, no cache, no model store) and parses no file format, so any number of workers can run side by side and any of
+them can be killed at any time: the backend hands the job out again when its lease expires.
 
 ## Layers (clean architecture)
 
@@ -23,9 +23,9 @@ Dependencies point inwards only: `entrypoints → adapters → application → d
 
 | Layer | Folder | What goes there |
 |---|---|---|
-| Domain | `src/worker/domain/` | Entities and business rules (jobs, scenes, communities, route measurements and statuses, cross-checks, droughts). Pure Python, no I/O |
-| Application | `src/worker/application/` | One use case per job type (`use_cases/`), the ports they need (`ports.py`), the dispatcher and the polling loop |
-| Adapters | `src/worker/adapters/` | Port implementations: `backend/` (HTTP client of the backend), `imaging/` (water route mapping), `ml/` (drought model and its storage) |
+| Domain | `src/worker/domain/` | Entities and business rules: jobs, rasters and their class codes, the area spec, passes and their judgement, whole-record classes, droughts. Pure Python, no I/O |
+| Application | `src/worker/application/` | One use case per job type (`use_cases/`), the ports they need (`ports.py`), the result JSON (`results.py`), the dispatcher, the polling loop and the lease heartbeat |
+| Adapters | `src/worker/adapters/` | Port implementations: `backend/` (HTTP client of the backend and the job JSON), `imaging/` (pass analysis, change map with numpy), `ml/` (drought model) |
 | Entrypoints | `src/worker/entrypoints/` | `cli.py`: the composition root that wires the adapters into the use cases, and `main()` |
 
 A new algorithm is a new adapter plus one line in `entrypoints/cli.py`. A new job type is a `JobType`, a use case and
@@ -33,26 +33,31 @@ one entry in the dispatcher. Use cases are tested with the in-memory fakes in `t
 
 ## Backend contract
 
-The contract the worker is moving to is [`api/worker-api.md`](../api/worker-api.md) (OpenAPI spec:
-[`worker-api.yaml`](../api/worker-api.yaml)): every job carries all its inputs, rasters travel as raw arrays
-the backend serves and receives, and the worker stores nothing (no `DATA_DIR`, no scene files, no model files) and
-parses no file format.
+The worker speaks contract version **1**, [`api/worker-api.md`](../api/worker-api.md) (OpenAPI spec:
+[`worker-api.yaml`](../api/worker-api.yaml)):
 
-The code in `src/` still speaks the previous version, summarised here until it is migrated:
-
-| Endpoint | Answer |
+| Call | What the worker does |
 |---|---|
-| `GET /internal/worker/jobs/next` | `204`, or `200 {"id", "type", "params"}` |
-| `POST /internal/worker/jobs/{id}/result` | body `{"data": {...}}` |
-| `POST /internal/worker/jobs/{id}/failure` | body `{"reason": "..."}` |
-| `GET /internal/worker/jobs/{id}/scenes` | `[{"id", "mission", "acquiredOn", "polarization", "downloadUrl"}]` |
-| `GET /internal/worker/area` | `{"hub": {"id", "name", "lat", "lng"}, "communities": [...]}` |
-| `GET /internal/worker/weather?region=&from=&to=` | `[{"day", "precipitationMm", "temperatureC", "soilMoisture"}]` |
-| `GET /internal/worker/droughts?region=` | `[{"start", "end", "severity"}]` |
+| `GET /internal/worker/jobs/next?types=…&contract=1` | Leases a job of the types it has a use case for. A job of another type or contract version, or with malformed inputs, is handed back as a failure that is not retried |
+| `POST /internal/worker/jobs/{id}/heartbeat` | Every third of the lease while the job runs |
+| `GET /internal/worker/rasters/{id}` | Reads each raster the job references into memory (gzip accepted); only backend paths, never another host |
+| `PUT /internal/worker/jobs/{id}/rasters/{name}` | Uploads each raster of the result, gzipped, before the result |
+| `POST /internal/worker/jobs/{id}/result` | `{"data": …}`, checked against the contract before it is sent |
+| `POST /internal/worker/jobs/{id}/failure` | `{"reason", "retryable"}`: bad inputs, unknown types and contract breaks are not retryable; running out of memory is |
 
-Job types and their `params`: `assess_connectivity` (none: the scenes come from the job), `train_drought_model`
-(`region`, `from`, `to`), `forecast_drought` (`region`, `horizonDays`, `asOf`). All endpoints are on the backend's internal address (`BACKEND_URL`, `http://backend:8080` in compose), never behind the
-public proxy, and require the shared secret in the `X-Worker-Token` header.
+A `409` on any call means the job is no longer leased to this worker: it is dropped without a word. All calls go to the
+backend's internal address (`BACKEND_URL`, `http://backend:8080` in compose), never behind the public proxy, with the
+shared secret in the `X-Worker-Token` header.
+
+| Job type | Use case | Algorithm |
+|---|---|---|
+| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer`: **not implemented yet** |
+| `detect_change` | `DetectChange` | `NumpyChangeMapper`: open water (classes 1 and 2) lost and gained where both passes have data |
+| `classify_communities` | `ClassifyCommunities` | `domain/connectivity.py`: pure Python |
+| `train_drought_model`, `forecast_drought` | `TrainDroughtModel`, `ForecastDrought` | `BaselineDroughtModel`: **not implemented yet** |
+
+The worker only announces the job types whose algorithm exists (`entrypoints/cli.py`), so the backend keeps the others
+pending instead of seeing them fail. Pass the implementation to `build_worker` once it is written.
 
 ## Run
 
@@ -62,11 +67,9 @@ python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest                                   # unit tests
 ruff format . && ruff check .            # formatting and lint (the pre-commit hook runs them too)
-WORKER_TOKEN=dev BACKEND_URL=http://localhost:8080 DATA_DIR=./data python -m worker
+WORKER_TOKEN=dev BACKEND_URL=http://localhost:8080 python -m worker
 ```
 
-Settings: `WORKER_TOKEN` (required), `BACKEND_URL`, `POLL_INTERVAL_SECONDS` (5), `DATA_DIR` (`/data`: downloaded
-scenes and trained models).
+Settings: `WORKER_TOKEN` (required), `BACKEND_URL`, `POLL_INTERVAL_SECONDS` (5). Nothing is written to disk.
 
-Not implemented yet: the algorithms (`ThresholdRouteMapper`, `BaselineDroughtModel` raise `NotImplementedError`) and
-the backend endpoints above. The worker is not in the compose stack until the backend serves them.
+The worker is not in the compose stack until the backend serves the endpoints above.

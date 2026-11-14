@@ -1,50 +1,106 @@
 from datetime import date
 
-import pytest
+from fakes import route
 
-from worker.domain.connectivity import ConnectivityStatus, CrossCheck, RouteMeasurement, cross_check
+from worker.domain.connectivity import CommunityClass, StatusCounts, classify
+from worker.domain.passes import CommunityRoute, EvaluatedPass, RouteStatus
 
-
-@pytest.mark.parametrize(
-    ("covered", "width_m", "status"),
-    [
-        (True, 400, ConnectivityStatus.CONNECTED),
-        (True, 60, ConnectivityStatus.CONNECTED),
-        (True, 59.9, ConnectivityStatus.AT_RISK),
-        (True, 20, ConnectivityStatus.AT_RISK),
-        (True, None, ConnectivityStatus.ISOLATED),
-        (False, None, ConnectivityStatus.NO_DATA),
-        (False, 200, ConnectivityStatus.NO_DATA),
-    ],
-)
-def test_the_route_sets_the_status(covered, width_m, status):
-    assert RouteMeasurement("uarini", covered, width_m).status == status
+CONNECTED = route(RouteStatus.CONNECTED, 100)
+AT_RISK = route(RouteStatus.AT_RISK, 40)
+ISOLATED = route(RouteStatus.ISOLATED, None, 200)
+FAR = route(RouteStatus.ISOLATED, None, 2000)
+NO_DATA = route(RouteStatus.NO_DATA, None, None)
+RADIUS = 500
 
 
-@pytest.mark.parametrize("width_m", [0, -5])
-def test_a_route_width_is_positive(width_m):
-    with pytest.raises(ValueError):
-        RouteMeasurement("uarini", True, width_m)
+def evaluated(pass_id: str, day: str, **routes) -> EvaluatedPass:
+    return EvaluatedPass(
+        pass_id, date.fromisoformat(day), "10:00", tuple(CommunityRoute(cid, r) for cid, r in routes.items())
+    )
 
 
-SCENE_ON = date(2026, 9, 8)
+def classes_of(*passes: EvaluatedPass, ids=("a",)) -> dict[str, CommunityClass]:
+    return classify("tefe", RADIUS, list(ids), list(passes)).classes
 
 
-def test_sentinel1_agrees_when_it_finds_the_same_status():
-    check = cross_check(RouteMeasurement("u", True, 40), RouteMeasurement("u", True, 30), "s1", SCENE_ON)
-
-    assert check == CrossCheck("s1", SCENE_ON, agrees=True)
-
-
-def test_sentinel1_disagrees_when_it_finds_another_status():
-    check = cross_check(RouteMeasurement("u", True, 40), RouteMeasurement("u", True, None), "s1", SCENE_ON)
-
-    assert check.agrees is False
+def test_a_community_found_a_route_on_any_pass_is_monitored():
+    assert classes_of(evaluated("p1", "2026-01-01", a=ISOLATED), evaluated("p2", "2026-02-01", a=AT_RISK)) == {
+        "a": CommunityClass.MONITORED
+    }
 
 
-@pytest.mark.parametrize(("nisar_covered", "sentinel1_covered"), [(False, True), (True, False)])
-def test_there_is_nothing_to_compare_when_a_scene_misses_the_route(nisar_covered, sentinel1_covered):
-    nisar = RouteMeasurement("u", nisar_covered, None)
-    sentinel1 = RouteMeasurement("u", sentinel1_covered, None)
+def test_a_community_always_far_from_water_is_inland():
+    assert classes_of(evaluated("p1", "2026-01-01", a=FAR), evaluated("p2", "2026-02-01", a=NO_DATA)) == {
+        "a": CommunityClass.INLAND
+    }
 
-    assert cross_check(nisar, sentinel1, "s1", SCENE_ON) is None
+
+def test_a_community_near_water_that_never_had_a_route_is_unresolved():
+    assert classes_of(evaluated("p1", "2026-01-01", a=FAR), evaluated("p2", "2026-02-01", a=ISOLATED)) == {
+        "a": CommunityClass.UNRESOLVED
+    }
+
+
+def test_a_community_without_data_on_any_pass_is_no_data_even_when_missing_from_the_passes():
+    assert classes_of(evaluated("p1", "2026-01-01", a=NO_DATA), ids=("a", "added_later")) == {
+        "a": CommunityClass.NO_DATA,
+        "added_later": CommunityClass.NO_DATA,
+    }
+
+
+def test_counts_cover_only_monitored_communities():
+    result = classify(
+        "tefe",
+        RADIUS,
+        ["a", "b", "inland"],
+        [evaluated("p1", "2026-01-01", a=CONNECTED, b=AT_RISK, inland=FAR)],
+    )
+
+    assert result.passes[0].counts == StatusCounts(connected=1, at_risk=1)
+    assert result.totals == {
+        CommunityClass.MONITORED: 2,
+        CommunityClass.UNRESOLVED: 0,
+        CommunityClass.INLAND: 1,
+        CommunityClass.NO_DATA: 0,
+    }
+
+
+def test_a_first_isolation_is_unconfirmed_and_counts_as_at_risk_until_the_next_pass_with_data_confirms_it():
+    result = classify(
+        "tefe",
+        RADIUS,
+        ["a"],
+        [
+            evaluated("p1", "2026-01-01", a=CONNECTED),
+            evaluated("p2", "2026-02-01", a=ISOLATED),
+            evaluated("p3", "2026-03-01", a=NO_DATA),
+            evaluated("p4", "2026-04-01", a=ISOLATED),
+        ],
+    )
+
+    assert [(p.pass_id, p.counts, p.unconfirmed) for p in result.passes] == [
+        ("p1", StatusCounts(connected=1), ()),
+        ("p2", StatusCounts(at_risk=1), ("a",)),
+        ("p3", StatusCounts(no_data=1), ()),
+        ("p4", StatusCounts(isolated=1), ()),
+    ]
+
+
+def test_an_isolation_on_the_first_pass_with_data_is_unconfirmed():
+    result = classify(
+        "tefe", RADIUS, ["a"], [evaluated("p1", "2026-01-01", a=ISOLATED), evaluated("p2", "2026-02-01", a=AT_RISK)]
+    )
+
+    assert result.passes[0].unconfirmed == ("a",)
+
+
+def test_passes_are_judged_oldest_first_whatever_order_they_come_in():
+    result = classify(
+        "tefe",
+        RADIUS,
+        ["a"],
+        [evaluated("late", "2026-02-01", a=ISOLATED), evaluated("early", "2026-01-01", a=CONNECTED)],
+    )
+
+    assert [p.pass_id for p in result.passes] == ["early", "late"]
+    assert result.passes[1].unconfirmed == ("a",)

@@ -1,13 +1,11 @@
 """One module per job type. Each use case is a JobHandler: execute(job) -> JobResult."""
 
-from typing import Any
-
 from worker.domain.errors import InvalidJob
 from worker.domain.jobs import Job
 
 
-def require_param(job: Job, name: str) -> Any:
-    """The job parameter `name`; a job without it is invalid."""
-    if name not in job.params:
-        raise InvalidJob(f"job {job.id} ({job.type}) is missing the parameter {name!r}")
-    return job.params[name]
+def inputs_of[T](job: Job, kind: type[T]) -> T:
+    """The job's inputs, which must be of `kind`; anything else is an invalid job."""
+    if not isinstance(job.inputs, kind):
+        raise InvalidJob(f"job {job.id} ({job.type}) carries {type(job.inputs).__name__}, not {kind.__name__}")
+    return job.inputs

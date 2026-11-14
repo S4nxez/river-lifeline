@@ -3,11 +3,12 @@ import os
 import signal
 
 from worker.adapters.backend.client import BackendClient
-from worker.adapters.imaging.water_routes import ThresholdRouteMapper
-from worker.adapters.ml.drought_model import BaselineDroughtModel
-from worker.adapters.ml.model_store import PickleModelStore
+from worker.adapters.imaging.change import NumpyChangeMapper
 from worker.application.dispatcher import Dispatcher
-from worker.application.use_cases.assess_connectivity import AssessConnectivity
+from worker.application.ports import DroughtModelAlgorithm, JobHandler, PassAnalyzer
+from worker.application.use_cases.assess_pass import AssessPass, ReevaluatePass
+from worker.application.use_cases.classify_communities import ClassifyCommunities
+from worker.application.use_cases.detect_change import DetectChange
 from worker.application.use_cases.forecast_drought import ForecastDrought
 from worker.application.use_cases.train_drought_model import TrainDroughtModel
 from worker.application.worker import Worker
@@ -15,24 +16,30 @@ from worker.config import Settings
 from worker.domain.jobs import JobType
 
 
-def build_worker(settings: Settings, backend: BackendClient | None = None) -> Worker:
-    """Wires the adapters into the use cases. Swap an implementation here, nowhere else."""
-    backend = backend or BackendClient(settings.backend_url, settings.worker_token, settings.scenes_dir)
-    models = PickleModelStore(settings.models_dir)
-    dispatcher = Dispatcher(
-        {
-            JobType.ASSESS_CONNECTIVITY: AssessConnectivity(
-                backend,
-                backend,
-                # Starting thresholds, to calibrate on scenes of the Tefé area
-                nisar=ThresholdRouteMapper(polarization="HH", water_threshold_db=-17.0),
-                sentinel1=ThresholdRouteMapper(polarization="VV", water_threshold_db=-18.0),
-            ),
-            JobType.TRAIN_DROUGHT_MODEL: TrainDroughtModel(backend, BaselineDroughtModel, models),
-            JobType.FORECAST_DROUGHT: ForecastDrought(backend, models),
-        }
-    )
-    return Worker(backend, dispatcher, settings.poll_interval_seconds)
+def build_worker(
+    settings: Settings,
+    backend: BackendClient | None = None,
+    pass_analyzer: PassAnalyzer | None = None,
+    drought_model: DroughtModelAlgorithm | None = None,
+) -> Worker:
+    """Wires the adapters into the use cases. Swap an implementation here, nowhere else.
+
+    The worker only announces the job types it can run: the backend never hands it the others. The pass analysis
+    (`RadarPassAnalyzer`) and the drought model (`BaselineDroughtModel`) are not implemented yet, so their job types
+    are left out until they are passed here.
+    """
+    backend = backend or BackendClient(settings.backend_url, settings.worker_token)
+    handlers: dict[JobType, JobHandler] = {
+        JobType.DETECT_CHANGE: DetectChange(NumpyChangeMapper(), backend),
+        JobType.CLASSIFY_COMMUNITIES: ClassifyCommunities(),
+    }
+    if pass_analyzer is not None:
+        handlers[JobType.ASSESS_PASS] = AssessPass(pass_analyzer, backend)
+        handlers[JobType.REEVALUATE_PASS] = ReevaluatePass(pass_analyzer, backend)
+    if drought_model is not None:
+        handlers[JobType.TRAIN_DROUGHT_MODEL] = TrainDroughtModel(drought_model)
+        handlers[JobType.FORECAST_DROUGHT] = ForecastDrought(drought_model)
+    return Worker(backend, Dispatcher(handlers), settings.poll_interval_seconds)
 
 
 def main() -> None:

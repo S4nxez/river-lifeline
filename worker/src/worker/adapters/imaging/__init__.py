@@ -1,1 +1,1 @@
-"""Image processing: implementations of RouteMapper (one module per method)."""
+"""Image processing on rasters held in memory: implementations of PassAnalyzer and ChangeMapper."""
