@@ -25,8 +25,8 @@ public class WebConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
-                                                         PasswordEncoder encoder) {
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService, PasswordEncoder encoder) {
         var dao = new DaoAuthenticationProvider();
         dao.setUserDetailsService(userDetailsService);
         dao.setPasswordEncoder(encoder);

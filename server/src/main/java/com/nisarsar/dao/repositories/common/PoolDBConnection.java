@@ -1,15 +1,12 @@
 package com.nisarsar.dao.repositories.common;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
+import java.sql.Connection;
+import java.sql.SQLException;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PoolDBConnection {
@@ -20,8 +17,7 @@ public class PoolDBConnection {
             @Value("${spring.datasource.url}") String jdbcUrl,
             @Value("${spring.datasource.username}") String username,
             @Value("${spring.datasource.password}") String password,
-            @Value("${spring.datasource.driver-class-name}") String driverClassName
-    ) {
+            @Value("${spring.datasource.driver-class-name}") String driverClassName) {
         this.hikariDataSource = getHikariPool(jdbcUrl, username, password, driverClassName);
     }
 
