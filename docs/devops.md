@@ -7,7 +7,7 @@
 | `ci.yml` | Every PR (and the first stage of Release) | On PRs, `scripts/check-tests-changed.sh` (code changes need test changes, see `AGENTS.md`). Frontend `node --check`, Prettier check and unit tests, worker Ruff + pytest, `mvn verify` (unit tests + Spotless check), starts the full stack with `compose.build.yml` and runs `scripts/smoke.sh` |
 | `release.yml` | Push to `main` | CI → `:latest` and `:<sha>` images on GHCR (native ARM runner) → over Tailscale + SSH: `git pull`, `podman pull`, `podman-compose up` → smoke tests on the Pi and on the public URL. On failure it prints the backend logs; on success it removes this app's older images from the Pi (`scripts/prune-images.sh`) |
 
-**Smoke test** (`scripts/smoke.sh URL [seconds]`): `/api/sites` returns the catalog (Spring, Flyway and MySQL are up) and `/` serves the page. Works locally too.
+**Smoke test** (`scripts/smoke.sh URL [seconds]`): `/api/communities` returns the communities (Spring, Flyway and MySQL are up) and `/` serves the page. Works locally too.
 
 **Rollback** (no rebuild): `gh workflow run release.yml -f tag=<full SHA of a good commit>`. The next push to `main` deploys the latest code again.
 
