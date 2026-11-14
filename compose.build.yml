@@ -5,7 +5,11 @@
 services:
   backend:
     image: local/backend:dev
-    build: ./server
+    build:
+      context: ./server
+      dockerfile: Containerfile
   frontend:
     image: local/frontend:dev
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Containerfile
