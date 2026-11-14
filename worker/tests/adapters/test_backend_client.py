@@ -5,6 +5,7 @@ import pytest
 
 from worker.adapters.backend.client import BackendClient
 from worker.adapters.backend.http import HttpRequest, HttpResponse
+from worker.domain.connectivity import Community
 from worker.domain.errors import BackendUnavailable, InvalidJob
 from worker.domain.jobs import Job, JobResult, JobType
 
@@ -94,7 +95,7 @@ def test_downloads_the_scenes_of_a_job(tmp_path):
         }
     )
 
-    [scene] = client(transport, tmp_path).scenes_for(Job("3", JobType.DETECT_CHANGES))
+    [scene] = client(transport, tmp_path).scenes_for(Job("3", JobType.ASSESS_CONNECTIVITY))
 
     assert (scene.id, scene.mission, scene.acquired_on, scene.polarization) == ("s1", "NISAR", date(2025, 1, 5), "HH")
     assert scene.path == tmp_path / "3" / "s1.tif"
@@ -107,8 +108,21 @@ def test_never_sends_the_token_outside_the_backend(tmp_path):
     transport = FakeTransport({f"GET {BASE}/internal/worker/jobs/3/scenes": ok(listing)})
 
     with pytest.raises(InvalidJob):
-        client(transport, tmp_path).scenes_for(Job("3", JobType.DETECT_CHANGES))
+        client(transport, tmp_path).scenes_for(Job("3", JobType.ASSESS_CONNECTIVITY))
     assert len(transport.requests) == 1
+
+
+def test_reads_the_monitored_area(tmp_path):
+    area = {
+        "hub": {"id": "tefe", "name": "Tefé", "lat": -3.354, "lng": -64.711},
+        "communities": [{"id": "uarini", "name": "Uarini", "lat": -2.99, "lng": -65.113}],
+    }
+    transport = FakeTransport({f"GET {BASE}/internal/worker/area": ok(area)})
+
+    monitored = client(transport, tmp_path).monitored_area()
+
+    assert monitored.hub == Community("tefe", "Tefé", -3.354, -64.711)
+    assert monitored.communities == [Community("uarini", "Uarini", -2.99, -65.113)]
 
 
 def test_reads_weather_observations_and_drought_history(tmp_path):

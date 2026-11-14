@@ -3,8 +3,9 @@
 from datetime import date
 from typing import Protocol
 
+from worker.domain.connectivity import Community, MonitoredArea, RouteMeasurement
 from worker.domain.drought import DroughtEvent, WeatherObservation
-from worker.domain.imagery import ChangeReport, Scene
+from worker.domain.imagery import Scene
 from worker.domain.jobs import Job, JobResult
 
 # --- Talking to the backend: the worker's only connection to the outside -------------------------------------------
@@ -26,6 +27,12 @@ class ImageryProvider(Protocol):
         ...
 
 
+class AreaProvider(Protocol):
+    def monitored_area(self) -> MonitoredArea:
+        """The hub and the communities the backend monitors."""
+        ...
+
+
 class WeatherProvider(Protocol):
     def observations(self, region: str, start: date, end: date) -> list[WeatherObservation]: ...
 
@@ -35,8 +42,10 @@ class WeatherProvider(Protocol):
 # --- Algorithms: swappable implementations ------------------------------------------------------------------------
 
 
-class ChangeDetector(Protocol):
-    def detect(self, before: Scene, after: Scene) -> ChangeReport: ...
+class RouteMapper(Protocol):
+    def measure(self, scene: Scene, hub: Community, communities: list[Community]) -> list[RouteMeasurement]:
+        """One measurement per community: the narrowest point of its water route to the hub in this scene."""
+        ...
 
 
 class DroughtModel(Protocol):

@@ -11,19 +11,19 @@ class Echo:
 
 
 def test_routes_each_job_to_the_handler_of_its_type():
-    dispatcher = Dispatcher({JobType.DETECT_CHANGES: Echo()})
+    dispatcher = Dispatcher({JobType.ASSESS_CONNECTIVITY: Echo()})
 
-    result = dispatcher.handle(Job("1", JobType.DETECT_CHANGES))
+    result = dispatcher.handle(Job("1", JobType.ASSESS_CONNECTIVITY))
 
-    assert result == JobResult("1", {"handled": "detect_changes"})
+    assert result == JobResult("1", {"handled": "assess_connectivity"})
 
 
 def test_a_type_without_handler_is_an_unknown_job_type():
-    dispatcher = Dispatcher({JobType.DETECT_CHANGES: Echo()})
+    dispatcher = Dispatcher({JobType.ASSESS_CONNECTIVITY: Echo()})
 
     with pytest.raises(UnknownJobType):
         dispatcher.handle(Job("1", JobType.FORECAST_DROUGHT))
 
 
 def test_lists_the_job_types_it_handles():
-    assert Dispatcher({JobType.DETECT_CHANGES: Echo()}).job_types == {JobType.DETECT_CHANGES}
+    assert Dispatcher({JobType.ASSESS_CONNECTIVITY: Echo()}).job_types == {JobType.ASSESS_CONNECTIVITY}
