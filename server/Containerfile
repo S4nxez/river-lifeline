@@ -5,9 +5,9 @@ WORKDIR /app
 COPY target/*.jar app.jar
 
 # CONTRACTS.md 3.4: the API listens on PORT and reads the processing output from RIVER_DATA_DIR (mounted read-only)
-ENV PORT=8000 \
+ENV PORT=8080 \
     RIVER_DATA_DIR=/data
 
-EXPOSE 8000
+EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","/app/app.jar"]
