@@ -1,0 +1,17 @@
+# MySQL only, for running the backend from the IDE. Credentials match the defaults in
+# server/src/main/resources/application.properties, so no configuration is needed.
+#   docker compose -f compose.dev.yml up -d      (podman-compose works too)
+#   docker compose -f compose.dev.yml down -v    (wipe the data; Flyway refills it on the next start)
+services:
+  mysql:
+    image: docker.io/library/mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: NisarSar
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - dev_mysql:/var/lib/mysql
+
+volumes:
+  dev_mysql:

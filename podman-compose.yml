@@ -1,17 +1,15 @@
-version: "3.8"
-
+# Production stack (Raspberry Pi). Reads MYSQL_ROOT_PASSWORD from the .env next to this file.
+# IMAGE_TAG selects the image version (default latest); the Release workflow deploys by commit SHA.
+# CI and local full-stack runs layer compose.build.yml on top to build the images from source.
 services:
   mysql:
     image: docker.io/library/mysql:8
     restart: always
-    env_file:
-      - ./server/.env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: NisarSar
     volumes:
       - mysql_data:/var/lib/mysql
-#TODO      - ./data/sql:/docker-entrypoint-initdb.d:Z
     networks:
       - NisarSar-net
     healthcheck:
@@ -21,31 +19,28 @@ services:
       retries: 20
 
   backend:
-    image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-back:latest
-    # Max 5 reintentos si Spring/Flyway falla al arrancar; el contador se reinicia
-    # con cada deploy (--force-recreate). Evita bucles infinitos de arranque.
+    image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-back:${IMAGE_TAG:-latest}
+    # Bounded retries: a broken Flyway migration must not restart forever
     restart: on-failure:5
     depends_on:
       mysql:
         condition: service_healthy
-    env_file:
-      - ./server/.env
     environment:
       DB_URL: jdbc:mysql://mysql:3306/NisarSar
-      DB_USER: ${MYSQL_USER}
+      DB_USER: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_PROFILES_ACTIVE: spring
     networks:
       - NisarSar-net
 
   frontend:
-    image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-front:latest
+    image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-front:${IMAGE_TAG:-latest}
     restart: always
     networks:
       - NisarSar-net
 
   caddy:
-    image: caddy:latest
+    image: docker.io/library/caddy:2
     restart: always
     ports:
       - "127.0.0.1:8091:80"
@@ -63,4 +58,3 @@ volumes:
 
 networks:
   NisarSar-net:
-    external: false
