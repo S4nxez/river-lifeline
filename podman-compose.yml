@@ -36,8 +36,14 @@ services:
       RIVER_DATA_DIR: /data
       # The area /health and /meta describe; empty = the first one found
       DEFAULT_AOI: ${DEFAULT_AOI:-}
+      # Worker pipeline (api/worker-api.md): the worker's shared secret, the Earthdata token that reads NISAR
+      # products, and whether the backend runs its recurring work (pass search, gauge, staging)
+      WORKER_TOKEN: ${WORKER_TOKEN:-}
+      EARTHDATA_TOKEN: ${EARTHDATA_TOKEN:-}
+      PIPELINE_SCHEDULE: ${PIPELINE_SCHEDULE:-true}
     volumes:
       - ${RIVER_DATA_HOST_DIR:-./fixtures/data}:/data:ro,Z
+      - rasters:/var/lib/river-lifeline/rasters
     networks:
       - NisarSar-net
 
@@ -61,6 +67,7 @@ services:
 
 volumes:
   mysql_data:
+  rasters:
   caddy_data:
   caddy_config:
 

@@ -36,3 +36,6 @@ build/
 /.idea/
 
 /logs/
+
+### Raster bodies of a local run ###
+rasters/

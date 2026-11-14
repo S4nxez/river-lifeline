@@ -18,7 +18,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** A catalog of another major version: data endpoints answer 503, health stays 200 and says it is degraded. */
-@SpringBootTest(properties = WithoutDatabase.PROPERTY)
+@SpringBootTest(properties = {WithoutDatabase.PROPERTY, WithoutDatabase.NO_PIPELINE})
 @AutoConfigureMockMvc
 class ApiWithoutUsableCatalogTest {
     @TempDir

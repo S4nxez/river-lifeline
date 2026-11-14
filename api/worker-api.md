@@ -157,7 +157,8 @@ Raspberry Pi, so inputs are streamed to disk, never held whole in memory, never 
 - **Bodies on a volume, metadata in MySQL.** Every raster body (inputs the backend staged and results the worker
   uploaded) is one gzip file on the `rasters` named volume (`RIVER_RASTER_DIR`, `/var/lib/river-lifeline/rasters`),
   at `<first two characters of the id>/<id>.bin.gz`. Its `RasterMeta`, length, SHA-256 and role live in the `raster`
-  table. Rendered images (`radar.webp`, `water.png`, `change.png`) live on the same volume under `images/`.
+  table. Rendered images (`radar.webp`, `water.png`, `change.png`) will live on the same volume under `images/` when
+  rendering lands, together with `/api/v1` reading the worker's results.
 - **Streamed both ways.** Bodies are written to a temporary file and renamed when complete. Downloads are sent as
   stored with `Content-Encoding: gzip` when the worker accepts it (decompressed on the fly otherwise); uploads are
   stored gzipped. The backend never holds a whole raster in memory.
@@ -170,35 +171,38 @@ Raspberry Pi, so inputs are streamed to disk, never held whole in memory, never 
   - Uploaded result rasters stay `pending` until the result of that lease is accepted; then they become the pass's.
     The ones of a lease that ended without an accepted result are deleted.
   - `water`, `sentinel1` and `change` are kept (`reevaluate_pass` and `detect_change` read them again). `radar` is
-    only rendered, so it is deleted once `radar.webp` exists; a new `assess_pass` brings it back if needed.
-  - At most `river.worker.staged-jobs` (default 2) `assess_pass` jobs have their inputs staged at once, which caps the
-    disk the inputs take.
+    only rendered: once rendering exists it will be deleted when `radar.webp` does; until then it is kept.
+  - A sweep every 15 minutes deletes the bodies nothing references any more (rasters younger than 15 minutes are
+    left alone, so a job being queued never loses its inputs).
+  - At most `river.pipeline.staged-jobs` (default 2) `assess_pass` jobs have their inputs staged at once, which caps
+    the disk the inputs take.
 - **Why not the alternatives.** MySQL BLOBs: inputs exceed the default `max_allowed_packet` (64 MB) and every raster
   would go through the InnoDB buffer pool, the binary log and the backups of a Pi. MinIO: one more container on a
   single host for no gain today.
 
 ### Migration `V5__worker_jobs_and_pass_results.sql`
 
-`V5` is the next free number; claim it with the team before merging. The V4 tables were never read by the code and
-only hold synthetic demo rows, so V5 drops `connectivity_assessment`, `radar_pass` and `community` (communities come
-from the area files) and creates:
+The V4 tables were never read by the code and only hold synthetic demo rows, so V5 drops `connectivity_assessment`,
+`radar_pass` and `community` (communities come from the area files) and creates:
 
 | Table | Key | What it holds |
 |---|---|---|
-| `job` | `id` | type, `contract_version`, area or region, subject (pass id, region), `inputs` JSON, state (`waiting` for its inputs, `pending`, `leased`, `done`, `failed`), attempts, last error, timestamps. A generated column, unique, keeps one active job per type and subject |
-| `job_lease` | `id` | One row per hand-out: job, `expires_at`, outcome. **Its id is the `Job.id` the worker sees**, so a late result of an earlier lease is answered `409` and never applied twice |
+| `job` | `id` | type, `contract_version`, area (null for drought jobs), subject (`<area>/<pass>`, `<area>/<pass>/<since>`, `<area>`, region…), `inputs` JSON as written for the worker, state (`pending`, `leased`, `done`, `failed`), attempts, the current lease and its expiry, last error, timestamps. A generated column, unique, allows one pending job per type and subject |
+| `job_lease` | `id` | One row per hand-out: job, `expires_at`, outcome (`done`, `failed`, `retried`, `expired`). **Its id is the `Job.id` the worker sees**, so a late result of an earlier lease is answered `409` and never applied twice |
 | `raster` | `id` | `RasterMeta` (`width`, `height`, `dtype`, `nodata` as text, `unit`, `crs`, origin and step), byte length, SHA-256, role (`input`, `occurrence`, `pending`, `result`), timestamps |
 | `job_raster` | job, raster | Which job references which input raster: downloads of rasters no leased job references are `404` |
 | `gauge_day` | station, day | Daily median river level (ANA), refreshed by the backend |
-| `radar_pass` | area, pass | `PassInfo`, granules used (JSON), `coverage`, `shown`, `evaluated`, water/narrow/vegetated km², threshold, `river_level_cm`, `low_water`, hub link (status, bottleneck, distance), stats, the ids of its `water`, `radar`, `sentinel1` rasters, a digest of the method and communities it was judged with (a different digest means `reevaluate_pass`) and the lease that wrote it |
+| `radar_pass` | area, pass | `PassInfo`, granules chosen (JSON, replaced by better ones until the pass is assessed), staging attempts, error and next try, `coverage`, `shown`, `evaluated`, water/narrow/vegetated km², threshold, `river_level_cm`, `low_water`, hub link (status, bottleneck, distance), stats, the ids of its `water`, `radar`, `sentinel1` rasters, a digest of the method and communities it was judged with (a different digest means `reevaluate_pass`) and the lease that wrote it |
 | `pass_sentinel1` | area, pass | `Sentinel1Agreement`, when the pass used scenes |
 | `connectivity_assessment` | area, pass, community | status (contract names: `connected`, `at_risk`, `isolated`, `no_data`), `bottleneck_m`, `distance_to_water_m`, `unverified_route`. No foreign key to communities: a community removed from the area file keeps its history |
 | `pass_change` | area, pass, since pass | lost and gained km², `change` raster |
 | `community_class` | area, community | whole-record class |
 | `pass_counts` | area, pass | counts over monitored communities and unconfirmed isolations |
+| `drought_model` | region, version | a trained model as the worker returned it (parameters JSON, never executed) |
+| `drought_forecast` | region, `as_of`, horizon | probability and risk level |
 
-A result replaces the pass's rows in one transaction, only when it arrives for the lease the job is on. Drought models
-and forecasts get their own migration with that use case.
+A result is stored in one transaction with the end of its job and the jobs that follow from it, only when it arrives
+for the lease the job is on. A pass's new assessment replaces its rows; a classification replaces the area's.
 
 ### Reading NISAR and Sentinel-1 windows
 
@@ -221,8 +225,9 @@ no native HDF5 library, nothing to install on the Pi's ARM image.
   a `vv` asset, signed with the anonymous SAS token (cached for its lifetime). A small COG reader of our own reads the
   header and IFDs, the GeoKeys (EPSG), tie point and pixel scale (a corner origin moves half a pixel to the centre),
   picks the coarsest overview whose pixel is no larger than the area's, and fetches only the tiles over the window,
-  merging adjacent ranges. Decoders: Deflate (`java.util.zip`), LZW, predictors 2 and 3. Anything else fails staging
-  with a clear error. Values pass through untouched (linear power, `nodata` -32768).
+  merging adjacent ranges. Decoders: none or Deflate (`java.util.zip`), with no predictor, the horizontal one or the
+  floating point one (what Planetary Computer uses); anything else fails staging with a clear error. Values pass
+  through untouched (linear power, `nodata` -32768). A scene whose tiles over the window are all empty is left out.
 - **Why not the alternatives.** GDAL: native libraries and JNI bindings in the ARM image. GeoTools: tens of MB of
   LGPL dependencies for five TIFF tags. Native HDF5 through JNI: no range reads over HTTPS, so whole 2 GB downloads.
 - **Checked with a spike (2026-11-14).** Throwaway readers built as described above, compared with GDAL and h5py.
@@ -247,13 +252,51 @@ no native HDF5 library, nothing to install on the Pi's ARM image.
     no weather source is chosen yet. Neither is one for the drought history `train_drought_model` needs.
   - Parse the Planetary Computer token response with Jackson: its JSON writes the token's ampersands as Unicode
     escapes, which a plain string search leaves broken.
-- **Hexagonal.** Ports in `application`: `PassCatalog` (ASF search and granule choice), `GranuleWindows`,
-  `Sentinel1Scenes`, `GaugeSeries`, `RasterStore`. Adapters in `infrastructure/adapter/out/` (`earthdata`,
-  `planetarycomputer`, `ana`, `rasterstore`). A stager reads the windows of `waiting` jobs and turns them `pending` once
-  every raster is stored, so the worker never waits on Earthdata.
 
-This moves work into the backend that `AGENTS.md` and `CONTRACTS.md` still give to processing (files in
-`RIVER_DATA_DIR`, GET-only backend). The PR that implements it updates them together. The backend still computes no
-science: it decodes products and cuts windows; every judgement stays in the worker.
+### Code
+
+The backend's side lives in the bounded context `com.riverlifeline.pipeline` of `server/`, hexagonal like the rest
+(`ArchitectureTest` checks both contexts and that neither reaches into the other):
+
+- **Domain**: area and grid, rasters, passes and the granule choice, jobs with their inputs and results, and
+  `ResultCheck`, which decides whether a result fits its job (subject, rasters, grid, communities).
+- **Application**: `WorkerJobs` (the six calls of the worker API) and `PipelineTasks` (the recurring work), with ports
+  for every source and store: `PassSearch`, `GranuleWindows`, `Sentinel1Scenes`, `GaugeSource`, `WeatherSource`,
+  `OccurrenceSource`, `RasterStore`, and the repositories. Staging reads every input of a pass first and queues its
+  `assess_pass` job only then, so a worker never waits on Earthdata.
+- **Infrastructure**: adapters `asf`, `earthdata`, `planetarycomputer`, `ana`, `openmeteo`, `areafiles`,
+  `rasterstore`, `jdbc`; the controller under `/internal/worker` with its token filter; the scheduler; the wiring in
+  `PipelineConfiguration`. The contract's JSON (camelCase) has its own mapper; the public API keeps snake_case.
+
+### Recurring work
+
+| Task | Every | What |
+|---|---|---|
+| Pass search | 6 h | ASF search over each area, best granule per frame (final, then provisional, then beta; 20 MHz, then 40 MHz; HH first), new passes recorded; then a `reevaluate_pass` for each pass judged with another version of its area files |
+| Gauge | 6 h | ANA telemetry from the last stored day (or 15 days before the first pass), daily medians stored |
+| Staging | 5 min | newest passes first, within `staged-jobs`; a failed staging is tried again after 45 min, 1.5 h, 3 h… up to 24 h; a pass no granule reaches is given up |
+| Forecasts | 1 day | a `forecast_drought` for every region with a trained model, with Open-Meteo days up to yesterday |
+| Leases | 1 min | a lease that ran out puts its job back in the queue, or fails it after `max-attempts` (3) |
+| Sweep | 15 min | deletes raster bodies nothing references |
+
+After an `assess_pass` or `reevaluate_pass` result: `detect_change` against the previous shown pass of the same track
+and from the pass to the next one, then `classify_communities`. An `assess_pass` that fails for good leaves its pass
+aside for 24 h (for ever when the worker says retrying is pointless). Training drought models is not scheduled: no
+source of drought history is chosen yet.
+
+### Configuration
+
+| Variable | What |
+|---|---|
+| `WORKER_TOKEN` | secret of every worker request; without it the worker API answers 401 to everything |
+| `EARTHDATA_TOKEN` | NASA Earthdata user token; without it no pass is staged |
+| `RIVER_RASTER_DIR` | raster bodies (`/var/lib/river-lifeline/rasters` in the container, on the `rasters` volume) |
+| `PIPELINE_ENABLED` | `false` leaves the whole pipeline out |
+| `PIPELINE_SCHEDULE` | `false` stops the recurring work; the worker API still answers |
+
+Other knobs are `river.pipeline.*` in `application.properties` (lease, attempts, staged jobs, intervals, addresses
+of the sources).
+
+The backend still computes no science: it decodes products and cuts windows; every judgement stays in the worker.
 
 [jhdf]: https://github.com/jamesmudd/jhdf

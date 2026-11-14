@@ -8,7 +8,10 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-/** Hexagonal layering: domain ← application ← infrastructure. A violation fails the build. */
+/**
+ * Hexagonal layering of every bounded context ({@code monitoring}, {@code pipeline}): domain ← application ←
+ * infrastructure. A violation fails the build.
+ */
 class ArchitectureTest {
     private static JavaClasses classes;
 
@@ -23,7 +26,7 @@ class ArchitectureTest {
     void theDomainDependsOnNothingButItselfAndTheSharedKernel() {
         noClasses()
                 .that()
-                .resideInAnyPackage("..monitoring.domain..", "..shared.domain..")
+                .resideInAnyPackage("..monitoring.domain..", "..pipeline.domain..", "..shared.domain..")
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
@@ -32,7 +35,9 @@ class ArchitectureTest {
                         "org.springframework..",
                         "com.fasterxml..",
                         "jakarta..",
-                        "org.slf4j..")
+                        "org.slf4j..",
+                        "io.jhdf..",
+                        "org.locationtech..")
                 .check(classes);
     }
 
@@ -40,10 +45,16 @@ class ArchitectureTest {
     void theApplicationDoesNotKnowTheAdaptersNorTheFramework() {
         noClasses()
                 .that()
-                .resideInAPackage("..monitoring.application..")
+                .resideInAnyPackage("..monitoring.application..", "..pipeline.application..")
                 .should()
                 .dependOnClassesThat()
-                .resideInAnyPackage("..infrastructure..", "org.springframework..", "com.fasterxml..", "jakarta..")
+                .resideInAnyPackage(
+                        "..infrastructure..",
+                        "org.springframework..",
+                        "com.fasterxml..",
+                        "jakarta..",
+                        "io.jhdf..",
+                        "org.locationtech..")
                 .check(classes);
     }
 
@@ -62,6 +73,24 @@ class ArchitectureTest {
                 .should()
                 .dependOnClassesThat()
                 .resideInAPackage("..infrastructure.adapter.in..")
+                .check(classes);
+    }
+
+    @Test
+    void theContextsDoNotReachIntoEachOther() {
+        noClasses()
+                .that()
+                .resideInAPackage("com.riverlifeline.pipeline..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage("com.riverlifeline.monitoring..")
+                .check(classes);
+        noClasses()
+                .that()
+                .resideInAPackage("com.riverlifeline.monitoring..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage("com.riverlifeline.pipeline..")
                 .check(classes);
     }
 }

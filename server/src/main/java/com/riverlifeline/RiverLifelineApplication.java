@@ -5,8 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
- * River Lifeline backend: a read-only HTTP API (CONTRACTS.md, contract 2) over the files the processing pipeline
- * writes (contract 1). It never computes science: it reads, validates, joins, filters and serves.
+ * River Lifeline backend, in two bounded contexts: {@code monitoring}, the read-only public API (CONTRACTS.md, contract
+ * 2) over the monitor's files, and {@code pipeline}, the internal worker API (api/worker-api.md) with the external
+ * sources the worker needs and the store of its results. It never computes science.
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
