@@ -51,7 +51,7 @@ shared secret in the `X-Worker-Token` header.
 
 | Job type | Use case | Algorithm |
 |---|---|---|
-| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer` (`adapters/imaging/`): HH to dB with fill masked, box speckle filter, nearest-pixel resampling to the area grid (pyproj), water with hysteresis, specks under 1 ha dropped and holes under 2 ha filled, routes by channel width from each water access to the hub, coverage and gaps. Not yet: refined Lee filter (a job asking for it fails), water under vegetation, adaptive threshold, swath edge trim, low-water rule, Sentinel-1 |
+| `assess_pass`, `reevaluate_pass` | `AssessPass`, `ReevaluatePass` | `RadarPassAnalyzer` (`adapters/imaging/`): HH to dB with fill masked, speckle filter (refined Lee or box), nearest-pixel resampling to the area grid (pyproj), water with hysteresis, specks under 1 ha dropped and holes under 2 ha filled, routes by channel width from each water access to the hub, coverage and gaps. Not yet: water under vegetation, adaptive threshold, swath edge trim, low-water rule, Sentinel-1 |
 | `detect_change` | `DetectChange` | `NumpyChangeMapper`: open water (classes 1 and 2) lost and gained where both passes have data |
 | `classify_communities` | `ClassifyCommunities` | `domain/connectivity.py`: pure Python. Inland: never water within the access radius; unresolved: never linked through a channel at least the narrowest width level; monitored: the rest with data |
 | `train_drought_model`, `forecast_drought` | `TrainDroughtModel`, `ForecastDrought` | `BaselineDroughtModel`: **not implemented yet** |

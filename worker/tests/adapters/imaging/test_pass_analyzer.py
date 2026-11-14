@@ -129,11 +129,22 @@ def test_fill_below_the_valid_floor_is_no_data():
     assert result.coverage == 0.0
 
 
-def test_the_refined_lee_filter_is_not_applied_yet():
+def test_filters_speckle_with_refined_lee_when_the_area_asks_for_it():
     area = replace(AREA, method=replace(METHOD, speckle=Speckle("refined_lee", 9, 60)))
 
-    with pytest.raises(NotImplementedError, match="refined_lee"):
-        assess(area)
+    result = assess(area)
+
+    assert result.evaluated is True
+    assert {c.community_id: c.route.status for c in result.communities} == {
+        "on_the_river": RouteStatus.CONNECTED,
+        "inland": RouteStatus.ISOLATED,
+    }
+
+
+@pytest.mark.parametrize("speckle", [Speckle("refined_lee", None, 60), Speckle("box", None, None), Speckle("x", 1, 1)])
+def test_a_speckle_filter_without_its_parameters_or_unknown_makes_the_job_invalid(speckle):
+    with pytest.raises(InvalidJob):
+        assess(replace(AREA, method=replace(METHOD, speckle=speckle)))
 
 
 def test_granule_bands_must_be_linear_power():

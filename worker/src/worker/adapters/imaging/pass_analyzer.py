@@ -14,6 +14,7 @@ from worker.adapters.imaging.backscatter import (
     window_px,
 )
 from worker.adapters.imaging.grid import area_mask, to_pixel
+from worker.adapters.imaging.refined_lee import refined_lee
 from worker.adapters.imaging.water import Hub, connectivity, water_mask, wide_water
 from worker.application.ports import RasterSource
 from worker.domain.area import AreaSpec, Speckle, Target
@@ -43,12 +44,13 @@ class RadarPassAnalyzer:
     """Judges a NISAR pass on the area grid with the parameters of `area.method`.
 
     assess_pass, per granule (the first granule wins where several have data): HH from linear power to dB, fill below
-    `validFloorDb` masked, speckle filtered over `speckle.windowM`, resampled to the area grid by nearest pixel. Then,
-    for both job types: water below `waterDb`, plus pixels below `waterDbWeak` touching it; coverage inside the area;
-    the route of every community (from its water access when it has one) and of the main river to the hub, by channel
-    width (`widthsM`), judged against `safeWidthM` and `accessRadiusM`.
+    `validFloorDb` masked, speckle filtered (refined Lee with `speckle.looks`, or a box over `speckle.windowM`), and
+    resampled to the area grid by nearest pixel. Then, for both job types: water below `waterDb`, plus pixels below
+    `waterDbWeak` touching it; coverage inside the area; the route of every community (from its water access when it
+    has one) and of the main river to the hub, by channel width (`widthsM`), judged against `safeWidthM` and
+    `accessRadiusM`.
 
-    Not applied yet: the refined Lee filter (a job asking for it fails), water under vegetation, the adaptive threshold,
+    Not applied yet: water under vegetation, the adaptive threshold,
     the swath edge trim, the low-water rule and the Sentinel-1 classes. The result says so: `vegetatedKm2`, `lowWater`
     and `sentinel1` are null and the threshold is the fixed one.
     """
@@ -169,7 +171,11 @@ def _speckle_filter(db: np.ndarray, speckle: Speckle, spacing_m: float) -> np.nd
         if speckle.window_m is None:
             raise InvalidJob("the box speckle filter needs speckle.windowM")
         return box_filter(db, window_px(speckle.window_m, spacing_m))
-    raise NotImplementedError(f"speckle filter {speckle.filter!r} is not implemented yet")
+    if speckle.filter == "refined_lee":
+        if speckle.looks is None:
+            raise InvalidJob("the refined Lee speckle filter needs speckle.looks")
+        return refined_lee(db, speckle.looks)
+    raise InvalidJob(f"unknown speckle filter {speckle.filter!r}")
 
 
 def _radar(db: np.ndarray, area: AreaSpec) -> Raster:
