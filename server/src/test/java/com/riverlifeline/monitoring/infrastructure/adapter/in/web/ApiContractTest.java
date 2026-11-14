@@ -24,7 +24,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 /** Every endpoint of contract 2 on the repository's fixtures ({@code RIVER_DATA_DIR=../fixtures/data}). */
-@SpringBootTest(properties = {"river.data-dir=../fixtures/data", "river.cors-origins=http://localhost:5500"})
+@SpringBootTest(
+        properties = {
+            WithoutDatabase.PROPERTY,
+            "river.data-dir=../fixtures/data",
+            "river.cors-origins=http://localhost:5500"
+        })
 @AutoConfigureMockMvc
 class ApiContractTest {
     private static final String TEFE = "/api/v1/aois/tefe";

@@ -18,7 +18,7 @@ become. Sentinel-1 is only used to cross-check each result.
 
 | Layer | Technology |
 |---|---|
-| Backend | Java 21, Spring Boot: read-only API over the processing output files, hexagonal architecture |
+| Backend | Java 21, Spring Boot, MySQL 8, Flyway: read-only API over the processing output files, hexagonal architecture |
 | Frontend | Vanilla JavaScript (ES modules), Leaflet |
 | Worker | Python 3.12: water route mapping on NISAR passes, Sentinel-1 cross-check, drought forecasting |
 | Infrastructure | Podman + Caddy on a Raspberry Pi, published with Tailscale Funnel |
@@ -34,6 +34,7 @@ flowchart LR
         caddy["Caddy<br/>reverse proxy"]
         frontend["Frontend<br/>nginx · vanilla JS"]
         backend["Backend<br/>Spring Boot · read-only"]
+        db[("MySQL<br/>Flyway migrations")]
         data[("RIVER_DATA_DIR<br/>aois/&lt;id&gt;/catalog.json,<br/>statuses, layer PNGs")]
         worker["Processing<br/>Python · every 6 h"]
     end
@@ -47,6 +48,7 @@ flowchart LR
     caddy -->|"/"| frontend
     caddy -->|"/api/v1/*"| backend
     backend -->|"reads"| data
+    backend --> db
     worker -.->|"writes"| data
     worker -.-> earthdata
     worker -.-> s1
@@ -65,8 +67,8 @@ hand-made fixtures of `fixtures/data`.
 
 ```bash
 npm --prefix frontend install               # once per clone: Prettier + the pre-commit hook
-docker compose -f compose.dev.yml up -d    # frontend on http://localhost:5500 (/api -> :8000)
-cd server && mvn spring-boot:run            # backend on :8000, serving ../fixtures/data
+docker compose -f compose.dev.yml up -d    # MySQL + frontend on http://localhost:5500 (/api -> :8000)
+cd server && mvn spring-boot:run            # backend on :8000, using that MySQL, serving ../fixtures/data
 ```
 
 Full stack, as in production: see `compose.build.yml`. CI/CD, deployment and rollback: [docs/devops.md](docs/devops.md).

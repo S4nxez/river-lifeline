@@ -88,7 +88,11 @@ jobs:
 
       # The backend serves the repository's fixtures (fixtures/data), the default data folder of the compose file
       - name: Stack - start
-        run: docker compose up -d --build
+        run: |
+          pw="$(openssl rand -hex 16)"
+          echo "::add-mask::$pw"
+          echo "MYSQL_ROOT_PASSWORD=$pw" > .env
+          docker compose up -d --build
 
       - name: Stack - smoke test
         run: scripts/smoke.sh http://127.0.0.1:8091 180
@@ -97,4 +101,4 @@ jobs:
         if: failure()
         run: |
           docker compose ps -a
-          docker compose logs --no-color backend
+          docker compose logs --no-color backend mysql

@@ -1,28 +1,51 @@
-# Production stack (Raspberry Pi).
+# Production stack (Raspberry Pi). Reads MYSQL_ROOT_PASSWORD from the .env next to this file.
 # IMAGE_TAG selects the image version (default latest); the Release workflow deploys by commit SHA.
 # CI and local full-stack runs layer compose.build.yml on top to build the images from source.
 #
-# The backend has no database: it serves, read-only, the files the processing pipeline writes (CONTRACTS.md 2).
-# RIVER_DATA_HOST_DIR (in the .env next to this file) points at that folder; until processing writes real passes
-# it defaults to the repository's hand-made fixtures. Every area is a folder aois/<id>/ inside it.
+# The API serves, read-only, the files the processing pipeline writes (CONTRACTS.md 2). RIVER_DATA_HOST_DIR (in the
+# .env) points at that folder; until processing writes real passes it defaults to the repository's fixtures.
 services:
+  mysql:
+    image: docker.io/library/mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: NisarSar
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - NisarSar-net
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   backend:
     image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-back:${IMAGE_TAG:-latest}
+    # Bounded retries: a broken Flyway migration must not restart forever
     restart: on-failure:5
+    depends_on:
+      mysql:
+        condition: service_healthy
     environment:
+      DB_URL: jdbc:mysql://mysql:3306/NisarSar
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_PROFILES_ACTIVE: spring
       RIVER_DATA_DIR: /data
       # The area /health and /meta describe; empty = the first one found
       DEFAULT_AOI: ${DEFAULT_AOI:-}
     volumes:
       - ${RIVER_DATA_HOST_DIR:-./fixtures/data}:/data:ro,Z
     networks:
-      - river-net
+      - NisarSar-net
 
   frontend:
     image: ghcr.io/s4nxez/hackathon-nisar-sar-change-detection-front:${IMAGE_TAG:-latest}
     restart: always
     networks:
-      - river-net
+      - NisarSar-net
 
   caddy:
     image: docker.io/library/caddy:2
@@ -34,11 +57,12 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - river-net
+      - NisarSar-net
 
 volumes:
+  mysql_data:
   caddy_data:
   caddy_config:
 
 networks:
-  river-net:
+  NisarSar-net:
