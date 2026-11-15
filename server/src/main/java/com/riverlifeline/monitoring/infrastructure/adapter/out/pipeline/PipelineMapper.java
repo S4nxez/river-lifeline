@@ -93,7 +93,7 @@ public final class PipelineMapper {
         Map<String, PassId> previousPass = new HashMap<>();
         List<Pass> catalogPasses = new ArrayList<>();
         for (PassRow row : passes) {
-            PassId id = PassId.of(row.passId());
+            PassId id = publicPassId(row.passId());
             Instant acquiredAt = acquiredAt(row);
             List<CommunityAssessment> judged = new ArrayList<>();
             int changed = 0;
@@ -134,6 +134,18 @@ public final class PipelineMapper {
                 new MethodInfo("pipeline", "NISAR L2 GCOV judged by the worker (api/worker-api.md)"),
                 catalogPasses);
         return new Snapshot(catalog, communities(area, classes), statuses, riverLevel(area, gauge));
+    }
+
+    /**
+     * The public id of a pipeline pass: the API's ids are lower case letters, digits and hyphens, the pipeline's look
+     * like {@code 2026-10-23_t161A}, so it becomes {@code 2026-10-23-t161a}.
+     */
+    static PassId publicPassId(String pipelineId) {
+        String id = pipelineId
+                .toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        return PassId.of(id);
     }
 
     // --- area -------------------------------------------------------------------------------------------------------

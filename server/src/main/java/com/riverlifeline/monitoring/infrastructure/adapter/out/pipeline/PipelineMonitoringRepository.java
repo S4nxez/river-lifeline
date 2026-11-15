@@ -99,6 +99,7 @@ public class PipelineMonitoringRepository
                 log.warn("Results of {} not refreshed, serving the previous ones: {}", area.id(), e.getMessage());
                 return cached.snapshot();
             }
+            log.error("Results of {} can't be read", area.id(), e);
             throw new CatalogUnavailableException(aoiId, "the worker's results can't be read", e);
         }
     }

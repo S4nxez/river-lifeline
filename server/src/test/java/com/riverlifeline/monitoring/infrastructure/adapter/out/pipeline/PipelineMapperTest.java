@@ -251,4 +251,16 @@ class PipelineMapperTest {
         assertThat(series.readings().getFirst().levelM()).isEqualTo(8.125);
         assertThat(snapshot.catalog().passes()).isEmpty();
     }
+
+    @Test
+    void pipelinePassIdsBecomeUrlSafePublicIds() {
+        Snapshot snapshot = snapshot(
+                List.of(TestArea.pass("2026-10-23_t161A", "2026-10-23", true, null)),
+                List.of(route("2026-10-23_t161A", "a", "connected", 100, 0)),
+                CLASSES);
+
+        PassId id = snapshot.catalog().passes().getFirst().id();
+        assertThat(id).isEqualTo(PassId.of("2026-10-23-t161a"));
+        assertThat(snapshot.statuses().get(id).find(CommunityId.of("a"))).isPresent();
+    }
 }
