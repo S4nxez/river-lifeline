@@ -1,0 +1,147 @@
+/* The experimental early warning: its own vocabulary (outlines, violet), never the status colours of the main view */
+:root {
+  --ew: #6d4ac7;
+  --ew-soft: #6d4ac71f;
+}
+
+:root[data-theme="dark"] {
+  --ew: #b49cff;
+  --ew-soft: #b49cff24;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ew: #b49cff;
+    --ew-soft: #b49cff24;
+  }
+}
+
+.early-warning {
+  margin-top: 20px;
+  border-style: dashed;
+}
+
+.ew-badge {
+  border: 1px dashed var(--ew);
+  color: var(--ew);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.ew-toggle {
+  border: 1px solid var(--ew);
+  color: var(--ew);
+  background: transparent;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.ew-toggle[aria-expanded="true"] {
+  background: var(--ew-soft);
+}
+
+.ew-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .ew-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ew-question {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ew-headline {
+  border-left: 3px solid var(--ew);
+  padding-left: 10px;
+  color: var(--text);
+}
+
+.ew-issued {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ew-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.ew-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 4px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ew-row.is-selected {
+  background: var(--ew-soft);
+}
+
+.ew-name {
+  flex: 1 1 140px;
+  font-weight: 600;
+}
+
+.ew-date {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ew-chip {
+  border: 1px solid var(--ew);
+  color: var(--ew);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ew-legend-median,
+.ew-legend-band,
+.ew-legend-threshold {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.ew-legend-median {
+  border-top: 2px dashed var(--ew);
+}
+
+.ew-legend-band {
+  height: 8px;
+  background: var(--ew-soft);
+}
+
+.ew-legend-threshold {
+  border-top: 2px dotted var(--ew);
+}
+
+.ew-limits summary {
+  cursor: pointer;
+  font-weight: 600;
+}

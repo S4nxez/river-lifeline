@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="./src/styles/details.css" />
     <!-- Last, so the breakpoints override the rules above -->
     <link rel="stylesheet" href="./src/styles/responsive.css" />
+    <link rel="stylesheet" href="./src/styles/early-warning.css" />
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="./src/app.js"></script>
@@ -197,6 +198,45 @@
               </p>
             </div>
           </article>
+        </section>
+
+        <section id="early-warning" class="panel early-warning" hidden aria-labelledby="early-warning-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">05 / EARLY WARNING</p>
+              <h2 id="early-warning-title">Early warning (experimental)</h2>
+            </div>
+            <span class="ew-badge">Experimental · hindcast</span>
+          </div>
+          <button
+            id="early-warning-toggle"
+            class="ew-toggle"
+            type="button"
+            aria-controls="early-warning-body"
+            aria-expanded="false"
+          >
+            Show the early warning
+          </button>
+          <div id="early-warning-body" hidden>
+            <div class="ew-grid">
+              <div id="early-warning-content"></div>
+              <div>
+                <div class="chart-wrap">
+                  <canvas id="level-forecast-chart" aria-label="River level forecast chart"></canvas>
+                </div>
+                <div class="chart-legend ew-legend">
+                  <span><i class="legend-line"></i> Observed level</span
+                  ><span><i class="ew-legend-median"></i> Forecast median</span
+                  ><span><i class="ew-legend-band"></i> 10-90 % range</span
+                  ><span><i class="ew-legend-threshold"></i> Selected community: at risk / cut off below</span>
+                </div>
+              </div>
+            </div>
+            <details class="method-note ew-limits">
+              <summary>How this works and its limits</summary>
+              <div id="early-warning-limits"></div>
+            </details>
+          </div>
         </section>
         <footer class="footer">
           <span>RIVER LIFELINE <span class="footer-sep">/</span> SPACE APPS 2026</span

@@ -225,3 +225,18 @@ export async function loadHistory(communityId, live, aoiId = aoiFromUrl()) {
     return null;
   }
 }
+
+/**
+ * The experimental early warning of the area (`early_warning.json`, CONTRACTS.md), or null when the API has none (404)
+ * or fails: the page then simply has no early warning section.
+ */
+export async function loadEarlyWarning(aoiId = aoiFromUrl()) {
+  try {
+    const response = await fetch(`${areaBase(aoiId)}/early-warning`, JSON_HEADERS);
+    if (!response.ok) return null;
+    const report = await response.json();
+    return report?.experimental === true && Array.isArray(report.communities) ? report : null;
+  } catch {
+    return null;
+  }
+}
