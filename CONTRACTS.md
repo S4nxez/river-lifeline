@@ -6,8 +6,8 @@ The contract between the backend and the worker is [`api/worker-api.md`](api/wor
 ## Early warning (experimental): `aois/<id>/early_warning.json`
 
 Written offline by the worker's CLI (`python -m worker early-warning`, [`docs/early-warning.md`](docs/early-warning.md)),
-served as published by `GET /api/v1/aois/{aoi}/early-warning` in the files mode (`RIVER_SOURCE=files`); `404` when
-the area has none, which is always the case in the pipeline mode for now. It is a separate, experimental product:
+served as published by `GET /api/v1/aois/{aoi}/early-warning`: from the data folder in the files mode
+(`RIVER_SOURCE=files`), from `RIVER_EARLY_WARNING_DIR` in the pipeline mode; `404` when the area has none. It is a separate, experimental product:
 nothing in it changes a status, a count or a colour of the main record.
 
 `schema_version` `1.0.0`. A reader refuses another major version. Required: `schema_version`, `aoi_id` (the area's id),
