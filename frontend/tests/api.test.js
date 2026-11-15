@@ -1,7 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { apiFeature, apiHistoryEntry, apiMeta, apiOverview, apiPassDetail, apiPassItem } from "./helpers/browser.js";
-import { aoiFromUrl, boundsOf, imageryOf, layerUrl, loadHistory, loadOverview, loadPass } from "../src/services/api.js";
+import {
+  apiFeature,
+  apiHistoryEntry,
+  apiMeta,
+  apiOverview,
+  apiPassDetail,
+  apiPassItem,
+  apiRiverLevel,
+} from "./helpers/browser.js";
+import {
+  aoiFromUrl,
+  boundsOf,
+  exportUrl,
+  imageryOf,
+  layerUrl,
+  loadHistory,
+  loadOverview,
+  loadPass,
+  loadRiverLevel,
+  plateOf,
+} from "../src/services/api.js";
 
 const BASE = "./api/v1/aois/tefe";
 
@@ -34,16 +53,23 @@ function overviewRoutes(features) {
 }
 
 test("the overview is built from the AOI, its summary and the latest pass's communities", async () => {
-  const caiambe = apiFeature({ id: "caiambe", name: "Caiambé", status: "isolated", width: null });
+  const caiambe = apiFeature({
+    id: "caiambe",
+    name: "Caiambé",
+    status: "isolated",
+    width: null,
+    reason: "no_route_confirmed",
+    previousStatus: "at_risk",
+    boardingPoint: { location: [-64.4, -3.5], source: "port" },
+  });
   const requests = respond(overviewRoutes([caiambe]));
 
   const { overview, live } = await loadOverview("tefe");
 
   assert.equal(live, true);
   assert.deepEqual(overview.hub, { id: "tefe", name: "Tefé", kind: "hub", lat: -3.354, lng: -64.711 });
-  assert.equal(overview.latestPass.acquiredOn, "2026-09-09");
-  assert.equal(overview.latestPass.riverLevelCm, 980);
-  assert.deepEqual(overview.latestPass.counts, { connected: 1, atRisk: 1, isolated: 2, noData: 0 });
+  assert.equal(overview.passId, "nisar-2026-09-09");
+  assert.equal(overview.recordUpdatedAt, "2026-11-15T04:54:27Z");
   assert.deepEqual(overview.communities, [
     {
       id: "caiambe",
@@ -51,10 +77,14 @@ test("the overview is built from the AOI, its summary and the latest pass's comm
       kind: "town",
       lat: -2.99,
       lng: -65.113,
+      changed: true,
+      previousStatus: "at_risk",
+      boardingSource: "port",
       latest: {
         passId: "nisar-2026-09-09",
         acquiredOn: "2026-09-09",
         status: "isolated",
+        reason: "no_route_confirmed",
         routeWidthM: null,
         sentinel1: null,
       },
@@ -137,7 +167,7 @@ test("the area comes from the page URL, Tefé by default", () => {
   assert.equal(aoiFromUrl("?aoi=../etc"), "tefe");
 });
 
-test("the area comes from the API: name, region, centre, bounds in Leaflet's order and the connected width", async () => {
+test("the area comes from the API: its circle, bounds in Leaflet's order, width classes and gauge", async () => {
   respond(overviewRoutes([apiFeature()]));
 
   const { overview } = await loadOverview("tefe");
@@ -147,40 +177,128 @@ test("the area comes from the API: name, region, centre, bounds in Leaflet's ord
     name: "Tefé",
     region: "Amazonas",
     center: { lat: -3.4, lng: -64.75 },
+    radiusKm: 55,
     bounds: [
       [-3.9, -65.2],
       [-2.9, -64.3],
     ],
     connectedMinWidthM: 60,
+    widthClassesM: [40, 60, 100, 200, 400],
+    gauge: { name: "Tefé-Missões", provider: "ANA" },
   });
 });
 
-test("lists the passes newest first, flagging the ones that couldn't be judged", async () => {
+test("a boarding point without a source is still named, and none means the place itself", async () => {
+  respond(
+    overviewRoutes([
+      apiFeature({ id: "a", boardingPoint: { location: [-64.4, -3.5], source: null } }),
+      apiFeature({ id: "b" }),
+    ]),
+  );
+
+  const { overview } = await loadOverview("tefe");
+
+  assert.deepEqual(
+    overview.communities.map((community) => community.boardingSource),
+    ["boarding point", null],
+  );
+});
+
+test("lists the passes oldest first, with their orbit, counts and whether they could be judged", async () => {
   respond(overviewRoutes([apiFeature()]));
 
   const { overview } = await loadOverview("tefe");
 
   assert.equal(overview.passId, "nisar-2026-09-09");
-  assert.deepEqual(overview.passes, [
-    {
-      id: "nisar-2026-09-09",
-      acquiredOn: "2026-09-09",
-      platform: "NISAR",
-      track: 81,
-      evaluated: true,
-      coverage: 0.97,
-      riverLevelCm: 980,
-    },
-    {
-      id: "nisar-2026-09-05",
-      acquiredOn: "2026-09-05",
-      platform: "NISAR",
-      track: 81,
-      evaluated: false,
-      coverage: 0.55,
-      riverLevelCm: 1010,
-    },
+  assert.deepEqual(
+    overview.passes.map(({ id, evaluated, coverage, riverLevelCm, orbitDirection }) => [
+      id,
+      evaluated,
+      coverage,
+      riverLevelCm,
+      orbitDirection,
+    ]),
+    [
+      ["nisar-2026-09-05", false, 0.55, 1010, "descending"],
+      ["nisar-2026-09-09", true, 0.97, 980, "descending"],
+    ],
+  );
+  assert.deepEqual(overview.passes[1].counts, {
+    monitored: 4,
+    connected: 1,
+    atRisk: 1,
+    isolated: 2,
+    noData: 0,
+    changed: 1,
+  });
+  assert.equal(overview.passes[1].acquiredAt, "2026-09-09T09:45:12Z");
+});
+
+test("the plate of the radar image comes from the pass's image card", async () => {
+  respond(overviewRoutes([apiFeature()]));
+
+  const { overview } = await loadOverview("tefe");
+
+  assert.deepEqual(overview.plate, {
+    platform: "NISAR",
+    band: "L",
+    polarizations: ["HH", "HV"],
+    track: 97,
+    orbitDirection: "descending",
+    acquiredAt: "2026-09-09T22:41:00Z",
+    pixelSizeM: 20,
+    coverage: 0.99,
+    product: "GCOV",
+  });
+  assert.equal(plateOf(null), null);
+  assert.equal(plateOf({ platform: "NISAR", track: 5 }).track, 5);
+});
+
+test("the river level comes in centimetres, oldest first, without empty readings", async () => {
+  respond({
+    [`${BASE}/river-level`]: apiRiverLevel([
+      ["2026-08-28", 11.8],
+      ["2026-08-29", null],
+      ["2026-09-09", 9.8],
+    ]),
+  });
+
+  const river = await loadRiverLevel(true, "tefe");
+
+  assert.equal(river.stationName, "Tefé-Missões");
+  assert.deepEqual(river.readings, [
+    { date: "2026-08-28", levelCm: 1180 },
+    { date: "2026-09-09", levelCm: 980 },
   ]);
+});
+
+test("a river level that fails is null; demo mode has its own", async (t) => {
+  t.mock.method(console, "info", () => {});
+  respond({});
+  assert.equal(await loadRiverLevel(true, "tefe"), null);
+  assert.ok((await loadRiverLevel(false)).readings.length > 0);
+});
+
+test("a day's download is the backend's export of the pass, with the id escaped", () => {
+  assert.equal(exportUrl("a b", "csv", "tefe"), "./api/v1/aois/tefe/passes/a%20b/export?format=csv");
+});
+
+test("a card that isn't monitored says so, with its reason", async () => {
+  respond({
+    "./api/v1/aois/tefe/communities/x": {
+      id: "x",
+      name: "X",
+      monitored: false,
+      exclusion_reason: "inland",
+      history: [],
+    },
+  });
+
+  const history = await loadHistory("x", true, "tefe");
+
+  assert.equal(history.monitored, false);
+  assert.equal(history.exclusionReason, "inland");
+  assert.equal(history.lat, undefined);
 });
 
 test("the latest pass's imagery is named from the catalog and read relative to the page", async () => {

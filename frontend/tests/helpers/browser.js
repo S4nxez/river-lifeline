@@ -1,6 +1,5 @@
-// Test doubles for what the browser and the CDN scripts in index.html provide: the DOM (jsdom),
-// Leaflet's global `L` and Chart.js's global `Chart`. Each test file runs in its own process,
-// so installing globals here never leaks between files.
+// Test doubles for what the browser and the CDN scripts in index.html provide: the DOM (jsdom) and Leaflet's
+// global `L`. Each test file runs in its own process, so installing globals here never leaks between files.
 import { JSDOM } from "jsdom";
 
 /** Installs a jsdom document as the global `window`/`document` and returns the document. */
@@ -9,24 +8,6 @@ export function installDom(body = "") {
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
   return dom.window.document;
-}
-
-/** Installs a fake `Chart` that records every chart created; returns the list of instances. */
-export function installChart() {
-  const instances = [];
-  globalThis.Chart = class FakeChart {
-    constructor(canvas, config) {
-      this.canvas = canvas;
-      this.config = config;
-      this.destroyed = false;
-      instances.push(this);
-    }
-
-    destroy() {
-      this.destroyed = true;
-    }
-  };
-  return instances;
 }
 
 /**
@@ -45,6 +26,8 @@ export function installLeaflet({ zoom = 2 } = {}) {
     panes: {},
     zoomControl: null,
     flights: [],
+    circles: [],
+    hub: null,
     invalidated: false,
   };
   const map = {
@@ -70,6 +53,7 @@ export function installLeaflet({ zoom = 2 } = {}) {
       return map;
     },
     flyTo: (latLng, targetZoom) => recorded.flights.push({ latLng, zoom: targetZoom }),
+    getCenter: () => ({ lat: -3.4, lng: -64.75 }),
     removeLayer: (layer) => {
       layer.removed = true;
     },
@@ -163,28 +147,42 @@ export function installLeaflet({ zoom = 2 } = {}) {
       recorded.images.push(image);
       return image;
     },
-    circleMarker: (latLng, options) => {
+    divIcon: (options) => ({ ...options }),
+    circle: (latLng, options) => {
+      const circle = layer({ latLng, options });
+      recorded.circles.push(circle);
+      return circle;
+    },
+    marker: (latLng, options) => {
       const marker = layer({
         latLng,
         options,
         tooltip: null,
+        tooltipOptions: null,
         tooltipOpen: false,
-        bindTooltip(text) {
+        bindTooltip(text, tooltipOptions) {
           this.tooltip = text;
+          this.tooltipOptions = tooltipOptions;
           return this;
         },
         getLatLng() {
           return latLng;
         },
-        setRadius(radius) {
-          this.options = { ...this.options, radius };
+        setIcon(icon) {
+          this.options = { ...this.options, icon };
+          return this;
+        },
+        setZIndexOffset(offset) {
+          this.options = { ...this.options, zIndexOffset: offset };
           return this;
         },
         openTooltip() {
           this.tooltipOpen = true;
         },
       });
-      recorded.markers.push(marker);
+      // The hub is the marker with the diamond icon; every other marker is a community
+      if (options.icon?.className === "hub-marker") recorded.hub = marker;
+      else recorded.markers.push(marker);
       return marker;
     },
   };
@@ -216,17 +214,37 @@ export function community({ latest = {}, ...overrides } = {}) {
 }
 
 /** An assessment in the page's view model, as `loadHistory` lists it. */
-export function assessment(acquiredOn, status, routeWidthM = null) {
-  return { passId: `nisar-${acquiredOn}`, acquiredOn, status, routeWidthM, sentinel1: null };
+export function assessment(acquiredOn, status, routeWidthM = null, reason = null) {
+  return { passId: `nisar-${acquiredOn}`, acquiredOn, status, reason, routeWidthM, sentinel1: null };
 }
 
 /** A feature of `GET /api/v1/aois/{aoi}/passes/{pass}/communities`: the geometry is the boarding point. */
-export function apiFeature({ id = "uarini", name = "Uarini", kind = "town", status = "at_risk", width = 40 } = {}) {
+export function apiFeature({
+  id = "uarini",
+  name = "Uarini",
+  kind = "town",
+  status = "at_risk",
+  width = 40,
+  reason = null,
+  previousStatus = null,
+  boardingPoint = null,
+} = {}) {
   return {
     type: "Feature",
     id,
     geometry: { type: "Point", coordinates: [-65.113, -2.99] },
-    properties: { id, name, kind, status, min_width_class_m: width, village_location: [-65.114, -2.991] },
+    properties: {
+      id,
+      name,
+      kind,
+      status,
+      reason,
+      min_width_class_m: width,
+      previous_status: previousStatus,
+      changed: previousStatus != null && previousStatus !== status,
+      village_location: [-65.114, -2.991],
+      boarding_point: boardingPoint,
+    },
   };
 }
 
@@ -239,14 +257,17 @@ export function apiOverview(features, day = "2026-09-09") {
       region: "Amazonas",
       center: [-64.75, -3.4],
       bbox: [-65.2, -3.9, -64.3, -2.9],
-      destination: { name: "Port of Tefé", location: [-64.711, -3.354] },
-      parameters: { connected_min_width_m: 60 },
+      radius_km: 55,
+      destination: { name: "Tefé", location: [-64.711, -3.354] },
+      river_gauge: { provider: "ANA", station_code: "12900001", station_name: "Tefé-Missões" },
+      parameters: { connected_min_width_m: 60, tested_widths_m: [40, 60, 100, 200, 400] },
     },
     summary: {
       pass_id: `nisar-${day}`,
       acquired_at: `${day}T09:45:12Z`,
       river_level_m: 9.8,
       counts: { connected: 1, at_risk: 1, isolated: 2, no_data: 0 },
+      catalog_generated_at: "2026-11-15T04:54:27Z",
     },
     collection: { type: "FeatureCollection", pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, features },
   };
@@ -264,15 +285,27 @@ export function apiMeta() {
 }
 
 /** An item of `GET /api/v1/aois/{aoi}/passes` (oldest first, as the API lists them). */
-export function apiPassItem(day, { evaluated = true, coverage = 0.97, riverLevelM = 9.8, track = 81 } = {}) {
+export function apiPassItem(
+  day,
+  {
+    evaluated = true,
+    coverage = 0.97,
+    riverLevelM = 9.8,
+    track = 81,
+    direction = "descending",
+    counts = { monitored: 4, connected: 1, at_risk: 1, isolated: 2, no_data: 0, changed: 1 },
+  } = {},
+) {
   return {
     id: `nisar-${day}`,
     acquired_at: `${day}T09:45:12Z`,
     platform: "NISAR",
     track,
+    orbit_direction: direction,
     evaluated,
     coverage_fraction: coverage,
     river_level_m: riverLevelM,
+    counts,
   };
 }
 
@@ -281,6 +314,17 @@ export function apiPassDetail(day, layerIds = ["radar_hh", "water", "change"]) {
   return {
     id: `nisar-${day}`,
     acquired_at: `${day}T09:45:12Z`,
+    platform: "NISAR",
+    coverage_fraction: 0.99,
+    image_card: {
+      band: "L",
+      polarizations: ["HH", "HV"],
+      track: 97,
+      orbit_direction: "descending",
+      acquired_at: `${day}T22:41:00Z`,
+      pixel_size_m: 20,
+      product: "GCOV",
+    },
     layers: layerIds.map((id) => ({
       id,
       url: `/api/v1/aois/tefe/passes/nisar-${day}/layers/${id}.png`,
@@ -292,8 +336,23 @@ export function apiPassDetail(day, layerIds = ["radar_hh", "water", "change"]) {
 }
 
 /** A history entry of `GET /api/v1/aois/{aoi}/communities/{id}`. */
-export function apiHistoryEntry(day, status, width = null) {
-  return { pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, status, min_width_class_m: width };
+export function apiHistoryEntry(day, status, width = null, reason = null) {
+  return { pass_id: `nisar-${day}`, acquired_at: `${day}T09:45:12Z`, status, reason, min_width_class_m: width };
+}
+
+/** `GET /api/v1/aois/{aoi}/river-level`: one reading per day, in metres. */
+export function apiRiverLevel(
+  readings = [
+    ["2026-08-28", 11.8],
+    ["2026-09-09", 9.8],
+  ],
+) {
+  return {
+    provider: "ANA",
+    station_name: "Tefé-Missões",
+    unit: "m",
+    items: readings.map(([date, level_m]) => ({ date, level_m })),
+  };
 }
 
 /** Resolves once `condition()` is true, failing after `timeoutMs`. */

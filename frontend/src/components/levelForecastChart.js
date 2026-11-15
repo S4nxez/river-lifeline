@@ -1,106 +1,117 @@
-// The river level behind the early warning: what the gauge read, the median forecast and its 10-90 % band, against
-// the levels below which the selected community is at risk or cut off.
-import { formatDay } from "../format.js";
-import { CHART_COLORS } from "./routeChart.js";
+// The river level behind the early warning: what the gauge read, the median forecast and its 10-90 % range, against
+// the levels below which the selected community is at risk or cut off. Drawn by hand in SVG like the pass log, in the
+// gauge's colour: never the status colours, a probability is not an observed status. The geometry
+// (`forecastScene`) is plain numbers, kept apart from the markup so it can be checked on its own.
+import { daysBetween, escapeHtml, formatMonthTick } from "../format.js";
 
-let chart;
+export const CHART_HEIGHT = 230;
+const MARGIN = { left: 12, right: 56, top: 18, bottom: 24 };
+const LEVEL_MARGIN_CM = 50;
 
-// The early warning's own colours: never the status colours of the main view
-export const FORECAST_COLORS = {
-  light: { median: "#6d4ac7", band: "#6d4ac71f", atRisk: "#a48ad6", isolated: "#3d2489" },
-  dark: { median: "#b49cff", band: "#b49cff24", atRisk: "#8e78d6", isolated: "#e2d9ff" },
-};
+const pathOf = (points) =>
+  points.map(([x, y], index) => `${index ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join("");
 
-/** The datasets of the chart, by date: observed level, p10 and p90 (the band between them), p50, thresholds. */
-export function forecastDatasets(report, community, theme = "light") {
-  const colors = CHART_COLORS[theme] ?? CHART_COLORS.light;
-  const own = FORECAST_COLORS[theme] ?? FORECAST_COLORS.light;
-  const observed = new Map((report?.observed_level ?? []).map((row) => [row.date, row.level_cm]));
-  const forecast = new Map((report?.level_forecast ?? []).map((row) => [row.date, row]));
-  const labels = [...new Set([...observed.keys(), ...forecast.keys()])].sort();
-  const at = (map, pick) => labels.map((day) => (map.has(day) ? pick(map.get(day)) : null));
-  const threshold = (value, label, color, dash) =>
-    value == null
-      ? []
-      : [
-          {
-            label,
-            data: labels.map(() => value),
-            borderColor: color,
-            borderDash: dash,
-            borderWidth: 1.5,
-            pointRadius: 0,
-          },
-        ];
+/**
+ * Everything the chart draws, in pixels, for a chart `width` px wide: the `observed` and `median` lines, the `band`
+ * between p10 and p90, the selected community's `thresholds`, the `issued` day, month `ticks` and the level `scale`.
+ */
+export function forecastScene(report, community, width) {
+  const observed = (report?.observed_level ?? []).filter((row) => row.level_cm != null);
+  const forecast = report?.level_forecast ?? [];
+  const thresholds = [
+    { kind: "at-risk", label: "At risk below", cm: community?.at_risk_below_cm ?? null },
+    { kind: "cut-off", label: "Cut off below", cm: community?.isolated_below_cm ?? null },
+  ].filter((threshold) => threshold.cm != null);
+  const days = [...new Set([...observed.map((row) => row.date), ...forecast.map((row) => row.date)])].sort();
+  if (!days.length) return null;
+  const levels = [
+    ...observed.map((row) => row.level_cm),
+    ...forecast.flatMap((row) => [row.p10_cm, row.p90_cm]),
+    ...thresholds.map((threshold) => threshold.cm),
+  ];
+  const low = Math.floor((Math.min(...levels) - LEVEL_MARGIN_CM) / 100) * 100;
+  const high = Math.ceil((Math.max(...levels) + LEVEL_MARGIN_CM) / 100) * 100;
+  const start = days[0];
+  const span = Math.max(1, daysBetween(start, days.at(-1)));
+  const plotWidth = Math.max(1, width - MARGIN.left - MARGIN.right);
+  const base = CHART_HEIGHT - MARGIN.bottom;
+  const x = (day) => MARGIN.left + (daysBetween(start, day) / span) * plotWidth;
+  const y = (cm) => base - ((cm - low) / (high - low || 1)) * (base - MARGIN.top);
+
+  const step = (high - low) / 100 > 8 ? 200 : 100;
+  const scale = [];
+  for (let cm = Math.ceil(low / step) * step; cm <= high; cm += step) scale.push({ cm, y: y(cm) });
+  const ticks = days.filter((day) => day.endsWith("-01")).map((day) => ({ x: x(day), label: formatMonthTick(day) }));
+
   return {
-    labels,
-    datasets: [
-      {
-        label: "Observed level",
-        data: at(observed, (v) => v),
-        borderColor: colors.line,
-        borderWidth: 2,
-        pointRadius: 0,
-      },
-      { label: "Forecast 10 %", data: at(forecast, (q) => q.p10_cm), borderColor: "transparent", pointRadius: 0 },
-      {
-        label: "Forecast 10-90 %",
-        data: at(forecast, (q) => q.p90_cm),
-        borderColor: "transparent",
-        backgroundColor: own.band,
-        fill: "-1",
-        pointRadius: 0,
-      },
-      {
-        label: "Forecast median",
-        data: at(forecast, (q) => q.p50_cm),
-        borderColor: own.median,
-        borderDash: [4, 3],
-        borderWidth: 2,
-        pointRadius: 0,
-      },
-      ...threshold(community?.at_risk_below_cm, "At risk below", own.atRisk, [6, 4]),
-      ...threshold(community?.isolated_below_cm, "Cut off below", own.isolated, [2, 3]),
-    ],
+    width,
+    base,
+    observed: observed.length ? pathOf(observed.map((row) => [x(row.date), y(row.level_cm)])) : null,
+    median: forecast.length ? pathOf(forecast.map((row) => [x(row.date), y(row.p50_cm)])) : null,
+    band: forecast.length
+      ? [
+          ...forecast.map((row) => [x(row.date), y(row.p90_cm)]),
+          ...forecast
+            .slice()
+            .reverse()
+            .map((row) => [x(row.date), y(row.p10_cm)]),
+        ]
+          .map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`)
+          .join(" ")
+      : null,
+    thresholds: thresholds.map((threshold) => ({ ...threshold, y: y(threshold.cm) })),
+    issued: report?.issued_at ? x(report.issued_at) : null,
+    ticks,
+    scale,
   };
 }
 
-export function renderLevelForecastChart(canvas, report, { community = null, theme = "light" } = {}) {
-  const colors = CHART_COLORS[theme] ?? CHART_COLORS.light;
-  if (chart) chart.destroy();
-  const { labels, datasets } = forecastDatasets(report, community, theme);
-  chart = new Chart(canvas, {
-    type: "line",
-    data: { labels: labels.map(formatDay), datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: colors.tooltip.background,
-          titleColor: colors.tooltip.title,
-          bodyColor: colors.tooltip.body,
-          borderColor: colors.tooltip.border,
-          borderWidth: 1,
-          filter: (item) => item.raw != null && item.dataset.label !== "Forecast 10 %",
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: colors.ticks, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
-          border: { display: false },
-        },
-        y: {
-          grid: { color: colors.grid },
-          ticks: { color: colors.ticks, maxTicksLimit: 6 },
-          border: { display: false },
-          title: { display: true, text: "cm at the gauge", color: colors.ticks },
-        },
-      },
-    },
-  });
-  return chart;
+const LEGEND = `<ul class="log-legend telemetry">
+  <li><i class="ew-swatch ew-swatch-observed"></i>River level (cm)</li>
+  <li><i class="ew-swatch ew-swatch-median"></i>Forecast median</li>
+  <li><i class="ew-swatch ew-swatch-band"></i>10-90 % range</li>
+  <li><i class="ew-swatch ew-swatch-threshold"></i>Selected community: at risk / cut off below</li>
+</ul>`;
+
+/** Draws the chart in `container`, to its width, for the `community` picked in the list (no thresholds without one). */
+export function renderLevelForecastChart(container, report, { community = null } = {}) {
+  const width = Math.round(container.clientWidth || 640);
+  const scene = forecastScene(report, community, width);
+  if (!scene) {
+    container.innerHTML = "";
+    return null;
+  }
+  const right = width - MARGIN.right;
+  const text = (x, y, content, anchor = "start", extra = "") =>
+    `<text class="log-text${extra}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}">${content}</text>`;
+  const scale = scene.scale
+    .map(
+      (mark) =>
+        `<line class="ew-grid" x1="${MARGIN.left}" x2="${right}" y1="${mark.y.toFixed(1)}" y2="${mark.y.toFixed(1)}"/>${text(width - 8, mark.y + 3, mark.cm, "end")}`,
+    )
+    .join("");
+  const ticks = scene.ticks
+    .map(
+      (tick) =>
+        `<line class="log-tick" x1="${tick.x.toFixed(1)}" x2="${tick.x.toFixed(1)}" y1="${scene.base}" y2="${scene.base + 4}"/>${text(tick.x + 3, scene.base + 16, tick.label)}`,
+    )
+    .join("");
+  const thresholds = scene.thresholds
+    .map(
+      (threshold) =>
+        `<g class="ew-threshold ew-threshold-${threshold.kind}"><line x1="${MARGIN.left}" x2="${right}" y1="${threshold.y.toFixed(1)}" y2="${threshold.y.toFixed(1)}"/>${text(MARGIN.left + 4, threshold.y - 4, `${escapeHtml(threshold.label)} ${threshold.cm} cm`)}</g>`,
+    )
+    .join("");
+  const issued =
+    scene.issued == null
+      ? ""
+      : `<line class="log-today" x1="${scene.issued.toFixed(1)}" x2="${scene.issued.toFixed(1)}" y1="${MARGIN.top}" y2="${scene.base}"/>${text(scene.issued + 4, MARGIN.top + 8, "forecast issued")}`;
+  container.innerHTML = `<svg class="log-svg ew-chart" viewBox="0 0 ${width} ${CHART_HEIGHT}" width="100%" height="${CHART_HEIGHT}" role="img" aria-label="River level: observed, forecast and the selected community's thresholds">
+      ${scale}<line class="log-base" x1="${MARGIN.left}" x2="${right}" y1="${scene.base}" y2="${scene.base}"/>${ticks}
+      ${scene.band ? `<polygon class="ew-band" points="${scene.band}"/>` : ""}
+      ${scene.observed ? `<path class="ew-observed" d="${scene.observed}"/>` : ""}
+      ${scene.median ? `<path class="ew-median" d="${scene.median}"/>` : ""}
+      ${thresholds}${issued}
+    </svg>${LEGEND}`;
+  return scene;
 }

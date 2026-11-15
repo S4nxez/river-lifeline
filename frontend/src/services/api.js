@@ -1,7 +1,8 @@
 // The backend's monitor API (CONTRACTS.md, contract 2). Relative URLs: the app is served under a path prefix.
 // The page works on its own view model (the area, its passes, the communities on one pass and that pass's imagery),
-// so the responses are mapped into it here. Nothing about the area is known in advance: it all comes from the API.
-import { demoHistory, demoOverview, demoPass } from "../data/demo.js";
+// so the responses are mapped into it here. Nothing about the area is known in advance: it all comes from the API,
+// and what the API doesn't give is left out of the view model (the page then hides what would use it).
+import { demoHistory, demoOverview, demoPass, demoRiverLevel } from "../data/demo.js";
 
 const API = "./api/v1";
 const DEFAULT_AOI = "tefe";
@@ -14,6 +15,11 @@ export function aoiFromUrl(search = globalThis.location?.search ?? "") {
 }
 
 const areaBase = (aoiId) => `${API}/aois/${encodeURIComponent(aoiId)}`;
+
+/** Where "Download this day" gets one pass's communities, as `csv` or `geojson` (the backend writes the file). */
+export function exportUrl(passId, format, aoiId = aoiFromUrl()) {
+  return `${areaBase(aoiId)}/passes/${encodeURIComponent(passId)}/export?format=${format}`;
+}
 
 async function getJson(url) {
   const response = await fetch(url, JSON_HEADERS);
@@ -57,8 +63,15 @@ export function layerUrl(url) {
   return url;
 }
 
-function assessmentOf({ passId, acquiredAt, status, minWidthClassM }) {
-  return { passId, acquiredOn: dayOf(acquiredAt), status, routeWidthM: minWidthClassM ?? null, sentinel1: null };
+function assessmentOf({ passId, acquiredAt, status, reason, minWidthClassM }) {
+  return {
+    passId,
+    acquiredOn: dayOf(acquiredAt),
+    status,
+    reason: reason ?? null,
+    routeWidthM: minWidthClassM ?? null,
+    sentinel1: null,
+  };
 }
 
 function areaOf(aoi) {
@@ -67,8 +80,25 @@ function areaOf(aoi) {
     name: aoi.name,
     region: aoi.region ?? null,
     center: aoi.center ? latLng(aoi.center) : null,
+    radiusKm: aoi.radius_km ?? null,
     bounds: boundsOf(aoi.bbox),
     connectedMinWidthM: aoi.parameters?.connected_min_width_m ?? null,
+    widthClassesM: aoi.parameters?.tested_widths_m ?? [],
+    gauge: aoi.river_gauge
+      ? { name: aoi.river_gauge.station_name ?? null, provider: aoi.river_gauge.provider ?? null }
+      : null,
+  };
+}
+
+function countsOf(counts) {
+  if (!counts) return null;
+  return {
+    monitored: counts.monitored ?? null,
+    connected: counts.connected ?? null,
+    atRisk: counts.at_risk ?? null,
+    isolated: counts.isolated ?? null,
+    noData: counts.no_data ?? null,
+    changed: counts.changed ?? null,
   };
 }
 
@@ -76,11 +106,15 @@ function passOf(item) {
   return {
     id: item.id,
     acquiredOn: dayOf(item.acquired_at),
+    acquiredAt: item.acquired_at ?? null,
     platform: item.platform ?? "NISAR",
     track: item.track ?? null,
+    orbitDirection: item.orbit_direction ?? null,
     evaluated: item.evaluated !== false,
     coverage: item.coverage_fraction ?? null,
     riverLevelCm: centimetres(item.river_level_m),
+    counts: countsOf(item.counts),
+    previousPassId: item.previous_pass_id ?? null,
   };
 }
 
@@ -91,10 +125,14 @@ function communitiesOf(collection) {
     name: properties.name,
     kind: properties.kind,
     ...latLng(geometry.coordinates),
+    changed: properties.changed === true,
+    previousStatus: properties.previous_status ?? null,
+    boardingSource: properties.boarding_point ? (properties.boarding_point.source ?? "boarding point") : null,
     latest: assessmentOf({
       passId: collection.pass_id,
       acquiredAt: collection.acquired_at,
       status: properties.status,
+      reason: properties.reason,
       minWidthClassM: properties.min_width_class_m,
     }),
   }));
@@ -121,41 +159,48 @@ export function imageryOf(passDetail, catalog) {
         label: known?.label ?? layer.id,
         url: layerUrl(layer.url),
         bounds: boundsOf(layer.bounds),
+        widthPx: layer.width_px ?? null,
         defaultVisible: known?.defaultVisible ?? false,
         defaultOpacity: known?.defaultOpacity ?? 1,
       };
     });
 }
 
+/**
+ * The caption of a pass's radar image, as missions publish theirs: from its `image_card`, falling back on the pass
+ * itself. Null without a pass.
+ */
+export function plateOf(detail) {
+  if (!detail) return null;
+  const card = detail.image_card ?? {};
+  return {
+    platform: detail.platform ?? "NISAR",
+    band: card.band ?? detail.band ?? null,
+    polarizations: card.polarizations ?? detail.polarizations ?? [],
+    track: card.track ?? detail.track ?? null,
+    orbitDirection: card.orbit_direction ?? detail.orbit_direction ?? null,
+    acquiredAt: card.acquired_at ?? detail.acquired_at ?? null,
+    pixelSizeM: card.pixel_size_m ?? detail.pixel_size_m ?? null,
+    coverage: detail.coverage_fraction ?? null,
+    product: card.product ?? null,
+  };
+}
+
 function overviewOf(aoi, summary, collection, meta, passList, latestDetail) {
   const area = areaOf(aoi);
-  const hub = { id: aoi.id, name: aoi.name, kind: "hub", ...latLng(aoi.destination.location) };
-  const counts = summary.counts ?? {};
-  const latestPass = summary.pass_id
-    ? {
-        id: summary.pass_id,
-        mission: "NISAR",
-        acquiredOn: dayOf(summary.acquired_at),
-        riverLevelCm: centimetres(summary.river_level_m),
-        counts: {
-          connected: counts.connected,
-          atRisk: counts.at_risk,
-          isolated: counts.isolated,
-          noData: counts.no_data,
-        },
-      }
-    : null;
-  const passes = (passList?.items ?? []).map(passOf).reverse();
+  const hub = { id: aoi.id, name: aoi.destination?.name ?? aoi.name, kind: "hub", ...latLng(aoi.destination.location) };
   const layerCatalog = catalogOf(meta);
   return {
     area,
     hub,
-    latestPass,
-    passId: collection.pass_id ?? latestPass?.id ?? null,
-    passes,
+    // Oldest first, as the API lists them
+    passes: (passList?.items ?? []).map(passOf),
+    passId: collection.pass_id ?? summary.pass_id ?? null,
     layerCatalog,
     communities: communitiesOf(collection),
     imagery: imageryOf(latestDetail, layerCatalog),
+    plate: plateOf(latestDetail),
+    recordUpdatedAt: summary.catalog_generated_at ?? null,
   };
 }
 
@@ -184,19 +229,37 @@ export async function loadOverview(aoiId = aoiFromUrl()) {
 }
 
 /**
- * One pass: its communities and its imagery, named from `layerCatalog`. Null when its communities can't be loaded;
- * a pass whose imagery fails still loads, without images.
+ * One pass: its communities, its imagery (named from `layerCatalog`) and the caption of its radar image. Null when its
+ * communities can't be loaded; a pass whose imagery fails still loads, without images.
  */
 export async function loadPass(passId, live, layerCatalog = [], aoiId = aoiFromUrl()) {
   if (!live) return demoPass(passId);
   const base = `${areaBase(aoiId)}/passes/${encodeURIComponent(passId)}`;
   try {
     const [collection, detail] = await Promise.all([getJson(`${base}/communities`), optionalJson(base)]);
-    return { communities: communitiesOf(collection), imagery: imageryOf(detail, layerCatalog) };
+    return {
+      communities: communitiesOf(collection),
+      imagery: imageryOf(detail, layerCatalog),
+      plate: plateOf(detail),
+    };
   } catch (error) {
     console.info(`Pass ${passId} unavailable.`, error);
     return null;
   }
+}
+
+/** The area's river gauge, every daily reading in centimetres, oldest first; null when it can't be loaded. */
+export async function loadRiverLevel(live, aoiId = aoiFromUrl()) {
+  if (!live) return demoRiverLevel();
+  const body = await optionalJson(`${areaBase(aoiId)}/river-level`);
+  if (!body) return null;
+  return {
+    stationName: body.station_name ?? null,
+    provider: body.provider ?? null,
+    readings: (body.items ?? [])
+      .filter((item) => item.date && item.level_m != null)
+      .map((item) => ({ date: item.date, levelCm: centimetres(item.level_m) })),
+  };
 }
 
 function historyEntryOf(entry) {
@@ -204,11 +267,15 @@ function historyEntryOf(entry) {
     passId: entry.pass_id,
     acquiredAt: entry.acquired_at,
     status: entry.status,
+    reason: entry.reason,
     minWidthClassM: entry.min_width_class_m,
   });
 }
 
-/** Every evaluated assessment of a community, oldest first; null when it can't be loaded. */
+/**
+ * A community's card: whether it is monitored (and why not) and every evaluated assessment, oldest first. Null when it
+ * can't be loaded.
+ */
 export async function loadHistory(communityId, live, aoiId = aoiFromUrl()) {
   if (!live) return demoHistory(communityId);
   try {
@@ -217,7 +284,9 @@ export async function loadHistory(communityId, live, aoiId = aoiFromUrl()) {
       id: card.id,
       name: card.name,
       kind: card.kind,
-      ...latLng(card.village_location),
+      monitored: card.monitored !== false,
+      exclusionReason: card.exclusion_reason ?? null,
+      ...(card.village_location ? latLng(card.village_location) : {}),
       assessments: (card.history ?? []).map(historyEntryOf),
     };
   } catch (error) {

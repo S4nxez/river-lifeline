@@ -1,199 +1,417 @@
-/* Status colours (text and dots) */
+/* The headline band: the day's result as a sentence, above the map (never over the radar) */
 
-.status-isolated {
-  color: var(--isolated) !important;
+.headline {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  grid-template-areas:
+    "meta meta"
+    "title sub";
+  align-items: end;
+  gap: 8px 32px;
+  padding: 20px 30px;
+  border-bottom: 1px solid var(--rule);
 }
 
-.status-at_risk {
-  color: var(--at-risk) !important;
-}
-
-.status-connected {
-  color: var(--connected) !important;
-}
-
-.status-no_data {
-  color: var(--no-data) !important;
-}
-
-.status-bg-isolated {
-  background: var(--isolated);
-}
-
-.status-bg-at_risk {
-  background: var(--at-risk);
-}
-
-.status-bg-connected {
-  background: var(--connected);
-}
-
-.status-bg-no_data {
-  background: var(--no-data);
-}
-
-/* Selected community */
-
-.selected-summary {
-  border-top: 1px solid var(--line);
-  margin-top: auto;
-  padding-top: 20px;
-}
-
-.summary-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.confidence {
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-.selected-summary h3 {
-  font: 600 22px/1.2 var(--display);
-  letter-spacing: -0.02em;
-  margin: 10px 0 4px;
-}
-
-.selected-summary p {
-  font-size: 14px;
-  color: var(--muted);
+.headline-meta {
+  grid-area: meta;
   margin: 0;
 }
 
-/* Route chart and status */
+.headline-title {
+  grid-area: title;
+  margin: 0;
+  font: 700 clamp(22px, 2.4vw, 34px) / 1.15 var(--text);
+  text-wrap: balance;
+}
 
-.analysis-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
-  gap: 56px;
-  margin-top: 96px;
+.headline-count {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.75em;
+  line-height: 0.8;
+  vertical-align: -0.06em;
+}
+
+.headline-count-alert {
+  color: var(--isolated);
+}
+
+.headline-count-clear {
+  color: var(--connected);
+}
+
+.headline-sub {
+  grid-area: sub;
+  max-width: 52ch;
+  margin: 0;
+  color: var(--dust);
+}
+
+/* Pass log */
+
+.log-section {
+  padding: 28px 30px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.log-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .section-copy {
-  color: var(--muted);
-  font-size: 15px;
-  max-width: 560px;
-  margin: 16px 0 0;
+  max-width: 72ch;
+  margin: 8px 0 0;
+  color: var(--dust);
 }
 
-.chart-wrap {
-  height: 280px;
-  margin-top: 32px;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 12px;
-}
-
-.chart-legend span {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.legend-line {
-  width: 18px;
-  border-top: 2px dashed var(--faint);
-  display: inline-block;
-}
-
-.legend-line.legend-blue {
-  border-top: 2px solid var(--text);
-}
-
-.insight-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 28px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-#status-content h3 {
-  font: 600 30px/1.15 var(--display);
-  letter-spacing: -0.025em;
-  margin: 12px 0;
-}
-
-.insight-copy {
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.6;
-  max-width: 46ch;
+.next-pass {
   margin: 0;
+  text-align: right;
 }
 
-.insight-metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--line);
-  border-block: 1px solid var(--line);
-  margin: 32px 0 20px;
-}
-
-.insight-metrics div {
-  background: var(--bg);
-  padding: 18px 0;
-}
-
-.insight-metrics div + div {
-  padding-left: 20px;
-}
-
-.insight-metrics span,
-.insight-metrics strong {
+.next-pass b {
   display: block;
-}
-
-.insight-metrics span {
-  font-size: 12px;
+  margin-top: 4px;
+  color: var(--gauge);
   font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
+  font-size: 12px;
 }
 
-.insight-metrics strong {
-  font: 600 28px/1.2 var(--display);
-  letter-spacing: -0.02em;
-  margin-top: 6px;
+.next-pass[hidden] {
+  display: none;
 }
 
-.crosscheck {
-  color: var(--muted);
-  font-size: 14px;
+.pass-log {
+  margin-top: 18px;
+}
+
+.log-svg {
+  display: block;
+  overflow: visible;
+}
+
+.log-base,
+.log-tick {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.log-text {
+  fill: var(--faint);
+  font: 10px var(--mono);
+}
+
+.log-gap {
+  font-style: italic;
+}
+
+.log-river path {
+  fill: none;
+  stroke: var(--gauge);
+  stroke-opacity: 0.85;
+  stroke-width: 1.5;
+}
+
+.log-today {
+  stroke: var(--dust);
+  stroke-dasharray: 1 3;
+}
+
+.log-bar-isolated {
+  fill: var(--isolated);
+}
+
+.log-bar-at_risk {
+  fill: var(--at-risk);
+}
+
+.log-bar-connected {
+  fill: var(--connected);
+  fill-opacity: 0.32;
+}
+
+.log-strip {
+  cursor: pointer;
+  outline: none;
+}
+
+.log-outline {
+  fill: transparent;
+  stroke: none;
+}
+
+.log-strip:hover .log-outline,
+.log-strip:focus-visible .log-outline {
+  stroke: var(--dust);
+  stroke-width: 1;
+}
+
+.log-strip.is-selected .log-outline {
+  stroke: var(--selected);
+  stroke-width: 2;
+}
+
+.log-strip.is-partial .log-outline {
+  stroke: var(--faint);
+  stroke-dasharray: 3 3;
+}
+
+.log-selected-day {
+  fill: var(--star);
+  font-weight: 600;
+}
+
+.log-ghost {
+  fill: none;
+  stroke: var(--gauge);
+  stroke-dasharray: 2 3;
+}
+
+/* "Downlink": the strips grow from the base, one after the other, the first time the log is drawn */
+@keyframes downlink {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+}
+
+.log-downlink .log-bars {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: downlink 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--i) * 40ms);
+}
+
+.log-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.log-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 12px;
+  transform: skewX(-12deg);
+}
+
+.log-swatch-isolated {
+  background: var(--isolated);
+}
+
+.log-swatch-at_risk {
+  background: var(--at-risk);
+}
+
+.log-swatch-connected {
+  background: color-mix(in srgb, var(--connected) 32%, transparent);
+}
+
+.log-swatch-partial {
+  border: 1px dashed var(--faint);
+}
+
+.log-swatch-river {
+  width: 16px;
+  height: 0;
+  border-top: 1.5px solid var(--gauge);
+  transform: none;
+}
+
+/* The desk: the pass in figures beside the selected community's dossier */
+
+.desk {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  border-bottom: 1px solid var(--rule);
+}
+
+.desk-ledger,
+.desk-dossier {
+  padding: 26px 30px;
+}
+
+.desk-ledger {
+  border-right: 1px solid var(--rule);
+}
+
+.ledger {
+  margin: 14px 0 0;
+}
+
+.ledger-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.ledger-row dt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ledger-row dd {
   margin: 0;
 }
 
-.method-note {
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  margin-top: 28px;
+.ledger-value {
+  font: 600 20px var(--mono);
+  text-align: right;
 }
 
-.method-note strong {
-  font-size: 14px;
+.ledger-value small {
+  color: var(--dust);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.ledger-note {
+  grid-column: 1 / -1;
+  color: var(--dust);
+  font-size: 13px;
+}
+
+.ledger-note b {
+  color: var(--star);
+  font-family: var(--mono);
   font-weight: 600;
 }
 
-.method-note p {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 6px 0 0;
-  line-height: 1.6;
+.dossier-name {
+  margin: 14px 0 6px;
+  font: 700 26px/1.2 var(--text);
+}
+
+.dossier-copy {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--dust);
+}
+
+.dossier-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.dossier-warning {
+  max-width: 60ch;
+  margin: 12px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--at-risk);
+  color: var(--at-risk);
+}
+
+.dossier-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px 28px;
+  margin: 20px 0 0;
+}
+
+.dossier-facts dd {
+  margin: 4px 0 0;
+  font: 600 14px var(--mono);
+}
+
+.history {
+  margin-top: 24px;
+}
+
+.history > .telemetry {
+  margin: 0 0 10px;
+}
+
+.history-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 110px;
+  margin: 0;
+  padding: 0 4px;
+  list-style: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+.history-bar {
+  flex: 1;
+  max-width: 12px;
+  height: var(--h);
+  transform: skewX(var(--skew));
+  background: var(--faint);
+}
+
+.history-connected {
+  background: var(--connected);
+}
+
+.history-at_risk {
+  background: var(--at-risk);
+}
+
+.history-isolated {
+  background: var(--isolated);
+}
+
+.history-bar.is-current {
+  outline: 2px solid var(--selected);
+  outline-offset: 1px;
+}
+
+.history-dates {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 0;
+}
+
+/* How the radar decides */
+
+.method {
+  padding: 30px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.method-columns {
+  columns: 3;
+  column-gap: 40px;
+  margin-top: 16px;
+  color: var(--dust);
+}
+
+.method-columns p {
+  margin: 0 0 16px;
+  break-inside: avoid;
+}
+
+/* Footer */
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 24px;
+  padding: 20px 30px 28px;
+  color: var(--faint);
+}
+
+.footer [hidden] {
+  display: none;
 }

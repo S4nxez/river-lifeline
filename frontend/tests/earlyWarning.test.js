@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { installChart, installDom } from "./helpers/browser.js";
+import { installDom } from "./helpers/browser.js";
 import {
   headline,
   isolationChance,
@@ -8,8 +8,7 @@ import {
   renderLimits,
   sortedCommunities,
 } from "../src/components/earlyWarningPanel.js";
-import { FORECAST_COLORS, forecastDatasets, renderLevelForecastChart } from "../src/components/levelForecastChart.js";
-import { STATUSES } from "../src/status.js";
+import { CHART_HEIGHT, forecastScene, renderLevelForecastChart } from "../src/components/levelForecastChart.js";
 import { REPORT } from "./helpers/earlyWarning.js";
 
 test("the headline says how early the warnings came, how many and how many were wrong", () => {
@@ -34,7 +33,7 @@ test("monitored communities are listed by expected cut-off, those never cut off 
   );
 });
 
-test("the chance of isolation is shown as a percentage, a dash when unknown", () => {
+test("the chance of being cut off is shown as a percentage, a dash when unknown", () => {
   const soon = REPORT.communities[2];
   assert.equal(isolationChance(soon, 7), "40 %");
   assert.equal(isolationChance(soon, 30), "90 %");
@@ -55,44 +54,51 @@ test("the panel lists the communities with their names and reports a pick", () =
   const rows = [...document.querySelectorAll(".ew-row")];
   assert.equal(rows.length, 3);
   assert.match(rows[0].textContent, /Uarini/);
-  assert.match(rows[0].textContent, /7 d · 40 %/);
-  assert.ok(rows[0].classList.contains("is-selected"));
+  assert.match(rows[0].textContent, /7 d 40 %/);
+  assert.equal(rows[0].getAttribute("aria-pressed"), "true");
   assert.match(document.querySelector(".ew-headline").textContent, /Median warning: 24 days/);
   rows[1].click();
   assert.deepEqual(picked, ["late"]);
+  assert.match(document.querySelector("#limits").textContent, /The river twin\./);
   assert.equal(document.querySelectorAll("#limits li").length, 2);
 });
 
-test("probabilities never use the status colours of the main view", () => {
-  const statusColours = Object.values(STATUSES).map((status) => status.color?.toLowerCase());
-  for (const palette of Object.values(FORECAST_COLORS)) {
-    for (const colour of Object.values(palette)) assert.ok(!statusColours.includes(colour.toLowerCase()), colour);
-  }
+test("the panel never uses the status colours of the main view", () => {
+  const document = installDom('<div id="panel"></div>');
+  renderEarlyWarningPanel(document.querySelector("#panel"), REPORT);
+  assert.doesNotMatch(document.querySelector("#panel").innerHTML, /isolated|at_risk|at-risk|connected/);
 });
 
-test("the chart draws the observed level, the forecast band and median, and the selected community's levels", () => {
-  const { labels, datasets } = forecastDatasets(REPORT, REPORT.communities[2]);
+test("the chart scene has the observed line, the forecast band and median, and the selected community's levels", () => {
+  const scene = forecastScene(REPORT, REPORT.communities[2], 600);
 
-  assert.deepEqual(labels, ["2026-08-31", "2026-09-02", "2026-09-03"]);
+  assert.ok(scene.observed.startsWith("M"));
+  assert.equal(scene.observed.split("L").length, 2);
+  assert.equal(scene.median.split("L").length, 2);
+  assert.equal(scene.band.split(" ").length, 4);
   assert.deepEqual(
-    datasets.map((d) => d.label),
-    ["Observed level", "Forecast 10 %", "Forecast 10-90 %", "Forecast median", "At risk below", "Cut off below"],
+    scene.thresholds.map((t) => [t.kind, t.cm]),
+    [
+      ["at-risk", 900],
+      ["cut-off", 860],
+    ],
   );
-  assert.deepEqual(datasets[0].data, [900, 885, null]);
-  assert.deepEqual(datasets[3].data, [null, 880, 875]);
-  assert.equal(datasets[2].fill, "-1");
-  assert.deepEqual(datasets[5].data, [860, 860, 860]);
+  // A lower level sits lower on the chart, inside it
+  const [atRisk, cutOff] = scene.thresholds;
+  assert.ok(cutOff.y > atRisk.y && cutOff.y < CHART_HEIGHT);
+  assert.ok(scene.issued > 0 && scene.issued < 600);
 });
 
-test("without a selected community the chart has no threshold lines, and it is redrawn on each call", () => {
-  installDom('<canvas id="c"></canvas>');
-  const charts = installChart();
+test("without a selected community the chart has no threshold lines; with no data it draws nothing", () => {
+  const document = installDom('<div id="c"></div>');
 
-  renderLevelForecastChart(document.querySelector("#c"), REPORT, { theme: "dark" });
+  renderLevelForecastChart(document.querySelector("#c"), REPORT);
+  assert.ok(document.querySelector("#c svg"));
+  assert.equal(document.querySelectorAll("#c .ew-threshold").length, 0);
+
   renderLevelForecastChart(document.querySelector("#c"), REPORT, { community: REPORT.communities[2] });
+  assert.equal(document.querySelectorAll("#c .ew-threshold").length, 2);
 
-  assert.equal(charts.length, 2);
-  assert.ok(charts[0].destroyed);
-  assert.equal(charts[0].config.data.datasets.length, 4);
-  assert.equal(charts[1].config.data.datasets.length, 6);
+  assert.equal(renderLevelForecastChart(document.querySelector("#c"), { communities: [] }), null);
+  assert.equal(document.querySelector("#c").innerHTML, "");
 });

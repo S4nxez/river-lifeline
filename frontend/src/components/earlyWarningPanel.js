@@ -1,7 +1,7 @@
-// The experimental early warning (CONTRACTS.md, early_warning.json): a hindcast of how many days ahead the river
-// twin would have warned which communities lose their route. Its own vocabulary (outlined chips, violet), never the
+// The early warning (CONTRACTS.md, early_warning.json): a hindcast of how many days ahead the river twin would have
+// warned which communities lose their route. Its own vocabulary (outlined chips in the gauge's colour), never the
 // status colours of the main view: a probability is not an observed status.
-import { formatDay } from "../format.js";
+import { escapeHtml, formatDay } from "../format.js";
 
 export const HORIZONS = [7, 14, 30];
 
@@ -38,15 +38,9 @@ export function isolationChance(community, horizon) {
   return warning?.p_isolated == null ? "—" : `${Math.round(warning.p_isolated * 100)} %`;
 }
 
-const escape = (text) =>
-  String(text ?? "").replace(
-    /[&<>"']/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
-  );
-
 /**
- * Fills `container` with the section's intro, the hindcast headline and the communities by expected cut-off.
- * `names` maps community ids to names (from the main view); `onSelect(id)` is called when one is picked.
+ * Fills `container` with the hindcast headline and the communities by expected cut-off. `names` maps community ids to
+ * names (from the main view); `onSelect(id)` is called when one is picked. Returns the communities listed.
  */
 export function renderEarlyWarningPanel(
   container,
@@ -55,25 +49,25 @@ export function renderEarlyWarningPanel(
 ) {
   const communities = sortedCommunities(report);
   const rows = communities
-    .map(
-      (community) => `
-      <li>
-        <button type="button" class="ew-row${community.community_id === selectedId ? " is-selected" : ""}"
-          data-community="${escape(community.community_id)}">
-          <span class="ew-name">${escape(names[community.community_id] ?? community.community_id)}</span>
-          <span class="ew-date">${community.expected_cutoff_date ? `Cut-off ~ ${formatDay(community.expected_cutoff_date)}` : "No cut-off expected"}</span>
-          ${HORIZONS.map((h) => `<span class="ew-chip" title="Chance of isolation in ${h} days">${h} d · ${isolationChance(community, h)}</span>`).join("")}
-        </button>
-      </li>`,
-    )
+    .map((community) => {
+      const id = community.community_id;
+      const selected = id === selectedId;
+      const date = community.expected_cutoff_date
+        ? `Cut off ~ ${formatDay(community.expected_cutoff_date)}`
+        : "No cut-off expected";
+      const chips = HORIZONS.map(
+        (h) =>
+          `<span class="ew-chip" title="Chance of being cut off within ${h} days">${h} d ${isolationChance(community, h)}</span>`,
+      ).join("");
+      return `<li><button type="button" class="ew-row${selected ? " is-selected" : ""}" aria-pressed="${selected}"
+          data-community="${escapeHtml(id)}"><span class="ew-name">${escapeHtml(names[id] ?? id)}</span>
+          <span class="ew-date telemetry">${date}</span><span class="ew-chips">${chips}</span></button></li>`;
+    })
     .join("");
   container.innerHTML = `
-    <p class="ew-question">Had this existed during the 2026 dry season, how many days in advance would it have warned
-      which communities were going to lose their water route?</p>
-    <p class="section-copy">${escape(report?.method?.summary ?? "")}</p>
-    <p class="ew-headline">${escape(headline(report?.hindcast))}</p>
-    <p class="ew-issued">Forecast issued on ${formatDay(report?.issued_at)} · chance of isolation within 7, 14 and 30
-      days</p>
+    <p class="ew-headline">${escapeHtml(headline(report?.hindcast))}</p>
+    <p class="ew-issued telemetry">Forecast of ${formatDay(report?.issued_at)} · chance of being cut off within
+      ${HORIZONS.join(", ")} days</p>
     <ol class="ew-list">${rows || '<li class="ew-empty">No monitored community.</li>'}</ol>`;
   container
     .querySelectorAll("[data-community]")
@@ -81,8 +75,9 @@ export function renderEarlyWarningPanel(
   return communities;
 }
 
-/** The limitations of the method, as published with it. */
+/** How it works and its limits, as published with it. */
 export function renderLimits(container, report) {
+  const summary = report?.method?.summary ? `<p>${escapeHtml(report.method.summary)}</p>` : "";
   const limits = report?.method?.limitations ?? [];
-  container.innerHTML = `<ul>${limits.map((limit) => `<li>${escape(limit)}</li>`).join("")}</ul>`;
+  container.innerHTML = `${summary}<ul class="ew-limits-list">${limits.map((limit) => `<li>${escapeHtml(limit)}</li>`).join("")}</ul>`;
 }

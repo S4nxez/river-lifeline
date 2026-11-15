@@ -1,208 +1,150 @@
-.footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  margin-top: 120px;
-  padding: 28px 0 40px;
-  border-top: 1px solid var(--line);
-  color: var(--faint);
-  font-size: 12px;
+/* Breakpoints: loaded last, so they override the rules of the other sheets */
+
+@media (max-width: 1100px) {
+  .scene {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .method-columns {
+    columns: 2;
+  }
 }
 
-.footer > span:first-child {
-  letter-spacing: 0.06em;
-  font-weight: 600;
-}
+@media (max-width: 900px) {
+  /* The mast stacks: the name, then the clock on its own full-width row */
+  .mast-title {
+    padding: 52px 16px 20px;
+  }
+  .mast-bar {
+    grid-template-columns: 1fr auto;
+    padding: 12px 16px;
+  }
+  .clock {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-.footer-sep {
-  padding: 0 6px;
-}
-
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-@media (max-width: 1000px) {
-  .intro {
+  /* One column: headline, map, its panels below it (no longer floating), then the list */
+  .scene {
+    display: block;
+    height: auto;
+  }
+  .scene-main {
+    display: block;
+  }
+  .headline {
     grid-template-columns: 1fr;
-    gap: 40px;
-    padding: 64px 0 48px;
+    grid-template-areas:
+      "meta"
+      "title"
+      "sub";
+    padding: 18px 16px;
   }
-  .intro-note {
-    max-width: 480px;
-  }
-  .analysis-grid {
-    grid-template-columns: 1fr;
-    gap: 72px;
-  }
-  .site-panel {
-    width: 280px;
-  }
-  .layers-panel {
-    width: 260px;
-  }
-  .analysis-grid {
-    margin-top: 72px;
-  }
-  .stat-card > strong {
-    font-size: 36px;
-  }
-  .stat-card > .stat-date {
-    font-size: 26px;
-    line-height: 1.385;
-  }
-}
-
-@media (max-width: 640px) {
-  .app-shell {
-    padding: 0 16px;
-  }
-  /* Compact header: name, data mode and the switch on one row */
-  .topbar {
-    min-height: 56px;
-    gap: 12px;
-  }
-  .brand small,
-  .mission-detail,
-  .theme-toggle-label {
-    display: none;
-  }
-  .topbar-end {
-    gap: 14px;
-  }
-  .mission-status {
-    font-size: 11px;
-  }
-
-  /* A little about the monitor, then the map with all its controls */
-  .intro {
-    padding: 24px 0 20px;
-  }
-  .intro-note {
-    display: none;
-  }
-  .stats-grid {
-    margin-bottom: 28px;
-  }
-  .map-section {
-    padding-top: 16px;
-  }
-  .map-heading {
-    margin-bottom: 12px;
-  }
-  .map-heading h2 {
-    font-size: 20px;
-  }
-  .live-label {
-    display: none;
-  }
-
-  /* Edge to edge; the filter and the communities follow it instead of covering it */
   .map-stage {
     display: flex;
     flex-direction: column;
-    margin: 0 -16px;
   }
   #map {
-    order: 1;
-    height: 72vh;
-    min-height: 420px;
-    border-inline: 0;
-    border-radius: 0;
+    position: relative;
+    inset: auto;
+    height: 58vh;
+    min-height: 340px;
   }
-  .status-filter {
-    order: 2;
-    position: static;
-    max-width: none;
-    margin: 8px 12px 0;
-    padding: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    border: 0;
-    box-shadow: none;
-    background: none;
-  }
-  .site-panel {
-    order: 3;
+  .layers-panel,
+  .image-plate,
+  .map-key {
     position: static;
     width: auto;
+    max-width: none;
     max-height: none;
-    margin: 24px 16px 0;
-    border: 0;
-    border-top: 1px solid var(--line);
-    border-radius: 0;
-    box-shadow: none;
-    background: none;
-  }
-  .site-panel .map-card-head,
-  .site-panel .selected-summary {
-    padding-inline: 0;
-  }
-  .site-panel .site-item {
-    padding-inline: 8px;
   }
   .layers-panel {
-    top: 12px;
-    right: 12px;
-    width: min(290px, calc(100% - 24px));
-    max-height: calc(72vh - 24px);
+    order: -1;
+    margin: 0;
+    border-width: 0 0 1px;
+    border-radius: 0;
+    background: var(--deck);
   }
-  .map-footer {
-    padding: 8px 16px 0;
+  .layers-panel:has(.layers-toggle[aria-expanded="false"]) {
+    width: auto;
   }
-  .intro h1 {
-    font-size: 36px;
+  .layer-controls {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
-  .mobile-break {
-    display: block;
+  .image-plate {
+    margin: 0;
   }
-  .intro-copy {
-    font-size: 15px;
-    margin-top: 16px;
+  .map-key {
+    margin: 0;
+    border-width: 1px 0 0;
+    border-radius: 0;
   }
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .map-key-list {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
-  .stat-card,
-  .stat-card + .stat-card {
-    padding: 14px 0;
+  .leaflet-bottom.leaflet-left {
+    bottom: 0;
   }
-  .stat-card:nth-child(even) {
-    padding-left: 16px;
+  .roster {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
   }
-  .stat-card > strong {
-    font-size: 28px;
-    margin: 6px 0 4px;
+  .roster-list {
+    max-height: 520px;
   }
-  .stat-card > .stat-date {
-    font-size: 22px;
-    line-height: 1.6;
+  .roster-head,
+  .pills,
+  .roster-download {
+    padding-inline: 16px;
   }
-  .stat-foot {
-    font-size: 12px;
+  .roster-search {
+    margin-inline: 16px;
   }
-  .panel-heading h2 {
-    font-size: 24px;
+  .site-row {
+    padding-inline: 16px;
   }
-  .site-item {
-    padding: 14px 8px;
-    gap: 12px;
+
+  .log-section,
+  .method {
+    padding: 24px 16px;
   }
-  .chart-wrap {
-    height: 220px;
+  .log-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  #status-content h3 {
-    font-size: 26px;
+  .next-pass {
+    text-align: left;
   }
-  .insight-metrics strong {
-    font-size: 24px;
+  .desk {
+    grid-template-columns: 1fr;
+  }
+  .desk-ledger,
+  .desk-dossier {
+    padding: 24px 16px;
+  }
+  .desk-ledger {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .method-columns {
+    columns: 1;
   }
   .footer {
     flex-direction: column;
-    gap: 8px;
-    margin-top: 64px;
+    padding: 18px 16px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mast-title {
+    padding-top: 44px;
+  }
+  .canopy {
+    height: 130px;
+  }
+  .clock-play {
+    flex-basis: 100%;
   }
 }
 

@@ -17,7 +17,7 @@ comments. No Spanish or any other language, even when you are being instructed i
   `worker/src` require changes to `worker/tests`.
 - Backend: JUnit 5, Mockito and AssertJ in `server/src/test/java`, mirroring the main packages. Unit tests never need a
   database. Run `mvn -f server/pom.xml test`.
-- Frontend: `node:test` and jsdom in `frontend/tests/*.test.js`. Browser globals (Leaflet's `L`, `Chart`, `fetch`) are
+- Frontend: `node:test` and jsdom in `frontend/tests/*.test.js`. Browser globals (Leaflet's `L`, `fetch`) are
   faked. Run `npm --prefix frontend test`.
 - Worker: pytest in `worker/tests`, with the in-memory fakes of `worker/tests/fakes.py` for the ports. Run `pytest` in
   `worker/` (setup in `worker/README.md`).

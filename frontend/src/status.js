@@ -1,11 +1,15 @@
-// What each connectivity status means on screen. Codes are the API's (`status` of an assessment).
+// What each connectivity status means on screen. Codes are the API's (`status` of an assessment). A status never
+// shows by colour alone: each has its own shape (components/glyph.js), as the API's status table also gives them.
 
 export const STATUSES = {
-  isolated: { label: "Isolated", color: "#b42318", severity: 0 },
-  at_risk: { label: "At risk", color: "#a15c07", severity: 1 },
-  no_data: { label: "No data", color: "#8a8f96", severity: 2 },
-  connected: { label: "Connected", color: "#0b7a52", severity: 3 },
+  isolated: { label: "Isolated", shape: "square", color: "#ff6b5b", severity: 0 },
+  at_risk: { label: "At risk", shape: "triangle", color: "#f2b544", severity: 1 },
+  connected: { label: "Connected", shape: "circle", color: "#7dd3b0", severity: 2 },
+  no_data: { label: "No data", shape: "ring", color: "#5d6a86", severity: 3 },
 };
+
+/** The statuses, most serious first. */
+export const STATUS_ORDER = Object.keys(STATUSES).sort((a, b) => STATUSES[a].severity - STATUSES[b].severity);
 
 export const KIND_LABELS = {
   hub: "Hub",
@@ -21,10 +25,22 @@ export function statusOf(community) {
   return community.latest?.status ?? "no_data";
 }
 
-/** Communities in need first (isolated, at risk, no data, connected), then by name. */
+/** A route lost on this pass only: shown and counted as at risk until the next pass confirms it. */
+export function isUnconfirmedLoss(community) {
+  return community.latest?.reason === "no_route_unconfirmed";
+}
+
+/**
+ * The most serious first (isolated, at risk, connected, no data), then the narrowest route, then by name. A missing
+ * width sorts before every width: within a status it means no route at all.
+ */
 export function bySeverity(communities) {
+  const width = (community) => community.latest?.routeWidthM ?? -1;
   return [...communities].sort(
-    (a, b) => STATUSES[statusOf(a)].severity - STATUSES[statusOf(b)].severity || a.name.localeCompare(b.name),
+    (a, b) =>
+      STATUSES[statusOf(a)].severity - STATUSES[statusOf(b)].severity ||
+      width(a) - width(b) ||
+      a.name.localeCompare(b.name),
   );
 }
 

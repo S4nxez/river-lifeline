@@ -1,18 +1,5 @@
-import { formatDay } from "../format.js";
+import { escapeHtml as escape } from "../format.js";
 import { RADAR_SOURCES, overlaysOf } from "../imagery.js";
-
-const escape = (text) =>
-  String(text).replace(
-    /[&<>"']/g,
-    (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char],
-  );
-
-/** How the pass selector names a pass: its date, platform and track, and whether it could be judged. */
-export function passLabel(pass) {
-  const track = pass.track == null ? "" : ` · T${pass.track}`;
-  const judged = pass.evaluated ? "" : " (not evaluated)";
-  return `${formatDay(pass.acquiredOn)} · ${pass.platform}${track}${judged}`;
-}
 
 /** What the panel says under the controls: why there is nothing to show, or what to keep in mind. */
 export function imageryNote({ live, imagery, pass, failed = false }) {
@@ -39,22 +26,16 @@ function segmented(name, label, options, selected) {
 }
 
 /**
- * The layers panel: the pass, the basemap, the radar image (one at a time, to compare by switching) with its
- * opacity, and the analysis overlays. `unavailable` holds the layer ids whose image failed to load.
- * Handlers: `onPass(id)`, `onBasemap("map" | "satellite")`, `onRadar(id | null)`, `onOpacity(0..1)`,
- * `onOverlay(id, visible)`.
+ * The layers panel: the basemap, the radar image (one at a time, to compare by switching) with its opacity, and the
+ * analysis overlays. The pass is picked with the mission clock; `passes` and `passId` only tell the panel what to
+ * say about it. `unavailable` holds the layer ids whose image failed to load.
+ * Handlers: `onBasemap("map" | "satellite")`, `onRadar(id | null)`, `onOpacity(0..1)`, `onOverlay(id, visible)`.
  */
 export function renderLayerControls(container, state, handlers) {
   const { passes, passId, basemap, imagery, choices, unavailable, live, failed = false } = state;
   const offered = new Set(imagery.map((layer) => layer.id));
   const pass = passes.find((item) => item.id === passId) ?? null;
 
-  const passOptions = passes
-    .map(
-      (item) =>
-        `<option value="${escape(item.id)}"${item.id === passId ? " selected" : ""}>${escape(passLabel(item))}</option>`,
-    )
-    .join("");
   const radarOptions = [
     { value: "", text: "Off" },
     ...RADAR_SOURCES.map(({ id, label }) => {
@@ -83,7 +64,6 @@ export function renderLayerControls(container, state, handlers) {
   const percent = Math.round(choices.opacity * 100);
 
   container.innerHTML = `
-    ${passes.length > 0 ? `<label class="control-field"><span class="control-label">Pass</span><select class="control-select" data-pass>${passOptions}</select></label>` : ""}
     ${segmented(
       "basemap",
       "Basemap",
@@ -101,7 +81,6 @@ export function renderLayerControls(container, state, handlers) {
     ${overlays ? `<fieldset class="control-field"><legend class="control-label">Overlays</legend>${overlays}</fieldset>` : ""}
     ${note ? `<p class="control-note">${escape(note)}</p>` : ""}`;
 
-  container.querySelector("[data-pass]")?.addEventListener("change", (event) => handlers.onPass(event.target.value));
   container
     .querySelectorAll("[data-basemap]")
     .forEach((button) => button.addEventListener("click", () => handlers.onBasemap(button.dataset.basemap)));
