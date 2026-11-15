@@ -43,6 +43,8 @@ services:
       WORKER_TOKEN: ${WORKER_TOKEN:-}
       EARTHDATA_TOKEN: ${EARTHDATA_TOKEN:-}
       PIPELINE_SCHEDULE: ${PIPELINE_SCHEDULE:-true}
+      # Experimental early warning (docs/early-warning.md): aois/<id>/early_warning.json in the folder mounted below
+      RIVER_EARLY_WARNING_DIR: /early-warning
     # Public resolvers for outside names (ASF, Earthdata, Planetary Computer, ANA, Open-Meteo): on the Pi the network's
     # own DNS (aardvark, rootless with pasta) does not forward them. Stack names (mysql) still resolve: aardvark
     # answers them and only forwards the rest to these.
@@ -52,6 +54,8 @@ services:
     volumes:
       - ${RIVER_DATA_HOST_DIR:-./fixtures/data}:/data:ro,Z
       - rasters:/var/lib/river-lifeline/rasters
+      # RIVER_EARLY_WARNING_HOST_DIR in the .env: a folder outside the checkout; by default this empty one (404)
+      - ${RIVER_EARLY_WARNING_HOST_DIR:-./early-warning}:/early-warning:ro,Z
     networks:
       - NisarSar-net
 
