@@ -32,6 +32,7 @@ let theme = "light";
 let cartoRefused = false;
 let hubLayer;
 let markerLayer;
+let hubMarker = null;
 let imageryLayer;
 let visibleStatuses = new Set(Object.keys(STATUSES));
 let onImageError = () => {};
@@ -65,6 +66,7 @@ export async function createMap({
   visibleStatuses = new Set(Object.keys(STATUSES));
   markers.clear();
   images.clear();
+  hubMarker = null;
   map = L.map("map", { zoomControl: false, scrollWheelZoom: false });
   frame(area, hub, communities);
   L.control.zoom({ position: "bottomright" }).addTo(map);
@@ -75,11 +77,17 @@ export async function createMap({
   markerLayer = L.layerGroup().addTo(map);
 
   if (hub) {
-    L.circleMarker([hub.lat, hub.lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#111214", fillOpacity: 1 })
+    hubMarker = L.circleMarker([hub.lat, hub.lng], {
+      radius: markerRadius(map.getZoom()) + 2,
+      stroke: false,
+      fillColor: "#111214",
+      fillOpacity: 1,
+    })
       .bindTooltip(`${hub.name} · hub`, { direction: "top", offset: [0, -8] })
       .addTo(hubLayer);
   }
   setCommunities(communities, onSelect);
+  map.on("zoomend", resizeMarkers);
 
   await new Promise((resolve) => setTimeout(resolve, 80));
   map.invalidateSize();
@@ -91,6 +99,21 @@ export async function createMap({
     setVisibleStatuses,
     showImagery,
   };
+}
+
+/**
+ * Marker radius (px) at a zoom level: small when zoomed out, so neighbouring communities don't cover each other, and
+ * full size from zoom 12 in. The hub is drawn 2 px larger.
+ */
+export function markerRadius(zoom) {
+  return Math.max(2, Math.min(7, Math.round(zoom) - 5));
+}
+
+/** Resizes every marker to the current zoom. */
+function resizeMarkers() {
+  const radius = markerRadius(map.getZoom());
+  for (const { marker } of markers.values()) marker.setRadius(radius);
+  hubMarker?.setRadius(radius + 2);
 }
 
 /** Frames the area: its bounds, else every place on it, else its centre. */
@@ -148,9 +171,8 @@ function setCommunities(communities, onSelect) {
   communities.forEach((community) => {
     const status = statusOf(community);
     const marker = L.circleMarker([community.lat, community.lng], {
-      radius: 7,
-      color: "#ffffff",
-      weight: 2,
+      radius: markerRadius(map.getZoom()),
+      stroke: false,
       fillColor: STATUSES[status].color,
       fillOpacity: 1,
     }).bindTooltip(`${community.name} · ${STATUSES[status].label}`, { direction: "top", offset: [0, -7] });

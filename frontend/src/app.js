@@ -212,10 +212,9 @@ function setUpPanelToggle(button, open) {
 
 async function init() {
   setUpThemeToggle();
-  // On a phone the layers start folded, so the map shows first
-  const compact = globalThis.matchMedia?.("(max-width: 640px)")?.matches ?? false;
-  setUpPanelToggle($("#communities-toggle"), true);
-  setUpPanelToggle($("#layers-toggle"), !compact);
+  // Both panels start folded, so the map shows first; a soft periodic nudge on their toggles (CSS) invites a click
+  setUpPanelToggle($("#communities-toggle"), false);
+  setUpPanelToggle($("#layers-toggle"), false);
 
   const { overview, live } = await loadOverview();
   state.overview = overview;

@@ -35,6 +35,7 @@ export function installChart() {
  */
 export function installLeaflet({ zoom = 2 } = {}) {
   const recorded = {
+    mapHandlers: {},
     mapContainer: null,
     view: null,
     tiles: [],
@@ -59,6 +60,15 @@ export function installLeaflet({ zoom = 2 } = {}) {
       recorded.invalidated = true;
     },
     getZoom: () => zoom,
+    // Moves the fake map to another zoom and fires "zoomend", as Leaflet does after a zoom
+    zoomTo: (next) => {
+      zoom = next;
+      recorded.mapHandlers.zoomend?.();
+    },
+    on: (event, handler) => {
+      recorded.mapHandlers[event] = handler;
+      return map;
+    },
     flyTo: (latLng, targetZoom) => recorded.flights.push({ latLng, zoom: targetZoom }),
     removeLayer: (layer) => {
       layer.removed = true;
@@ -166,6 +176,10 @@ export function installLeaflet({ zoom = 2 } = {}) {
         getLatLng() {
           return latLng;
         },
+        setRadius(radius) {
+          this.options = { ...this.options, radius };
+          return this;
+        },
         openTooltip() {
           this.tooltipOpen = true;
         },
@@ -174,6 +188,7 @@ export function installLeaflet({ zoom = 2 } = {}) {
       return marker;
     },
   };
+  recorded.zoomTo = map.zoomTo;
   return recorded;
 }
 
