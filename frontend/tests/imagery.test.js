@@ -60,8 +60,8 @@ test("draws the chosen radar at the user's opacity, under the overlays turned on
   const choices = { radar: "radar_hh", opacity: 0.5, overlays: { water: true, change: false } };
 
   assert.deepEqual(layersToShow(choices, imagery), [
-    { id: "radar_hh", url: "./api/v1/radar_hh.png", bounds: BOUNDS, opacity: 0.5 },
-    { id: "water", url: "./api/v1/water.png", bounds: BOUNDS, opacity: 0.8 },
+    { id: "radar_hh", url: "./api/v1/radar_hh.png", bounds: BOUNDS, widthPx: null, opacity: 0.5 },
+    { id: "water", url: "./api/v1/water.png", bounds: BOUNDS, widthPx: null, opacity: 0.8 },
   ]);
 });
 

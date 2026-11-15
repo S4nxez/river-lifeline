@@ -1,7 +1,7 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { installDom } from "./helpers/browser.js";
-import { imageryNote, passLabel, renderLayerControls } from "../src/components/layerControls.js";
+import { imageryNote, renderLayerControls } from "../src/components/layerControls.js";
 
 const BOUNDS = [
   [-3.9, -65.2],
@@ -35,7 +35,6 @@ function render(overrides = {}) {
     ...overrides,
   };
   renderLayerControls(container, state, {
-    onPass: (id) => calls.push(["pass", id]),
     onBasemap: (basemap) => calls.push(["basemap", basemap]),
     onRadar: (radar) => calls.push(["radar", radar]),
     onOpacity: (opacity) => calls.push(["opacity", opacity]),
@@ -49,25 +48,6 @@ const pressed = (name) =>
 beforeEach(() => {
   container = installDom('<div id="layers"></div>').querySelector("#layers");
   calls = [];
-});
-
-test("names a pass by its date, platform and track, and flags one that couldn't be judged", () => {
-  assert.equal(passLabel(passes[0]), "23 Oct 2026 · NISAR · T81");
-  assert.equal(passLabel({ ...passes[1], track: null }), "19 Oct 2026 · NISAR (not evaluated)");
-});
-
-test("lists the passes with the one on screen selected, and reports another pick", () => {
-  render();
-  const select = container.querySelector("[data-pass]");
-
-  assert.deepEqual(
-    [...select.options].map((option) => option.value),
-    ["p2", "p1"],
-  );
-  assert.equal(select.value, "p2");
-  select.value = "p1";
-  select.dispatchEvent(new window.Event("change"));
-  assert.deepEqual(calls, [["pass", "p1"]]);
 });
 
 test("the basemap is map or satellite, one at a time", () => {
@@ -138,8 +118,9 @@ test("the note explains an empty map: demo data, a pass not judged, no images or
   assert.equal(imageryNote({ live: true, imagery: [layer("water", "Water")], pass: passes[0] }), "");
 });
 
-test("without passes there is no pass selector", () => {
-  render({ passes: [] });
+test("the pass is picked with the mission clock, never in the layers panel", () => {
+  render();
 
+  assert.equal(container.querySelector("select"), null);
   assert.equal(container.querySelector("[data-pass]"), null);
 });

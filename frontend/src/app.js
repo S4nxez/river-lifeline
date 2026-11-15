@@ -1,119 +1,201 @@
-import { renderCommunityList, renderSelectedSummary } from "./components/communityList.js";
+// The page: one area, one NISAR pass at a time. It loads the overview, keeps the user's choices in `state` and
+// redraws the parts that depend on them. Every part reads from `state`; the map is driven through its controls.
+import { expectedPasses, neighbourPass, passForDay, renderClock } from "./components/clock.js";
+import { filterCommunities, renderCommunityList, renderListFilters } from "./components/communityList.js";
+import { renderDossier } from "./components/dossier.js";
+import { renderHeadline } from "./components/headline.js";
+import { renderPlate } from "./components/imagePlate.js";
 import { renderLayerControls } from "./components/layerControls.js";
-import { renderRouteChart } from "./components/routeChart.js";
-import { renderStatusFilter, toggleStatus } from "./components/statusFilter.js";
-import { renderStatusPanel } from "./components/statusPanel.js";
-import { formatDay, formatRiverLevel } from "./format.js";
+import { renderLedger } from "./components/ledger.js";
+import { renderMapKey } from "./components/mapKey.js";
+import { renderPassLog } from "./components/passLog.js";
+import { formatDay, formatShortDay, formatUtcTime } from "./format.js";
+import { readHash, writeHash } from "./hashState.js";
 import { imageryChoices, layersToShow } from "./imagery.js";
-import { loadHistory, loadOverview, loadPass } from "./services/api.js";
+import { exportUrl, loadHistory, loadOverview, loadPass, loadRiverLevel } from "./services/api.js";
 import { createMap } from "./services/mapService.js";
-import { STATUSES, bySeverity, countByStatus, statusOf } from "./status.js";
+import { bySeverity } from "./status.js";
 import { currentTheme, toggleTheme } from "./theme.js";
 
+const PLAY_STEP_MS = 1300;
+const ARROWS = { ascending: "↑", descending: "↓" };
+
 const $ = (selector) => document.querySelector(selector);
-const elements = {
-  list: $("#community-list"),
-  summary: $("#selected-summary"),
-  status: $("#status-content"),
-  chart: $("#route-chart"),
-  themeToggle: $("#theme-toggle"),
-  layers: $("#layer-controls"),
-  filter: $("#status-filter"),
-};
 
 // Everything the page shows comes from here: the area's overview, the pass on screen and the user's choices
 const state = {
   overview: null,
   live: false,
   passId: null,
+  day: null,
   passFailed: false,
   communities: [],
   imagery: [],
+  plate: null,
+  river: null,
   choices: { radar: null, opacity: 1, overlays: {} },
   basemap: "map",
-  visible: new Set(Object.keys(STATUSES)),
+  filter: "all",
+  query: "",
   unavailable: new Set(),
   selectedId: null,
-  chartHistory: null,
+  history: null,
+  playing: false,
+  logAnimated: false,
 };
 let mapControls;
+let playTimer = null;
 
-const thresholdM = () => state.overview?.area?.connectedMinWidthM ?? null;
-const hubName = () => state.overview?.hub?.name ?? state.overview?.area?.name ?? "the hub";
-const shownCommunities = () => state.communities.filter((community) => state.visible.has(statusOf(community)));
+const today = () => new Date().toISOString().slice(0, 10);
+const area = () => state.overview?.area ?? null;
+const hubName = () => state.overview?.hub?.name ?? area()?.name ?? "the hub";
+const passes = () => state.overview?.passes ?? [];
+const classes = () => area()?.widthClassesM ?? [];
 
-function drawChart() {
-  renderRouteChart(elements.chart, state.chartHistory, { theme: currentTheme(), thresholdM: thresholdM() });
+/** The pass on screen; when the pass list couldn't be loaded, what the communities say about it. */
+function currentPass() {
+  const listed = passes().find((pass) => pass.id === state.passId);
+  if (listed) return listed;
+  const day = state.communities.find((community) => community.latest?.acquiredOn)?.latest.acquiredOn;
+  return day ? { id: state.passId, acquiredOn: day, evaluated: true, counts: null, riverLevelCm: null } : null;
+}
+
+const previousPass = () => neighbourPass(passes(), state.passId, -1);
+const shownCommunities = () => filterCommunities(state.communities, { filter: state.filter, query: state.query });
+const selectedCommunity = () => state.communities.find((community) => community.id === state.selectedId) ?? null;
+
+function renderHeadlineBand() {
+  renderHeadline($("#headline"), {
+    pass: currentPass(),
+    communities: state.communities,
+    hubName: hubName(),
+    thresholdM: area()?.connectedMinWidthM ?? null,
+    day: state.day,
+  });
+}
+
+function renderTimeControls() {
+  renderClock(
+    $("#clock"),
+    { passes: passes(), passId: state.passId, day: state.day ?? today(), today: today(), playing: state.playing },
+    {
+      onDay: (day) => {
+        stopPlaying();
+        showDay(day);
+      },
+      onStep: (step) => {
+        stopPlaying();
+        const next = neighbourPass(passes(), state.passId, step);
+        if (next) changePass(next.id);
+      },
+      onPlay: togglePlay,
+    },
+  );
+}
+
+/** "Next pass over the area": when NISAR is next due back, from the tracks that covered it. */
+function renderNextPass() {
+  const target = $("#next-pass");
+  if (!target) return;
+  const next = expectedPasses(passes(), today())[0];
+  target.hidden = !next;
+  if (!next) return;
+  const track = next.track == null ? "" : ` · track ${next.track} ${ARROWS[next.orbitDirection] ?? ""}`.trimEnd();
+  $("#next-pass-value").textContent =
+    next.day === today() ? "acquired today, published within days" : `${formatDay(next.day)}${track}`;
 }
 
 function renderList() {
-  renderCommunityList(elements.list, shownCommunities(), state.selectedId, select);
+  const shown = shownCommunities();
+  const pass = currentPass();
+  renderCommunityList(
+    $("#community-list"),
+    {
+      communities: shown,
+      selectedId: state.selectedId,
+      classesM: classes(),
+      dayLabel: pass ? formatShortDay(pass.acquiredOn) : "",
+    },
+    select,
+  );
+  $("#list-count").textContent = `${shown.length} of ${state.communities.length}`;
+  const filtering = state.filter !== "all" || state.query.trim() !== "";
+  mapControls?.setVisibleIds(filtering ? shown.map((community) => community.id) : null);
 }
 
-/** The selected community as the pass on screen saw it. */
-function renderSelection() {
-  const community = state.communities.find((item) => item.id === state.selectedId);
-  if (!community) return;
-  renderSelectedSummary(elements.summary, community);
-  renderStatusPanel(elements.status, community, { thresholdM: thresholdM(), hubName: hubName() });
+function renderFilters() {
+  renderListFilters($("#list-filters"), state.filter, (filter) => {
+    state.filter = filter;
+    renderFilters();
+    renderList();
+  });
 }
 
-async function select(id) {
-  if (!state.communities.some((item) => item.id === id)) return;
-  state.selectedId = id;
-  renderList();
-  renderSelection();
-  mapControls?.selectCommunity(id);
-
-  const history = await loadHistory(id, state.live);
-  // The user may have picked another community while this one loaded
-  if (state.selectedId === id) {
-    state.chartHistory = history;
-    drawChart();
+/** "Download this day": the backend writes the file of the pass on screen. Live data only. */
+function renderDownload() {
+  const block = $("#list-download");
+  if (!block) return;
+  block.hidden = !state.live || !state.passId;
+  if (block.hidden) return;
+  for (const format of ["csv", "geojson"]) {
+    const link = block.querySelector(`[data-format="${format}"]`);
+    if (link) link.href = exportUrl(state.passId, format);
   }
 }
 
-/** The figures of the pass on screen. */
-function renderStats() {
-  const { overview } = state;
-  const counts = countByStatus(state.communities);
-  const pad = (count) => String(count).padStart(2, "0");
-  const pass =
-    overview.passes.find((item) => item.id === state.passId) ??
-    (overview.latestPass?.id === state.passId ? overview.latestPass : null);
-  $("#stat-communities").textContent = pad(state.communities.length);
-  $("#stat-isolated").textContent = pad(counts.isolated);
-  $("#stat-at-risk").textContent = pad(counts.at_risk);
-  $("#stat-pass").textContent = pass ? formatDay(pass.acquiredOn) : "—";
-  $("#stat-river").textContent =
-    pass?.riverLevelCm == null
-      ? pass
-        ? "River level unknown"
-        : "No pass yet"
-      : `River at ${formatRiverLevel(pass.riverLevelCm)}`;
-  $("#data-mode").textContent = state.live ? "LIVE DATA" : "DEMO DATA";
+function renderDesk() {
+  renderLedger($("#ledger"), {
+    pass: currentPass(),
+    previous: previousPass(),
+    communities: state.communities,
+    gaugeName: area()?.gauge?.name ?? null,
+  });
+  renderDossier($("#dossier"), {
+    community: selectedCommunity(),
+    history: state.history?.id === state.selectedId ? state.history : null,
+    passes: passes(),
+    passId: state.passId,
+    hubName: hubName(),
+    classesM: classes(),
+  });
 }
 
-function renderFilter() {
-  if (!elements.filter) return;
-  renderStatusFilter(elements.filter, state.communities, state.visible, (status) => {
-    state.visible = toggleStatus(state.visible, status);
-    renderFilter();
-    renderList();
-    mapControls?.setVisibleStatuses(state.visible);
-  });
+function drawPassLog() {
+  const container = $("#pass-log");
+  if (!container) return;
+  // The "downlink" entrance plays once, and only for someone watching who hasn't asked for less motion
+  const animate =
+    !state.logAnimated &&
+    globalThis.document?.visibilityState === "visible" &&
+    !(globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false);
+  state.logAnimated = true;
+  renderPassLog(
+    container,
+    {
+      passes: passes(),
+      passId: state.passId,
+      river: state.river,
+      today: today(),
+      expected: expectedPasses(passes(), today()),
+      animate,
+    },
+    (passId) => {
+      stopPlaying();
+      changePass(passId);
+    },
+  );
 }
 
 function applyImagery() {
   mapControls?.showImagery(layersToShow(state.choices, state.imagery));
+  renderPlate($("#image-plate"), state.plate, state.choices.radar);
 }
 
 function renderControls() {
-  if (!elements.layers) return;
   renderLayerControls(
-    elements.layers,
+    $("#layer-controls"),
     {
-      passes: state.overview.passes,
+      passes: passes(),
       passId: state.passId,
       basemap: state.basemap,
       imagery: state.imagery,
@@ -123,7 +205,6 @@ function renderControls() {
       failed: state.passFailed,
     },
     {
-      onPass: changePass,
       onBasemap: (basemap) => {
         state.basemap = basemap;
         mapControls?.setBasemap(basemap);
@@ -154,39 +235,124 @@ function imageFailed(layerId) {
   renderControls();
 }
 
-/** Shows another pass: its communities, figures and imagery, keeping the user's layer choices. */
-async function changePass(passId) {
-  state.passId = passId;
-  const pass = await loadPass(passId, state.live, state.overview.layerCatalog);
-  // The user may have picked another pass while this one loaded
-  if (state.passId !== passId) return;
-  state.passFailed = !pass;
-  if (pass) {
-    state.communities = bySeverity(pass.communities);
-    state.imagery = pass.imagery;
-    state.unavailable = new Set();
-    state.choices = imageryChoices(state.imagery, state.choices);
-    renderFilter();
-    renderList();
-    renderSelection();
-    mapControls?.setCommunities(state.communities);
-    applyImagery();
-  }
-  renderStats();
+function saveView() {
+  writeHash({ day: state.day, communityId: state.selectedId });
+}
+
+/** Everything that depends on the pass on screen. */
+function renderPassViews() {
+  renderHeadlineBand();
+  renderTimeControls();
+  renderList();
+  renderDownload();
+  renderDesk();
+  drawPassLog();
   renderControls();
 }
 
-/** The area's name wherever the page says it. */
-function applyArea(area) {
-  if (!area?.name) return;
-  document.querySelectorAll("[data-area-name]").forEach((element) => (element.textContent = area.name));
-  document.querySelectorAll("[data-area-region]").forEach((element) => (element.textContent = area.region ?? ""));
-  document.title = `River Lifeline | ${area.name}`;
+/** Picks a community: the list, the map and the dossier follow, and its card loads for the history. */
+async function select(id, { fly = true } = {}) {
+  if (!state.communities.some((community) => community.id === id)) return;
+  state.selectedId = id;
+  renderList();
+  renderDesk();
+  mapControls?.selectCommunity(id, { fly });
+  saveView();
+
+  const history = await loadHistory(id, state.live);
+  // The user may have picked another community while this one loaded
+  if (state.selectedId === id) {
+    state.history = history ? { ...history, id } : null;
+    renderDesk();
+  }
 }
 
-/** The light/dark switch: the page, the basemap and the chart follow it. */
+/** Shows another pass: its communities, figures and imagery, keeping the user's layer choices and selection. */
+async function changePass(passId, { day = null } = {}) {
+  state.passId = passId;
+  const pass = passes().find((item) => item.id === passId);
+  state.day = day ?? pass?.acquiredOn ?? state.day;
+  renderTimeControls();
+  const loaded = await loadPass(passId, state.live, state.overview.layerCatalog);
+  // The user may have picked another pass while this one loaded
+  if (state.passId !== passId) return;
+  state.passFailed = !loaded;
+  if (loaded) {
+    state.communities = bySeverity(loaded.communities);
+    state.imagery = loaded.imagery;
+    state.plate = loaded.plate;
+    state.unavailable = new Set();
+    state.choices = imageryChoices(state.imagery, state.choices);
+    mapControls?.setCommunities(state.communities);
+    mapControls?.selectCommunity(state.selectedId, { fly: false });
+    applyImagery();
+  }
+  renderPassViews();
+  saveView();
+}
+
+/** Shows the pass a day falls on (the latest one on or before it). */
+function showDay(day) {
+  const pass = passForDay(passes(), day);
+  if (pass) changePass(pass.id, { day });
+}
+
+function stopPlaying() {
+  if (playTimer) clearInterval(playTimer);
+  playTimer = null;
+  if (state.playing) {
+    state.playing = false;
+    renderTimeControls();
+  }
+}
+
+/** Play record: one pass every 1.3 s from the one on screen (from the first, if it is the last), until the last. */
+function togglePlay() {
+  if (state.playing) {
+    stopPlaying();
+    return;
+  }
+  if (!neighbourPass(passes(), state.passId, 1)) {
+    const first = passes().find((pass) => pass.evaluated);
+    if (first) changePass(first.id);
+  }
+  state.playing = true;
+  renderTimeControls();
+  playTimer = setInterval(() => {
+    const next = neighbourPass(passes(), state.passId, 1);
+    if (next) changePass(next.id);
+    if (!next || !neighbourPass(passes(), next.id, 1)) stopPlaying();
+  }, PLAY_STEP_MS);
+}
+
+/** The area's names and sources wherever the page says them. */
+function applyArea() {
+  const { overview } = state;
+  const names = {
+    "[data-area-name]": area()?.name,
+    "[data-hub-name]": hubName(),
+    "[data-gauge-name]": area()?.gauge?.name,
+    "[data-gauge-source]": [area()?.gauge?.provider, area()?.gauge?.name].filter(Boolean).join(", "),
+  };
+  for (const [selector, text] of Object.entries(names)) {
+    if (!text) continue;
+    document.querySelectorAll(selector).forEach((element) => (element.textContent = text));
+  }
+  if (area()?.name) document.title = `River Lifeline | ${area().name}`;
+  const mode = $("#data-mode");
+  if (mode) mode.textContent = state.live ? "Live record" : "Demo data";
+  const updated = $("#record-updated");
+  if (updated) {
+    const stamp = overview.recordUpdatedAt;
+    updated.hidden = !stamp;
+    if (stamp) updated.textContent = `Record updated ${stamp.slice(0, 10)} ${formatUtcTime(stamp) ?? ""}`.trim();
+  }
+  renderMapKey($("#map-key"), hubName());
+}
+
+/** The light/dark switch: the page and the basemap follow it. */
 function setUpThemeToggle() {
-  const toggle = elements.themeToggle;
+  const toggle = $("#theme-toggle");
   if (!toggle) return;
   const sync = () => toggle.setAttribute("aria-checked", String(currentTheme() === "dark"));
   sync();
@@ -194,7 +360,6 @@ function setUpThemeToggle() {
     const theme = toggleTheme();
     sync();
     mapControls?.setTheme(theme);
-    if (state.chartHistory) drawChart();
   });
 }
 
@@ -210,31 +375,50 @@ function setUpPanelToggle(button, open) {
   button.addEventListener("click", () => show(button.getAttribute("aria-expanded") !== "true"));
 }
 
+function setUpSearch() {
+  const field = $("#list-search");
+  field?.addEventListener("input", () => {
+    state.query = field.value;
+    renderList();
+  });
+}
+
+/** The pass log is drawn to its width: redraw it when the window settles on a new size. */
+function setUpResize() {
+  let timer = null;
+  globalThis.addEventListener?.("resize", () => {
+    clearTimeout(timer);
+    timer = setTimeout(drawPassLog, 150);
+  });
+}
+
 async function init() {
   setUpThemeToggle();
-  // Both panels start folded, so the map shows first; a soft periodic nudge on their toggles (CSS) invites a click
-  setUpPanelToggle($("#communities-toggle"), false);
+  // The layers start folded, so the map shows first; a soft periodic nudge on their toggle (CSS) invites a click
   setUpPanelToggle($("#layers-toggle"), false);
+  setUpSearch();
+  setUpResize();
 
-  const { overview, live } = await loadOverview();
+  const [{ overview, live }, river] = await Promise.all([loadOverview(), loadRiverLevel(true).catch(() => null)]);
   state.overview = overview;
   state.live = live;
+  state.river = live ? river : await loadRiverLevel(false);
   state.passId = overview.passId;
   state.communities = bySeverity(overview.communities);
   state.imagery = overview.imagery;
+  state.plate = overview.plate;
   state.choices = imageryChoices(overview.imagery);
-  applyArea(overview.area);
-  renderStats();
-  renderFilter();
-  renderControls();
-  // The community most in need first
-  select(state.communities[0]?.id);
+  state.day = currentPass()?.acquiredOn ?? null;
+  applyArea();
+  renderFilters();
+  renderNextPass();
+  renderPassViews();
 
   createMap({
     area: overview.area,
     hub: overview.hub,
     communities: state.communities,
-    onSelect: select,
+    onSelect: (id) => select(id, { fly: false }),
     theme: currentTheme(),
     onImageError: imageFailed,
   })
@@ -242,15 +426,23 @@ async function init() {
       mapControls = controls;
       // Catch up with whatever the user changed while the map was being laid out
       controls.setCommunities(state.communities);
-      controls.setVisibleStatuses(state.visible);
       controls.setBasemap(state.basemap);
-      // No flight to the first community: the map opens on the whole area
+      renderList();
+      if (state.selectedId) controls.selectCommunity(state.selectedId, { fly: false });
       applyImagery();
     })
     .catch((error) => {
       $("#map").innerHTML = '<p class="map-error">Map could not load. Check your connection and reload.</p>';
       console.error("Map initialisation failed:", error);
     });
+
+  // A shared link opens the same view: its day, then its community
+  const asked = readHash();
+  if (asked.day && asked.day !== state.day) {
+    const pass = passForDay(passes(), asked.day);
+    if (pass) await changePass(pass.id, { day: asked.day });
+  }
+  if (asked.communityId) select(asked.communityId);
 }
 
 init();

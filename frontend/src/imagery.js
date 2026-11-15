@@ -38,10 +38,24 @@ export function imageryChoices(imagery, previous = null) {
 export function layersToShow(choices, imagery) {
   const shown = [];
   const radar = imagery.find((layer) => layer.id === choices.radar);
-  if (radar) shown.push({ id: radar.id, url: radar.url, bounds: radar.bounds, opacity: choices.opacity });
+  if (radar) {
+    shown.push({
+      id: radar.id,
+      url: radar.url,
+      bounds: radar.bounds,
+      widthPx: radar.widthPx ?? null,
+      opacity: choices.opacity,
+    });
+  }
   for (const layer of overlaysOf(imagery)) {
     if (choices.overlays[layer.id]) {
-      shown.push({ id: layer.id, url: layer.url, bounds: layer.bounds, opacity: layer.defaultOpacity });
+      shown.push({
+        id: layer.id,
+        url: layer.url,
+        bounds: layer.bounds,
+        widthPx: layer.widthPx ?? null,
+        opacity: layer.defaultOpacity,
+      });
     }
   }
   return shown;

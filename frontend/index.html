@@ -3,23 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fbfbfa" />
+    <meta name="theme-color" content="#0b1222" />
     <meta
       name="description"
-      content="River Lifeline — which riverside communities around Tefé can still reach the town by water, from NISAR radar."
+      content="River Lifeline: which riverside communities around Tefé can still reach the town by water, on every NISAR radar pass."
     />
-    <title>River Lifeline | Tefé</title>
+    <title>River Lifeline</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='12' fill='%23101b25' stroke='%23c9a74d' stroke-opacity='.7' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='20' fill='none' stroke='%234d6f8f' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='11' fill='none' stroke='%234d6f8f' stroke-width='2'/%3E%3Cpath d='M32 32 L32 10 A22 22 0 0 1 51 21 Z' fill='%23c9a74d' fill-opacity='.35'/%3E%3Cline x1='32' y1='32' x2='51' y2='21' stroke='%23c9a74d' stroke-width='2'/%3E%3Ccircle cx='43' cy='22' r='3.5' fill='%237dd3b0'/%3E%3Ccircle cx='32' cy='32' r='3' fill='%23c9a74d'/%3E%3C/svg%3E"
+    />
     <script>
-      // The theme before the first paint, so the page never flashes the wrong one: the saved choice, else the
-      // system's. Same storage key as src/theme.js, which handles the switch.
+      // The theme before the first paint, so the page never flashes the wrong one: the saved choice, else the night
+      // look of the mission room. Same storage key as src/theme.js, which handles the switch.
       try {
-        document.documentElement.dataset.theme =
-          localStorage.getItem("river-lifeline-theme") ||
-          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = localStorage.getItem("river-lifeline-theme") || "dark";
       } catch {
-        document.documentElement.dataset.theme = "light";
+        document.documentElement.dataset.theme = "dark";
       }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Martian+Mono:wght@400;600;700&family=Saira+Stencil+One&display=swap"
+    />
     <link rel="preconnect" href="https://unpkg.com" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="./src/styles/main.css" />
@@ -28,119 +36,163 @@
     <!-- Last, so the breakpoints override the rules above -->
     <link rel="stylesheet" href="./src/styles/responsive.css" />
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="./src/app.js"></script>
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <a class="brand" href="#" aria-label="River Lifeline home"
-          ><span
-            ><strong>RIVER LIFELINE</strong
-            ><small><span data-area-name>Tefé</span> · <span data-area-region>Amazonas</span></small></span
-          ></a
+    <a class="skip-link" href="#community-list">Skip to the community list</a>
+
+    <header class="mast">
+      <svg
+        class="canopy"
+        viewBox="0 0 1440 170"
+        preserveAspectRatio="xMidYMin slice"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <path id="leaf" d="M0 0 C7 9 9 26 0 46 C-9 26 -7 9 0 0 Z M0 4 L0 42" />
+        </defs>
+        <g class="canopy-leaves">
+          <path class="vine" d="M46 0 C37.57181374775895 52 54.42818625224105 98 42 150" />
+          <use href="#leaf" class="leaf-a" transform="translate(42 52) rotate(69) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(49 93) rotate(-40) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(50 135) rotate(53) scale(0.55)" />
+          <path class="vine" d="M118 0 C111.49309076375242 34 124.50690923624758 62 115 96" />
+          <use href="#leaf" class="leaf-a" transform="translate(115 34) rotate(66) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(120 60) rotate(58) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(121 86) rotate(41) scale(0.55)" />
+          <path class="vine" d="M1392 0 C1385.0548023610247 49 1398.9451976389753 91 1389 140" />
+          <use href="#leaf" class="leaf-a" transform="translate(1388 49) rotate(40) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1394 87) rotate(69) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1395 126) rotate(47) scale(0.55)" />
+          <path class="vine" d="M1330 0 C1337.3071951429508 31 1322.6928048570492 57 1334 88" />
+          <use href="#leaf" class="leaf-a" transform="translate(1334 31) rotate(-40) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1328 55) rotate(43) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1327 79) rotate(55) scale(0.55)" />
+          <use href="#leaf" class="leaf-a" transform="translate(-20 0) rotate(8) scale(1.05)" />
+          <use href="#leaf" class="leaf-b" transform="translate(-14 -4) rotate(29) scale(0.74)" />
+          <use href="#leaf" class="leaf-a" transform="translate(-7 2) rotate(-5) scale(1.00)" />
+          <use href="#leaf" class="leaf-a" transform="translate(4 9) rotate(7) scale(1.08)" />
+          <use href="#leaf" class="leaf-b" transform="translate(10 5) rotate(-20) scale(0.75)" />
+          <use href="#leaf" class="leaf-b" transform="translate(16 5) rotate(-5) scale(1.01)" />
+          <use href="#leaf" class="leaf-a" transform="translate(32 3) rotate(8) scale(1.27)" />
+          <use href="#leaf" class="leaf-b" transform="translate(38 -1) rotate(8) scale(0.89)" />
+          <use href="#leaf" class="leaf-a" transform="translate(45 7) rotate(16) scale(1.22)" />
+          <use href="#leaf" class="leaf-b" transform="translate(53 3) rotate(21) scale(0.86)" />
+          <use href="#leaf" class="leaf-b" transform="translate(61 7) rotate(4) scale(1.04)" />
+          <use href="#leaf" class="leaf-b" transform="translate(71 3) rotate(8) scale(0.73)" />
+          <use href="#leaf" class="leaf-a" transform="translate(81 6) rotate(-19) scale(1.18)" />
+          <use href="#leaf" class="leaf-b" transform="translate(88 2) rotate(12) scale(0.82)" />
+          <use href="#leaf" class="leaf-b" transform="translate(94 3) rotate(21) scale(1.20)" />
+          <use href="#leaf" class="leaf-b" transform="translate(105 -1) rotate(21) scale(0.84)" />
+          <use href="#leaf" class="leaf-b" transform="translate(115 2) rotate(-13) scale(0.91)" />
+          <use href="#leaf" class="leaf-b" transform="translate(130 0) rotate(18) scale(1.39)" />
+          <use href="#leaf" class="leaf-b" transform="translate(141 -4) rotate(31) scale(0.97)" />
+          <use href="#leaf" class="leaf-b" transform="translate(151 -2) rotate(-0) scale(1.16)" />
+          <use href="#leaf" class="leaf-b" transform="translate(161 -6) rotate(-8) scale(0.81)" />
+          <use href="#leaf" class="leaf-a" transform="translate(170 6) rotate(-3) scale(0.86)" />
+          <use href="#leaf" class="leaf-a" transform="translate(195 10) rotate(-8) scale(1.02)" />
+          <use href="#leaf" class="leaf-b" transform="translate(205 6) rotate(-24) scale(0.71)" />
+          <use href="#leaf" class="leaf-a" transform="translate(215 -2) rotate(19) scale(0.79)" />
+          <use href="#leaf" class="leaf-b" transform="translate(227 -6) rotate(-9) scale(0.56)" />
+          <use href="#leaf" class="leaf-b" transform="translate(239 3) rotate(11) scale(1.24)" />
+          <use href="#leaf" class="leaf-a" transform="translate(264 4) rotate(25) scale(1.17)" />
+          <use href="#leaf" class="leaf-b" transform="translate(276 0) rotate(-28) scale(0.82)" />
+          <use href="#leaf" class="leaf-a" transform="translate(288 -3) rotate(-24) scale(0.76)" />
+          <use href="#leaf" class="leaf-b" transform="translate(301 -7) rotate(-28) scale(0.54)" />
+          <use href="#leaf" class="leaf-a" transform="translate(315 1) rotate(25) scale(0.96)" />
+          <use href="#leaf" class="leaf-b" transform="translate(328 -3) rotate(-25) scale(0.67)" />
+          <use href="#leaf" class="leaf-a" transform="translate(342 -0) rotate(-8) scale(0.85)" />
+          <use href="#leaf" class="leaf-a" transform="translate(367 5) rotate(-20) scale(0.81)" />
+          <use href="#leaf" class="leaf-a" transform="translate(395 6) rotate(-27) scale(0.73)" />
+          <use href="#leaf" class="leaf-a" transform="translate(427 -0) rotate(14) scale(1.01)" />
+          <use href="#leaf" class="leaf-b" transform="translate(459 -2) rotate(-7) scale(0.71)" />
+          <use href="#leaf" class="leaf-a" transform="translate(493 3) rotate(8) scale(0.77)" />
+          <use href="#leaf" class="leaf-a" transform="translate(526 -2) rotate(13) scale(0.86)" />
+          <use href="#leaf" class="leaf-b" transform="translate(563 -1) rotate(16) scale(0.87)" />
+          <use href="#leaf" class="leaf-a" transform="translate(601 5) rotate(24) scale(0.65)" />
+          <use href="#leaf" class="leaf-b" transform="translate(642 -2) rotate(-2) scale(0.51)" />
+          <use href="#leaf" class="leaf-b" transform="translate(676 2) rotate(9) scale(0.59)" />
+          <use href="#leaf" class="leaf-a" transform="translate(719 -4) rotate(12) scale(0.53)" />
+          <use href="#leaf" class="leaf-a" transform="translate(756 4) rotate(17) scale(0.54)" />
+          <use href="#leaf" class="leaf-b" transform="translate(799 4) rotate(-19) scale(0.50)" />
+          <use href="#leaf" class="leaf-b" transform="translate(839 4) rotate(-20) scale(0.77)" />
+          <use href="#leaf" class="leaf-b" transform="translate(880 -4) rotate(3) scale(0.59)" />
+          <use href="#leaf" class="leaf-a" transform="translate(920 1) rotate(24) scale(0.76)" />
+          <use href="#leaf" class="leaf-b" transform="translate(955 3) rotate(0) scale(0.67)" />
+          <use href="#leaf" class="leaf-b" transform="translate(983 -1) rotate(23) scale(0.66)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1013 3) rotate(18) scale(0.84)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1047 -4) rotate(-3) scale(0.67)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1076 1) rotate(13) scale(0.89)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1101 3) rotate(15) scale(0.91)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1129 4) rotate(0) scale(1.07)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1141 -0) rotate(8) scale(0.75)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1153 2) rotate(11) scale(0.98)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1166 -2) rotate(-18) scale(0.68)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1178 9) rotate(24) scale(1.18)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1203 -4) rotate(-3) scale(0.83)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1213 -8) rotate(-14) scale(0.58)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1223 3) rotate(25) scale(1.18)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1242 2) rotate(25) scale(0.91)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1269 -1) rotate(1) scale(1.05)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1278 -5) rotate(-9) scale(0.73)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1287 2) rotate(11) scale(1.08)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1296 -2) rotate(-30) scale(0.76)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1305 -3) rotate(26) scale(1.28)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1330 8) rotate(18) scale(1.29)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1338 4) rotate(3) scale(0.90)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1346 4) rotate(-10) scale(1.16)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1355 -0) rotate(-30) scale(0.81)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1365 3) rotate(17) scale(1.25)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1376 -1) rotate(-26) scale(0.88)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1387 9) rotate(-5) scale(1.49)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1393 5) rotate(-18) scale(1.04)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1399 -1) rotate(-25) scale(1.01)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1405 -5) rotate(-21) scale(0.71)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1411 12) rotate(-13) scale(1.32)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1419 8) rotate(16) scale(0.93)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1427 4) rotate(-1) scale(1.05)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1435 0) rotate(-0) scale(0.73)" />
+          <use href="#leaf" class="leaf-a" transform="translate(1443 11) rotate(0) scale(1.19)" />
+          <use href="#leaf" class="leaf-b" transform="translate(1452 7) rotate(27) scale(0.83)" />
+        </g>
+      </svg>
+      <div class="mast-title">
+        <p class="mast-kicker telemetry">NASA Space Apps 2026 · <span data-area-region>Amazonas</span></p>
+        <h1 class="wordmark">River Lifeline</h1>
+        <p class="mast-sub telemetry">NISAR L-band radar · <span data-area-name>Tefé</span></p>
+      </div>
+      <div class="mast-bar">
+        <p class="mast-status telemetry">
+          <span class="live-dot" aria-hidden="true"></span><span id="data-mode">Loading</span>
+        </p>
+        <div id="clock" class="clock"></div>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          role="switch"
+          aria-checked="true"
+          aria-label="Night mode"
         >
-        <div class="topbar-end">
-          <div class="mission-status">
-            <span id="data-mode">DEMO DATA</span>
-            <span class="mission-detail"
-              ><span class="status-divider">/</span> NISAR L-BAND · SENTINEL-1 CROSS-CHECK</span
-            >
-          </div>
-          <button
-            id="theme-toggle"
-            class="theme-toggle"
-            type="button"
-            role="switch"
-            aria-checked="false"
-            aria-label="Dark mode"
-          >
-            <span class="theme-toggle-label">Dark mode</span>
-            <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
-          </button>
-        </div>
-      </header>
+          <span class="theme-toggle-label telemetry" aria-hidden="true">Night</span>
+          <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+        </button>
+      </div>
+    </header>
 
-      <main>
-        <section class="intro">
-          <div>
-            <p class="eyebrow">SPACE APPS CHALLENGE · 2026</p>
-            <h1>
-              Who can still<br class="mobile-break" />
-              <span>reach <span data-area-name>Tefé</span>?</span>
-            </h1>
-            <p class="intro-copy">
-              In droughts the rivers drop and riverside communities lose their only road: the water route to Tefé for
-              food, fuel, health care and school. Every NISAR pass shows which routes are still open.
-            </p>
-          </div>
-          <div class="intro-note">
-            <div>
-              <strong>Radar sees the water</strong>
-              <p>
-                NISAR's L-band radar maps rivers through clouds, smoke and the forest canopy. Sentinel-1 only
-                cross-checks its results.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section class="stats-grid" aria-label="Overview metrics">
-          <article class="stat-card">
-            <span class="stat-label">COMMUNITIES</span><strong id="stat-communities">--</strong
-            ><span class="stat-foot"
-              ><span>Monitored around <span data-area-name>Tefé</span></span></span
-            >
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">ISOLATED</span><strong id="stat-isolated" class="status-isolated">--</strong
-            ><span class="stat-foot"><i class="dot status-bg-isolated"></i> No water route left</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">AT RISK</span><strong id="stat-at-risk" class="status-at_risk">--</strong
-            ><span class="stat-foot"><i class="dot status-bg-at_risk"></i> Route narrowing</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">NISAR PASS SHOWN</span><strong class="stat-date" id="stat-pass">--</strong
-            ><span class="stat-foot" id="stat-river">River level</span>
-          </article>
-        </section>
-
-        <section class="map-section" aria-labelledby="map-title">
-          <div class="panel-heading map-heading">
-            <div>
-              <p class="eyebrow">01 / RIVER NETWORK</p>
-              <h2 id="map-title">Communities and their route to <span data-area-name>Tefé</span></h2>
-            </div>
-            <span class="live-label">ONE NISAR PASS AT A TIME</span>
-          </div>
+    <main>
+      <section class="scene" aria-label="The situation on the pass shown">
+        <div class="scene-main">
+          <div id="headline" class="headline" aria-live="polite"></div>
           <div class="map-stage">
             <div
               id="map"
-              role="region"
-              aria-label="Map of the communities coloured by river connectivity, with the radar images of the pass"
+              role="application"
+              aria-label="Map of the communities by water-route status, with the radar images of the pass"
             ></div>
 
-            <aside class="map-card site-panel" aria-labelledby="communities-title">
-              <div class="map-card-head">
-                <h3 id="communities-title">Most in need first</h3>
-                <button
-                  id="communities-toggle"
-                  class="card-toggle"
-                  type="button"
-                  aria-expanded="true"
-                  aria-controls="communities-body"
-                >
-                  <span class="card-toggle-open">Hide</span><span class="card-toggle-closed">Show</span>
-                </button>
-              </div>
-              <div id="communities-body" class="map-card-body">
-                <div id="community-list" class="site-list"></div>
-                <div class="selected-summary" id="selected-summary" aria-live="polite"></div>
-              </div>
-            </aside>
-
-            <div class="map-card layers-panel">
+            <div class="map-panel layers-panel">
               <button
                 id="layers-toggle"
                 class="layers-toggle"
@@ -153,56 +205,92 @@
               <div id="layer-controls" class="layer-controls"></div>
             </div>
 
-            <div
-              id="status-filter"
-              class="map-card status-filter"
-              role="group"
-              aria-label="Show communities by status"
-            ></div>
+            <p id="image-plate" class="image-plate" hidden></p>
+            <div id="map-key" class="map-panel map-key" role="group" aria-label="Map key"></div>
           </div>
-          <p class="map-footer">Select a community on the map or in the list. Filter by status with the legend.</p>
-        </section>
+        </div>
 
-        <section class="analysis-grid">
-          <article class="panel analysis-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">03 / ROUTE OVER TIME</p>
-                <h2>Narrowest point of the route</h2>
-              </div>
-              <span class="unit-label">METRES</span>
-            </div>
+        <aside class="roster" aria-labelledby="roster-title">
+          <div class="roster-head">
+            <h2 id="roster-title" class="section-title">Communities</h2>
+            <span id="list-count" class="telemetry"></span>
+          </div>
+          <input
+            id="list-search"
+            class="roster-search"
+            type="search"
+            placeholder="Find a community"
+            aria-label="Find a community"
+          />
+          <div id="list-filters" class="pills" role="group" aria-label="Show communities"></div>
+          <div id="community-list" class="roster-list" tabindex="-1"></div>
+          <div id="list-download" class="roster-download" hidden>
+            <span class="telemetry">Download this day</span>
+            <a class="pill" data-format="csv" download>CSV</a>
+            <a class="pill" data-format="geojson" download>GeoJSON</a>
+          </div>
+        </aside>
+      </section>
+
+      <section class="log-section" aria-labelledby="log-title">
+        <div class="log-head">
+          <div>
+            <h2 id="log-title" class="section-title">Pass log</h2>
             <p class="section-copy">
-              Width of the narrowest channel between the community and Tefé on every NISAR pass. Zero: no route.
+              Every NISAR pass over the area. Each strip leans the way the satellite was flying and is split by how many
+              communities were connected, at risk or isolated. The line is the official river level at
+              <span data-gauge-name>the river gauge</span>.
             </p>
-            <div class="chart-wrap"><canvas id="route-chart" aria-label="Route width chart"></canvas></div>
-            <div class="chart-legend">
-              <span><i class="legend-line legend-blue"></i> Route width</span
-              ><span><i class="legend-line"></i> Connected threshold</span>
-            </div>
-          </article>
-          <article class="panel insight-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">04 / STATUS</p>
-                <h2>What it means</h2>
-              </div>
-            </div>
-            <div id="status-content"></div>
-            <div class="method-note">
-              <strong>How to read this</strong>
-              <p>
-                One radar image can be spoiled by wind or rain: confirm an isolation with the next pass, and with the
-                Sentinel-1 cross-check, before acting on it.
-              </p>
-            </div>
-          </article>
-        </section>
-        <footer class="footer">
-          <span>RIVER LIFELINE <span class="footer-sep">/</span> SPACE APPS 2026</span
-          ><span>Prototype · synthetic demo data until NISAR passes are processed · not an official alert system</span>
-        </footer>
-      </main>
-    </div>
+          </div>
+          <p id="next-pass" class="next-pass telemetry" hidden>
+            <span>Next pass over the area</span> <b id="next-pass-value"></b>
+          </p>
+        </div>
+        <div id="pass-log" class="pass-log"></div>
+      </section>
+
+      <section class="desk">
+        <div class="desk-ledger">
+          <h2 class="section-title">On this pass</h2>
+          <div id="ledger"></div>
+        </div>
+        <div class="desk-dossier">
+          <h2 class="section-title">Community</h2>
+          <div id="dossier" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="method" aria-labelledby="method-title">
+        <h2 id="method-title" class="section-title">How the radar decides</h2>
+        <div class="method-columns">
+          <p>
+            Calm water reflects the radar pulse away from the satellite and shows up dark. On every pass we map that
+            water, look for a continuous water path from each community's landing to
+            <span data-hub-name>the hub town</span>, and measure the narrowest point of that path.
+          </p>
+          <p>
+            A community counts as isolated only when two passes in a row show no water route. Places that never show a
+            route the radar can resolve, and places away from any water, are left out of the counts.
+          </p>
+          <p>
+            The radar sees water, not depth. A channel can still be there and be too shallow for boats, which is why
+            narrow routes are flagged as at risk. Check against river gauges and local reports before acting.
+          </p>
+          <p>
+            Water under floating plants or flooded forest shows on its own layer: the radar sees the water beneath, but
+            such stretches can be closed to boats, so they are never counted as a route.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer telemetry">
+      <span
+        >Radar: NISAR L2 GCOV (NASA/ISRO), ASF DAAC · Places: © OpenStreetMap contributors · River level:
+        <span data-gauge-source>the river gauge</span></span
+      >
+      <span id="record-updated" hidden></span>
+      <span>Prototype for NASA Space Apps 2026 · not an official alert system</span>
+    </footer>
   </body>
 </html>

@@ -1,7 +1,12 @@
+import { glyph } from "../components/glyph.js";
+import { escapeHtml, widthClassLabel } from "../format.js";
 import { STATUSES, statusOf } from "../status.js";
 
 const FALLBACK_ZOOM = 9;
-const COMMUNITY_ZOOM = 11;
+const COMMUNITY_ZOOM = 12;
+const HUB_SIZE = 16;
+// Metres per pixel of a 256 px tile at zoom 0 on the equator
+const EQUATOR_METRES_PER_PIXEL = 156_543.03;
 
 // CARTO basemaps: Voyager (day) and Dark Matter (night). Keyless tiles are watermarked "API key required". The key
 // is public by design (every tile URL carries it): what protects it is the CARTO dashboard, which restricts it to our
@@ -28,13 +33,14 @@ const IMAGERY_PANE = "imagery";
 let map;
 let baseTiles;
 let basemap = "map";
-let theme = "light";
+let theme = "dark";
 let cartoRefused = false;
 let hubLayer;
 let markerLayer;
-let hubMarker = null;
 let imageryLayer;
-let visibleStatuses = new Set(Object.keys(STATUSES));
+let visibleIds = null;
+let selectedId = null;
+let widthClassesM = [];
 let onImageError = () => {};
 const markers = new Map();
 const images = new Map();
@@ -46,7 +52,42 @@ export function tileUrl(theme) {
 }
 
 /**
- * Draws the area, its hub and every community, coloured by status. Returns the controls the page drives it with.
+ * A community glyph's size (px) at a zoom level: small when zoomed out, so neighbouring communities don't cover each
+ * other, and full size (14 px) from zoom 12 in.
+ */
+export function markerSize(zoom) {
+  return Math.max(6, Math.min(14, (Math.round(zoom) - 5) * 2));
+}
+
+/** Whether the user asked for less motion: then the map jumps instead of flying. */
+const prefersLessMotion = () => globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+
+/** A community's marker icon: its status glyph with a thin white outline, ringed when selected. */
+function iconFor(status, size, selected) {
+  return L.divIcon({
+    className: `glyph-marker${selected ? " is-selected" : ""}`,
+    html: glyph(status, size, "glyph-outlined"),
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+/** Markers stack by severity: isolated above at risk above connected; the selected one above all. */
+const zIndexFor = (status, selected) => (selected ? 10_000 : (4 - STATUSES[status].severity) * 1_000);
+
+/** What a community's tooltip says: its name and status, and its route's narrowest point when it has one. */
+export function tooltipFor(community, classesM = []) {
+  const status = statusOf(community);
+  const width = community.latest?.routeWidthM;
+  const route =
+    width == null
+      ? ""
+      : `<br>Narrowest point ${escapeHtml(widthClassLabel(width, status, classesM, community.latest?.reason))}`;
+  return `<b>${escapeHtml(community.name)}</b> · ${STATUSES[status].label}${route}`;
+}
+
+/**
+ * Draws the area, its hub and every community, by status. Returns the controls the page drives it with.
  * `onImageError(layerId)` hears of every image the API fails to serve.
  */
 export async function createMap({
@@ -54,7 +95,7 @@ export async function createMap({
   hub,
   communities,
   onSelect,
-  theme: initialTheme = "light",
+  theme: initialTheme = "dark",
   onImageError: report,
 }) {
   // A new map starts from nothing: no tiles, images or markers of a previous one
@@ -63,58 +104,87 @@ export async function createMap({
   baseTiles = null;
   basemap = "map";
   cartoRefused = false;
-  visibleStatuses = new Set(Object.keys(STATUSES));
+  visibleIds = null;
+  selectedId = null;
+  widthClassesM = area?.widthClassesM ?? [];
   markers.clear();
   images.clear();
-  hubMarker = null;
-  map = L.map("map", { zoomControl: false, scrollWheelZoom: false });
+  map = L.map("map", { zoomControl: false, scrollWheelZoom: true, zoomSnap: 0.25 });
   frame(area, hub, communities);
-  L.control.zoom({ position: "bottomright" }).addTo(map);
+  L.control.zoom({ position: "bottomleft" }).addTo(map);
   map.createPane(IMAGERY_PANE).style.zIndex = 300;
   drawBasemap();
   imageryLayer = L.layerGroup().addTo(map);
   hubLayer = L.layerGroup().addTo(map);
   markerLayer = L.layerGroup().addTo(map);
 
-  if (hub) {
-    hubMarker = L.circleMarker([hub.lat, hub.lng], {
-      radius: markerRadius(map.getZoom()) + 2,
-      color: "#ffffff",
+  // The watched area, like the footprint of a sensor
+  if (area?.center && area.radiusKm) {
+    L.circle([area.center.lat, area.center.lng], {
+      radius: area.radiusKm * 1000,
+      className: "aoi-footprint",
+      fill: false,
       weight: 1,
-      fillColor: "#111214",
-      fillOpacity: 1,
+      dashArray: "2 6",
+      interactive: false,
+    }).addTo(hubLayer);
+  }
+  if (hub) {
+    L.marker([hub.lat, hub.lng], {
+      icon: L.divIcon({
+        className: "hub-marker",
+        html: '<span class="hub-diamond"></span>',
+        iconSize: [HUB_SIZE, HUB_SIZE],
+        iconAnchor: [HUB_SIZE / 2, HUB_SIZE / 2],
+      }),
+      zIndexOffset: 20_000,
+      keyboard: false,
     })
-      .bindTooltip(`${hub.name} · hub`, { direction: "top", offset: [0, -8] })
+      .bindTooltip(`<b>${escapeHtml(hub.name)}</b><br>Hub town: routes are traced to here`, {
+        direction: "top",
+        offset: [0, -HUB_SIZE / 2],
+        className: "map-tip",
+      })
       .addTo(hubLayer);
   }
   setCommunities(communities, onSelect);
-  map.on("zoomend", resizeMarkers);
+  map.on("zoomend", onZoom);
 
   await new Promise((resolve) => setTimeout(resolve, 80));
   map.invalidateSize();
+  // Framed again now the container has its final size: framed before, the area sat off centre
+  frame(area, hub, communities);
   return {
     selectCommunity,
     setTheme,
     setBasemap,
     setCommunities: (next) => setCommunities(next, onSelect),
-    setVisibleStatuses,
+    setVisibleIds,
     showImagery,
   };
 }
 
-/**
- * Marker radius (px) at a zoom level: small when zoomed out, so neighbouring communities don't cover each other, and
- * full size from zoom 12 in. The hub is drawn 2 px larger.
- */
-export function markerRadius(zoom) {
-  return Math.max(2, Math.min(7, Math.round(zoom) - 5));
+/** After a zoom: glyphs to the new size, and images crisp once one image pixel covers a screen pixel or more. */
+function onZoom() {
+  const size = markerSize(map.getZoom());
+  for (const [id, entry] of markers) entry.marker.setIcon(iconFor(entry.status, size, id === selectedId));
+  updateSharpness();
 }
 
-/** Resizes every marker to the current zoom. */
-function resizeMarkers() {
-  const radius = markerRadius(map.getZoom());
-  for (const { marker } of markers.values()) marker.setRadius(radius);
-  hubMarker?.setRadius(radius + 2);
+/** Metres per screen pixel at the map's centre and zoom. */
+function metresPerScreenPixel() {
+  const latitude = map.getCenter?.()?.lat ?? 0;
+  return (EQUATOR_METRES_PER_PIXEL * Math.cos((latitude * Math.PI) / 180)) / 2 ** map.getZoom();
+}
+
+/** Whether the images on the map should be drawn pixel by pixel: their finest pixel is now at least a screen pixel. */
+export function imagesAreSharp(metresPerScreen, imagePixelsMetres) {
+  return imagePixelsMetres.length > 0 && metresPerScreen <= Math.min(...imagePixelsMetres);
+}
+
+function updateSharpness() {
+  const pixels = [...images.values()].map((entry) => entry.pixelMetres).filter((metres) => metres > 0);
+  map.getContainer().classList.toggle("imagery-sharp", imagesAreSharp(metresPerScreenPixel(), pixels));
 }
 
 /** Frames the area: its bounds, else every place on it, else its centre. */
@@ -169,63 +239,94 @@ function useOpenStreetMap() {
 /** Draws the communities of a pass, replacing the previous pass's. */
 function setCommunities(communities, onSelect) {
   markers.clear();
+  const size = markerSize(map.getZoom());
   communities.forEach((community) => {
     const status = statusOf(community);
-    const marker = L.circleMarker([community.lat, community.lng], {
-      radius: markerRadius(map.getZoom()),
-      color: "#ffffff",
-      weight: 1,
-      fillColor: STATUSES[status].color,
-      fillOpacity: 1,
-    }).bindTooltip(`${community.name} · ${STATUSES[status].label}`, { direction: "top", offset: [0, -7] });
+    const selected = community.id === selectedId;
+    const marker = L.marker([community.lat, community.lng], {
+      icon: iconFor(status, size, selected),
+      zIndexOffset: zIndexFor(status, selected),
+      title: `${community.name} · ${STATUSES[status].label}`,
+      riseOnHover: true,
+    }).bindTooltip(tooltipFor(community, widthClassesM), {
+      direction: "top",
+      offset: [0, -size / 2],
+      className: "map-tip",
+    });
     marker.on("click", () => onSelect(community.id));
     markers.set(community.id, { marker, status });
   });
   drawMarkers();
 }
 
-/** Shows only the communities in `statuses` (status codes). */
-function setVisibleStatuses(statuses) {
-  visibleStatuses = new Set(statuses);
+/** Shows only the communities in `ids` (null: all of them). */
+function setVisibleIds(ids) {
+  visibleIds = ids ? new Set(ids) : null;
   drawMarkers();
 }
 
 function drawMarkers() {
   markerLayer.clearLayers();
-  for (const { marker, status } of markers.values()) {
-    if (visibleStatuses.has(status)) marker.addTo(markerLayer);
+  for (const [id, { marker }] of markers) {
+    if (!visibleIds || visibleIds.has(id)) marker.addTo(markerLayer);
   }
 }
 
-function selectCommunity(id) {
-  const entry = markers.get(id);
-  if (!entry) return;
-  map.flyTo(entry.marker.getLatLng(), Math.max(map.getZoom(), COMMUNITY_ZOOM), { duration: 0.5 });
-  if (visibleStatuses.has(entry.status)) entry.marker.openTooltip();
+/** Rings the community `id` (null: none) and, with `fly`, flies to it. */
+function selectCommunity(id, { fly = true } = {}) {
+  const size = markerSize(map.getZoom());
+  for (const changed of [selectedId, id]) {
+    const entry = changed && markers.get(changed);
+    if (!entry) continue;
+    entry.marker.setIcon(iconFor(entry.status, size, changed === id));
+    entry.marker.setZIndexOffset(zIndexFor(entry.status, changed === id));
+  }
+  selectedId = id;
+  const entry = id && markers.get(id);
+  if (!entry || !fly) return;
+  const zoom = Math.max(map.getZoom(), COMMUNITY_ZOOM);
+  if (prefersLessMotion()) map.setView(entry.marker.getLatLng(), zoom);
+  else map.flyTo(entry.marker.getLatLng(), zoom, { duration: 0.6 });
+  if (!visibleIds || visibleIds.has(id)) entry.marker.openTooltip();
+}
+
+/** Metres covered by one pixel of an image across its bounds (`[[south, west], [north, east]]`), or 0 if unknown. */
+function pixelMetresOf(layer) {
+  if (!layer.widthPx) return 0;
+  const [[south, west], [north, east]] = layer.bounds;
+  const latitude = (south + north) / 2;
+  const metres = (east - west) * 111_320 * Math.cos((latitude * Math.PI) / 180);
+  return metres / layer.widthPx;
 }
 
 /**
- * Draws exactly `layers` ({ id, url, bounds, opacity }, bottom to top) over the basemap. An image already on the map
- * is kept and only its opacity changes, so dragging the opacity slider never reloads it.
+ * Draws exactly `layers` ({ id, url, bounds, opacity, widthPx }, bottom to top) over the basemap. An image already on
+ * the map is kept and only its opacity changes, so dragging the opacity slider never reloads it.
  */
 function showImagery(layers) {
   const wanted = new Set(layers.map((layer) => layer.url));
-  for (const [url, image] of images) {
+  for (const [url, entry] of images) {
     if (!wanted.has(url)) {
-      imageryLayer.removeLayer(image);
+      imageryLayer.removeLayer(entry.image);
       images.delete(url);
     }
   }
   for (const layer of layers) {
-    let image = images.get(layer.url);
-    if (image) {
-      image.setOpacity(layer.opacity);
+    let entry = images.get(layer.url);
+    if (entry) {
+      entry.image.setOpacity(layer.opacity);
     } else {
-      image = L.imageOverlay(layer.url, layer.bounds, { opacity: layer.opacity, pane: IMAGERY_PANE, alt: layer.id });
+      const image = L.imageOverlay(layer.url, layer.bounds, {
+        opacity: layer.opacity,
+        pane: IMAGERY_PANE,
+        alt: layer.id,
+      });
       image.on("error", () => onImageError(layer.id));
       image.addTo(imageryLayer);
-      images.set(layer.url, image);
+      entry = { image, pixelMetres: pixelMetresOf(layer) };
+      images.set(layer.url, entry);
     }
-    image.bringToFront();
+    entry.image.bringToFront();
   }
+  updateSharpness();
 }

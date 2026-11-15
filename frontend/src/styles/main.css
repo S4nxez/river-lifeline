@@ -1,41 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700&display=swap");
+/* Base, theme and mast. The page reads like a mission control room: night colours, telemetry labels in mono capitals,
+   1px rules between bands. A canopy of leaves hangs over the mast: the forest the rivers run through. */
 
-:root {
-  color-scheme: light;
-  --bg: #fbfbfa;
-  --surface: #ffffff;
-  --text: #111214;
-  --muted: #5c6066;
-  --faint: #8a8f96;
-  --line: #e6e6e3;
-  --hover: #f3f3f1;
-  /* The one accent: what the user selects and interacts with */
-  --accent: #1f4fd1;
-  --accent-soft: #1f4fd10d;
-  /* Status colours carry data (see src/status.js), they are not decoration */
-  --isolated: #b42318;
-  --at-risk: #a15c07;
-  --connected: #0b7a52;
-  --no-data: #8a8f96;
-  --display: "Inter Tight", "Inter", sans-serif;
-}
-
-/* Dark theme: same structure, inverted neutrals; status colours lifted to stay readable (src/theme.js) */
+:root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #111214;
-  --surface: #1c1d20;
-  --text: #ececec;
-  --muted: #a1a5ab;
-  --faint: #7d8188;
-  --line: #2a2c30;
-  --hover: #1a1b1e;
-  --accent: #7c9cff;
-  --accent-soft: #7c9cff14;
-  --isolated: #f97066;
-  --at-risk: #f5b544;
-  --connected: #47cd89;
-  --no-data: #8a8f96;
+  --night: #0b1222;
+  --deck: #101a2e;
+  --deck-2: #16233b;
+  --rule: #24324d;
+  --rule-soft: rgb(36 50 77 / 0.65);
+  --star: #e6eaf2;
+  --dust: #8d98b0;
+  --faint: #5d6a86;
+  --connected: #7dd3b0;
+  --at-risk: #f2b544;
+  --isolated: #ff6b5b;
+  --water: #3d8bff;
+  --gauge: #b6c3ff;
+  --on-gauge: #0b1222;
+  --selected: #ffffff;
+  --panel: rgb(16 26 46 / 0.92);
+  --panel-2: rgb(11 18 34 / 0.88);
+  --canopy-a: #173a2b;
+  --canopy-b: #10281f;
+  --canopy-vein: #1f4a36;
+  --display: "Saira Stencil One", "Martian Mono", sans-serif;
+  --text: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --mono: "Martian Mono", ui-monospace, monospace;
+}
+
+/* Day: the same room in daylight, on pale leaf paper; status colours darkened to read on it */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --night: #f1f4ec;
+  --deck: #fafbf6;
+  --deck-2: #e4ebdf;
+  --rule: #c7d1c2;
+  --rule-soft: rgb(199 209 194 / 0.7);
+  --star: #13201a;
+  --dust: #4b5c52;
+  --faint: #7d8b83;
+  --connected: #1e8a62;
+  --at-risk: #a86d0f;
+  --isolated: #cf3f35;
+  --water: #1f6fe0;
+  --gauge: #4651b0;
+  --on-gauge: #ffffff;
+  --selected: #13201a;
+  --panel: rgb(250 251 246 / 0.94);
+  --panel-2: rgb(241 244 236 / 0.92);
+  --canopy-a: #a9cdaf;
+  --canopy-b: #8cb996;
+  --canopy-vein: #c3dec6;
 }
 
 * {
@@ -43,225 +59,262 @@
 }
 
 html {
-  background: var(--bg);
+  background: var(--night);
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font:
-    15px/1.55 "Inter",
-    sans-serif;
+  background: var(--night);
+  color: var(--star);
+  font: 15px/1.55 var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
-button {
+button,
+input,
+select {
   font: inherit;
-}
-
-.app-shell {
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 32px;
-}
-
-/* Header */
-
-.topbar {
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.brand {
   color: inherit;
+}
+
+a {
+  color: var(--gauge);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gauge);
+  outline-offset: 2px;
+}
+
+.telemetry {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+
+.section-title {
+  margin: 0;
+  font: 700 13px/1.3 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--star);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 12px;
+  z-index: 5000;
+  padding: 8px 14px;
+  background: var(--gauge);
+  color: var(--on-gauge);
+  font: 600 12px var(--mono);
   text-decoration: none;
+  border-radius: 4px;
 }
 
-.brand strong,
-.brand small {
-  display: block;
+.skip-link:focus {
+  left: 16px;
 }
 
-.brand strong {
-  font-size: 13px;
-  font-weight: 600;
+/* Mast: the name, large and centred under the canopy, then the mission clock */
+
+.mast {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--rule);
+}
+
+.canopy {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 170px;
+  pointer-events: none;
+}
+
+.canopy .leaf-a {
+  fill: var(--canopy-a);
+  stroke: var(--canopy-vein);
+  stroke-width: 0.8;
+}
+
+.canopy .leaf-b {
+  fill: var(--canopy-b);
+  stroke: var(--canopy-vein);
+  stroke-width: 0.6;
+}
+
+.canopy .vine {
+  fill: none;
+  stroke: var(--canopy-b);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.mast-title {
+  position: relative;
+  padding: 64px 16px 26px;
+  text-align: center;
+}
+
+.mast-kicker,
+.mast-sub {
+  margin: 0;
+}
+
+.mast-sub [data-area-name] {
+  color: var(--star);
+}
+
+.wordmark {
+  margin: 10px 0 12px;
+  font: 400 clamp(52px, 9vw, 116px) / 0.92 var(--display);
   letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--star);
+  text-wrap: balance;
 }
 
-.brand small {
-  font-size: 12px;
-  color: var(--muted);
+.mast-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding: 12px 28px;
+  border-top: 1px solid var(--rule);
+  background: var(--deck);
 }
 
-.topbar-end {
+.mast-status {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 8px;
+  margin: 0;
 }
 
-/* Light/dark switch */
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--connected);
+}
+
+/* Mission clock: Situation on ‹ day › · Play record */
+
+.clock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-day {
+  display: flex;
+  gap: 4px;
+}
+
+.clock-step,
+.clock-date {
+  height: 36px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--deck);
+  color: var(--star);
+  font: 600 13px var(--mono);
+}
+
+.clock-step {
+  width: 36px;
+  cursor: pointer;
+}
+
+.clock-step:hover:not(:disabled) {
+  background: var(--deck-2);
+}
+
+.clock-step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.clock-date {
+  padding: 0 10px;
+  color-scheme: inherit;
+}
+
+.clock-play {
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--gauge);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--gauge);
+  font: 600 11px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.clock-play:hover:not(:disabled),
+.clock-play[aria-pressed="true"] {
+  background: var(--gauge);
+  color: var(--on-gauge);
+}
+
+.clock-play:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Night/day switch */
 
 .theme-toggle {
+  justify-self: end;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 4px 0;
   border: 0;
   background: none;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.04em;
   cursor: pointer;
-  white-space: nowrap;
-}
-
-.theme-toggle:hover {
-  color: var(--text);
 }
 
 .theme-toggle-track {
   position: relative;
   width: 36px;
   height: 20px;
+  border: 1px solid var(--rule);
   border-radius: 999px;
-  background: var(--line);
-  transition: background 0.15s;
+  background: var(--deck-2);
 }
 
 .theme-toggle-thumb {
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 2px;
+  left: 2px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--dust);
   transition: transform 0.15s;
-}
-
-.theme-toggle[aria-checked="true"] .theme-toggle-track {
-  background: var(--accent);
 }
 
 .theme-toggle[aria-checked="true"] .theme-toggle-thumb {
   transform: translateX(16px);
-}
-
-.mission-status {
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  text-align: right;
-}
-
-#data-mode {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.status-divider {
-  padding: 0 6px;
-  color: var(--faint);
-}
-
-/* Intro */
-
-.intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-  align-items: end;
-  gap: 64px;
-  padding: 88px 0 64px;
-}
-
-.eyebrow {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin: 0 0 16px;
-}
-
-.intro h1 {
-  font: 700 clamp(48px, 6.4vw, 80px) / 0.98 var(--display);
-  letter-spacing: -0.04em;
-  margin: 0;
-}
-
-.intro-copy {
-  color: var(--muted);
-  margin: 28px 0 0;
-  max-width: 560px;
-  font-size: 18px;
-  line-height: 1.6;
-}
-
-.mobile-break {
-  display: none;
-}
-
-.intro-note {
-  border-left: 1px solid var(--line);
-  padding-left: 20px;
-}
-
-.intro-note strong {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.intro-note p {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 6px 0 0;
-  line-height: 1.6;
-}
-
-/* Key figures: 1px rules between them, no cards */
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border-block: 1px solid var(--line);
-  margin-bottom: 96px;
-}
-
-.stat-card {
-  background: var(--bg);
-  padding: 28px 28px 28px 0;
-  min-width: 0;
-}
-
-.stat-card + .stat-card {
-  padding-left: 28px;
-}
-
-.stat-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-
-.stat-card > strong {
-  display: block;
-  font: 600 44px/1.1 var(--display);
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  margin: 12px 0 8px;
-  white-space: nowrap;
-}
-
-.stat-card > .stat-date {
-  font-size: 32px;
-  line-height: 1.375;
+  background: var(--gauge);
 }

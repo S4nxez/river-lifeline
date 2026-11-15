@@ -1,215 +1,192 @@
-.stat-foot {
-  font-size: 13px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* The scene: the day's headline and the map on the left, the community list on the right */
+
+.scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  height: clamp(600px, 88vh, 920px);
+  border-bottom: 1px solid var(--rule);
 }
 
-.dot,
-.key-dot,
-.level-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-/* Sections: a rule on top and white space, no boxes */
-
-.panel {
+.scene-main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
-  border-top: 1px solid var(--text);
-  padding-top: 20px;
+  min-height: 0;
 }
 
-.panel-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.panel-heading h2 {
-  font: 600 28px/1.15 var(--display);
-  letter-spacing: -0.025em;
-  margin: 0;
-}
-
-.panel-heading .eyebrow {
-  margin-bottom: 10px;
-}
-
-.live-label,
-.unit-label {
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-/* Map: the page turns around it. Its panels sit on it as cards */
-
-.map-section {
-  border-top: 1px solid var(--text);
-  padding-top: 20px;
-}
-
-.map-heading {
-  margin-bottom: 24px;
-}
+/* Map */
 
 .map-stage {
   position: relative;
+  min-height: 0;
 }
 
 #map {
-  height: clamp(560px, 78vh, 820px);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--hover);
+  position: absolute;
+  inset: 0;
+  background: var(--night);
 }
 
 .leaflet-container {
-  font-family: "Inter", sans-serif;
+  background: var(--night);
+  font-family: var(--text);
 }
 
 .leaflet-bar {
-  border: 1px solid var(--line) !important;
+  border: 1px solid var(--rule) !important;
   border-radius: 4px !important;
   box-shadow: none !important;
 }
 
 .leaflet-bar a {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border-color: var(--line) !important;
+  background: var(--deck) !important;
+  color: var(--star) !important;
+  border-color: var(--rule) !important;
+}
+
+.leaflet-bar a:hover {
+  background: var(--deck-2) !important;
+}
+
+/* The zoom sits bottom left, above the image plate */
+.leaflet-bottom.leaflet-left {
+  bottom: 52px;
 }
 
 .leaflet-container .leaflet-control-attribution {
-  background: color-mix(in srgb, var(--surface) 85%, transparent);
-  color: var(--muted);
+  background: var(--panel-2);
+  color: var(--dust);
+  font: 9.5px var(--mono);
 }
 
 .leaflet-container .leaflet-control-attribution a {
-  color: var(--text);
+  color: var(--star);
 }
 
 /* OpenStreetMap fallback (mapService.js) has no night style: darken its tiles, not the markers or the radar */
 :root[data-theme="dark"] .map-fallback .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+  filter: invert(1) hue-rotate(180deg) brightness(0.72) contrast(0.9) saturate(0.3);
 }
 
-.leaflet-control-attribution {
-  font-size: 11px !important;
+/* Once one image pixel covers a screen pixel, draw the radar pixel by pixel: 20 m channels stay sharp */
+.imagery-sharp .leaflet-image-layer {
+  image-rendering: pixelated;
 }
 
-.leaflet-tooltip {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  box-shadow: none;
-  font-size: 13px;
-}
-
-.map-footer {
-  margin: 0;
-  padding-top: 12px;
-  font-size: 13px;
-  color: var(--muted);
+.aoi-footprint {
+  stroke: var(--gauge);
+  stroke-opacity: 0.55;
 }
 
 .map-error {
   padding: 24px;
-  color: var(--muted);
+  color: var(--dust);
 }
 
-/* Cards on the map: solid, hairline-bordered, with only the faint shadow that lifts them off the imagery */
-.map-card {
+/* Markers: the status glyph, a thin white outline, a white ring when selected */
+
+.glyph {
+  display: block;
+  flex-shrink: 0;
+}
+
+.glyph-connected {
+  fill: var(--connected);
+}
+
+.glyph-at_risk {
+  fill: var(--at-risk);
+}
+
+.glyph-isolated {
+  fill: var(--isolated);
+}
+
+.glyph-ring {
+  fill: none;
+  stroke: var(--faint);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph-marker {
+  background: none;
+  border: 0;
+}
+
+.glyph-outlined {
+  stroke: #ffffff;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.glyph-outlined.glyph-ring {
+  stroke: var(--faint);
+  stroke-width: 2px;
+}
+
+.glyph-marker.is-selected .glyph {
+  outline: 2px solid var(--selected);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.glyph-marker.is-selected .glyph-circle,
+.glyph-marker.is-selected .glyph-ring {
+  border-radius: 50%;
+}
+
+.hub-marker {
+  background: none;
+  border: 0;
+}
+
+.hub-diamond {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--night);
+  background: #ffffff;
+  transform: rotate(45deg) scale(0.82);
+}
+
+.leaflet-tooltip.map-tip {
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--night);
+  color: var(--star);
+  font: 12px/1.45 var(--text);
+  box-shadow: none;
+}
+
+.leaflet-tooltip.map-tip::before {
+  display: none;
+}
+
+/* Panels on the map */
+
+.map-panel {
   position: absolute;
   z-index: 1000;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid var(--rule);
   border-radius: 6px;
-  box-shadow: 0 1px 2px rgb(17 18 20 / 0.08);
+  background: var(--panel);
+  font: 11px/1.5 var(--mono);
 }
-
-.map-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-}
-
-.map-card-head h3 {
-  margin: 0;
-  font: 600 16px/1.2 var(--display);
-  letter-spacing: -0.01em;
-}
-
-.card-toggle {
-  padding: 4px 0;
-  border: 0;
-  background: none;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-
-.card-toggle:hover {
-  color: var(--text);
-}
-
-.card-toggle[aria-expanded="true"] .card-toggle-closed,
-.card-toggle[aria-expanded="false"] .card-toggle-open {
-  display: none;
-}
-
-.map-card-body {
-  min-height: 0;
-  overflow-y: auto;
-  border-top: 1px solid var(--line);
-}
-
-.map-card-body[hidden],
-.layer-controls[hidden] {
-  display: none;
-}
-
-/* Communities card, top left */
-
-.site-panel {
-  top: 16px;
-  left: 16px;
-  width: 320px;
-  max-height: calc(100% - 96px);
-  display: flex;
-  flex-direction: column;
-}
-
-.site-list {
-  display: grid;
-}
-
-.site-panel .selected-summary {
-  margin: 0;
-  padding: 16px;
-}
-
-/* Layers card, top right */
 
 .layers-panel {
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   width: 280px;
-  max-height: calc(100% - 32px);
+  max-height: calc(100% - 28px);
   display: flex;
   flex-direction: column;
+}
+
+/* Folded, the panel is just its title */
+.layers-panel:has(.layers-toggle[aria-expanded="false"]) {
+  width: auto;
 }
 
 .layers-toggle {
@@ -218,42 +195,65 @@
   justify-content: space-between;
   gap: 16px;
   width: 100%;
-  padding: 14px 16px;
+  padding: 11px 14px;
   border: 0;
   background: none;
-  color: var(--text);
-  font: 600 16px/1.2 var(--display);
-  letter-spacing: -0.01em;
+  font: 700 11px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   text-align: left;
   cursor: pointer;
 }
 
-/* Folded, the card is just its title */
-.layers-panel:has(.layers-toggle[aria-expanded="false"]) {
-  width: auto;
-}
-
 .layers-toggle::after {
   content: "−";
-  color: var(--muted);
+  color: var(--gauge);
+  font-size: 14px;
 }
 
 .layers-toggle[aria-expanded="false"]::after {
   content: "+";
 }
 
+/* While folded, the "+" nudges every 6 s so people notice they can open it: short and small on purpose, still the
+   rest of the cycle, and off with reduced motion (responsive.css) */
+@keyframes toggle-nudge {
+  0%,
+  88%,
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+  92% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+  96% {
+    transform: scale(0.94);
+  }
+}
+
+.layers-toggle[aria-expanded="false"]::after {
+  display: inline-block;
+  animation: toggle-nudge 6s ease-in-out 2s infinite;
+}
+
 .layer-controls {
   display: grid;
-  gap: 18px;
+  gap: 16px;
   min-height: 0;
-  padding: 16px;
+  padding: 14px;
   overflow-y: auto;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--rule);
+}
+
+.layer-controls[hidden] {
+  display: none;
 }
 
 .control-field {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -262,39 +262,29 @@
 
 .control-label {
   padding: 0;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font: 400 10.5px var(--mono);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
-}
-
-.control-select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 14px;
+  color: var(--dust);
 }
 
 .segmented {
   display: flex;
-  border: 1px solid var(--line);
+  border: 1px solid var(--rule);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .segmented button {
   flex: 1;
-  padding: 7px 8px;
+  padding: 7px 6px;
   border: 0;
-  border-left: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 13px;
+  border-left: 1px solid var(--rule);
+  background: transparent;
+  color: var(--dust);
+  font: 600 10.5px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -303,12 +293,13 @@
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--accent);
-  color: #ffffff;
+  background: var(--star);
+  color: var(--night);
 }
 
 .segmented button:disabled {
   color: var(--faint);
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -316,7 +307,7 @@
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
 }
 
 .control-range .control-label {
@@ -325,7 +316,7 @@
 
 .control-range input,
 .control-check input {
-  accent-color: var(--accent);
+  accent-color: var(--gauge);
 }
 
 .control-range input {
@@ -335,8 +326,7 @@
 
 .control-range output {
   min-width: 40px;
-  font-size: 12px;
-  color: var(--muted);
+  color: var(--dust);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -345,7 +335,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font: 13px var(--text);
   cursor: pointer;
 }
 
@@ -355,7 +345,6 @@
 
 .control-warning {
   margin: 0;
-  font-size: 12px;
   color: var(--isolated);
 }
 
@@ -365,92 +354,169 @@
 
 .control-note {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
+  font: 12.5px/1.5 var(--text);
+  color: var(--dust);
 }
 
-/* Status filter, bottom left: the legend, which also filters */
+/* The plate a mission puts under every image it publishes */
 
-.status-filter {
-  left: 16px;
-  bottom: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  max-width: calc(100% - 140px);
-  padding: 4px;
+.image-plate {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 1000;
+  max-width: calc(100% - 340px);
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--gauge);
+  background: var(--panel-2);
+  color: var(--dust);
+  font: 10.5px/1.5 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.filter-chip {
+.image-plate b {
+  color: var(--gauge);
+  font-weight: 700;
+}
+
+.image-plate[hidden] {
+  display: none;
+}
+
+/* Map key, bottom right */
+
+.map-key {
+  right: 14px;
+  bottom: 26px;
+  padding: 10px 12px;
+}
+
+.map-key-list {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-key-list li {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: var(--text);
-  font-size: 13px;
-  white-space: nowrap;
-  cursor: pointer;
+  gap: 8px;
+  color: var(--dust);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.filter-chip:hover {
-  background: var(--hover);
-}
-
-.filter-chip b {
-  font-weight: 600;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.filter-chip[aria-pressed="false"] {
-  color: var(--faint);
-}
-
-.filter-chip[aria-pressed="false"] .key-dot {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--faint);
+.key-hub {
+  display: block;
+  width: 9px;
+  height: 9px;
+  margin: 0 1px;
+  border: 1.5px solid var(--night);
+  background: #ffffff;
+  outline: 1px solid var(--rule);
+  transform: rotate(45deg);
 }
 
 /* Community list */
 
-.site-item {
+.roster {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  min-width: 0;
-  text-align: left;
-  padding: 12px 16px;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.15s;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--rule);
+  background: var(--deck);
 }
 
-.site-item:hover {
-  background: var(--hover);
+.roster-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 12px;
 }
 
-.site-item.is-selected {
-  background: var(--accent-soft);
-  box-shadow: inset 2px 0 0 var(--accent);
+.roster-search {
+  height: 36px;
+  margin: 0 18px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--night);
+  color: var(--star);
 }
 
-.site-index {
-  font-size: 12px;
+.roster-search::placeholder {
   color: var(--faint);
-  font-variant-numeric: tabular-nums;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 18px;
+}
+
+.pill {
+  padding: 5px 11px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dust);
+  font: 600 10px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pill:hover {
+  color: var(--star);
+}
+
+.pill[aria-pressed="true"] {
+  border-color: var(--star);
+  color: var(--star);
+}
+
+.roster-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.site-row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 18px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft);
+  background: transparent;
+  color: var(--star);
+  text-align: left;
+  cursor: pointer;
+}
+
+.site-row:hover,
+.site-row.is-selected {
+  background: var(--deck-2);
+}
+
+.site-row.is-selected {
+  box-shadow: inset 3px 0 0 var(--selected);
 }
 
 .site-main {
   min-width: 0;
-  flex: 1;
 }
 
 .site-main strong,
@@ -462,61 +528,52 @@
 }
 
 .site-main strong {
-  font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .site-main small {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 2px;
+  color: var(--dust);
+  font-size: 12px;
 }
 
-.site-change {
+.site-route {
   text-align: right;
-  flex-shrink: 0;
+  font-family: var(--mono);
 }
 
-.site-change b,
-.site-change small {
+.site-route b,
+.site-route small {
   display: block;
 }
 
-.site-change b {
-  font-size: 14px;
+.site-route b {
+  font-size: 11.5px;
   font-weight: 600;
 }
 
-.site-change small {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 2px;
+.site-route small {
+  color: var(--at-risk);
+  font-size: 10px;
 }
 
-/* While a panel is folded, its "Show" / "+" nudges every 6 s so people notice they can open it. Short and small on
-   purpose: the rest of the cycle it is still, and reduced motion turns it off (responsive.css) */
-@keyframes toggle-nudge {
-  0%,
-  88%,
-  100% {
-    transform: none;
-    opacity: 1;
-  }
-  92% {
-    transform: scale(1.18);
-    opacity: 0.7;
-  }
-  96% {
-    transform: scale(0.96);
-  }
+.list-empty {
+  margin: 0;
+  padding: 18px;
+  color: var(--dust);
 }
 
-.card-toggle[aria-expanded="false"] .card-toggle-closed,
-.layers-toggle[aria-expanded="false"]::after {
-  display: inline-block;
-  animation: toggle-nudge 6s ease-in-out 2s infinite;
+.roster-download {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--rule);
 }
 
-.card-toggle[aria-expanded="false"] .card-toggle-closed {
-  color: var(--accent);
+.roster-download .telemetry {
+  margin-right: auto;
+}
+
+.roster-download[hidden] {
+  display: none;
 }
