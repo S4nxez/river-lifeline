@@ -34,8 +34,9 @@ The pre-commit hook applies them (enable it once per clone with `npm --prefix fr
   worker API (`api/worker-api.yaml`, explained in `api/worker-api.md`). The backend (`server/`) is the intermediary: it
   alone calls the external services (ASF, Earthdata, Planetary Computer, ANA, Open-Meteo), keeps the area files, the
   database and the raster store, hands jobs with all their inputs to the worker and stores its results; it never
-  computes science. The UI talks only to the backend, under `/api/v1` (GET only), which still serves the files of
-  `RIVER_DATA_DIR` (CONTRACTS.md) until it reads the worker's results.
+  computes science (it only paints the layer images from the result rasters). The UI talks only to the backend, under
+  `/api/v1` (GET only), which serves the worker's results (`RIVER_SOURCE=pipeline`, production) or the files of
+  `RIVER_DATA_DIR` (`RIVER_SOURCE=files`, the default, for local runs on the fixtures).
 - Nothing is specific to one area: each study area is a file `server/src/main/resources/areas/<id>.json` (with its
   communities and occurrence next to it) and, for `/api/v1`, a folder `aois/<id>/`. Never hardcode an area, a width or
   a coverage threshold in the backend or the UI.
