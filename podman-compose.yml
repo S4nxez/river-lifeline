@@ -34,8 +34,9 @@ services:
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_PROFILES_ACTIVE: spring
       RIVER_DATA_DIR: /data
-      # /api/v1 serves the worker's results (MySQL and the rasters volume); "files" serves RIVER_DATA_DIR instead
-      RIVER_SOURCE: ${RIVER_SOURCE:-pipeline}
+      # /api/v1 serves the worker's results (MySQL and the rasters volume). A literal value: podman-compose 1.3 on the
+      # Pi passes ${VAR:-default} through unexpanded when VAR is unset, and Spring then fails to start
+      RIVER_SOURCE: pipeline
       # The area /health and /meta describe; empty = the first one found
       DEFAULT_AOI: ${DEFAULT_AOI:-}
       # Worker pipeline (api/worker-api.md): the worker's shared secret, the Earthdata token that reads NISAR
