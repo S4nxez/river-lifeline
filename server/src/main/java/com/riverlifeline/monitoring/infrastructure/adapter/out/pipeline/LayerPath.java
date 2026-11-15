@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /** The path of a layer rendered from a stored raster: {@code rasters/<raster id>/<layer>.png}. */
 public record LayerPath(String rasterId, LayerId layer) {
-    private static final Pattern PATH = Pattern.compile("rasters/([A-Za-z0-9_-]{1,128})/([a-z_]+)\\.png");
+    private static final Pattern PATH = Pattern.compile("rasters/([A-Za-z0-9_-]{1,128})/([a-z0-9_]+)\\.png");
 
     public static String of(String rasterId, LayerId layer) {
         return "rasters/" + rasterId + "/" + layer.code() + ".png";

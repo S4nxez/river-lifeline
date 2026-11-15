@@ -111,6 +111,10 @@ class LayerPainterTest {
     void layerPathsNameTheirRasterAndLayer() {
         assertThat(LayerPath.of("w1", LayerId.WATER)).isEqualTo("rasters/w1/water.png");
         assertThat(LayerPath.parse("rasters/w1/water.png")).contains(new LayerPath("w1", LayerId.WATER));
+        for (LayerId layer : LayerId.values()) { // every layer, sentinel1_vv with its digit too
+            assertThat(LayerPath.parse(LayerPath.of("X9AARG4PvI1Pf1OgBFLjnw", layer)))
+                    .contains(new LayerPath("X9AARG4PvI1Pf1OgBFLjnw", layer));
+        }
         assertThat(LayerPath.parse("passes/p1/water.png")).isEqualTo(Optional.empty());
         assertThat(LayerPath.parse("rasters/../x/water.png")).isEmpty();
         assertThat(LayerPath.parse("rasters/w1/unknown.png")).isEmpty();
