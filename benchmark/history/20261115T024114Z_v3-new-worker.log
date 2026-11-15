@@ -1,0 +1,77 @@
+03:41:14 benchmark: every pass is judged by the river-lifeline worker (RadarPassAnalyzer)
+03:41:14 benchmark: synthetic scenes
+03:41:15 Searching ASF for NISAR GCOV over Synthetic lanes ...
+03:41:15 5 passes found, 5 to process
+03:41:15 no water occurrence layer at /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/areas/tefe_occurrence.png (river-monitor occurrence makes it)
+03:41:16 2026-01-01_t001A: coverage 100 %, water 11.11 km², read 0.0 MB in 1.2 s, connected 6 / at risk 2 / isolated 2
+03:41:16 no water occurrence layer at /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/areas/tefe_occurrence.png (river-monitor occurrence makes it)
+03:41:17 2026-01-02_t001A: coverage 100 %, water 11.11 km², read 0.0 MB in 1.1 s, connected 6 / at risk 2 / isolated 2
+03:41:17 no water occurrence layer at /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/areas/tefe_occurrence.png (river-monitor occurrence makes it)
+03:41:19 2026-01-03_t001A: coverage 100 %, water 11.11 km², read 0.0 MB in 1.1 s, connected 6 / at risk 2 / isolated 2
+03:41:19 no water occurrence layer at /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/areas/tefe_occurrence.png (river-monitor occurrence makes it)
+03:41:19 2026-01-04_t001A: coverage 100 %, water 11.11 km², read 0.0 MB in 0.9 s, connected 6 / at risk 1 / isolated 3
+03:41:19 no water occurrence layer at /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/areas/tefe_occurrence.png (river-monitor occurrence makes it)
+03:41:20 2026-01-05_t001A: coverage 100 %, water 11.11 km², read 0.0 MB in 0.9 s, connected 6 / at risk 2 / isolated 2
+03:41:20 Catalog: /home/sanxez/exam-v3/cache/lifeline-synthetic-h02ej3a7/out/synthetic/catalog.json (5 passes); communities {'monitored': 6, 'unresolved': 4, 'inland': 0, 'no_data': 0}
+03:41:20 benchmark: real record (33 passes)
+03:41:21 Searching ASF for NISAR GCOV over Lake Tefé and the Middle Solimões ...
+03:41:21 33 passes found, 33 to process
+03:41:26 river gauge Tefé-Missões (Solimões): 393 days
+03:48:02 2025-11-02_t060A: coverage 0 %, water 0.0 km², read 138.4 MB in 396.7 s, not evaluated (partial coverage)
+03:52:46 2025-11-04_t097D: coverage 99 %, water 862.18 km², read 130.0 MB in 283.5 s, connected 118 / at risk 2 / isolated 80
+03:55:23 2026-01-08_t169D: coverage 21 %, water 318.29 km², read 130.0 MB in 157.6 s, not evaluated (partial coverage)
+04:07:14 2026-06-25_t161A: coverage 84 %, water 947.01 km², read 545.3 MB in 709.9 s, connected 127 / at risk 12 / isolated 40
+04:07:25 FAILED 2026-06-25_t169D:
+Traceback (most recent call last):
+  File "/home/sanxez/exam-v3/old/processing/src/lifeline/pipeline.py", line 156, in _process_job
+    return ps["id"], process_pass(area, communities, ps, out_root, token, river=river), None
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sanxez/exam-v3/new/benchmark/exam_bridge.py", line 281, in process_pass
+    raise RuntimeError(f"pass {ps['id']}: no granule window reaches the area")
+RuntimeError: pass 2026-06-25_t169D: no granule window reaches the area
+
+04:11:22 2026-06-30_t060A: coverage 0 %, water 0.0 km², read 134.2 MB in 236.3 s, not evaluated (partial coverage)
+04:22:44 2026-07-07_t161A: coverage 86 %, water 956.76 km², read 528.5 MB in 682.9 s, connected 115 / at risk 16 / isolated 56
+04:22:56 FAILED 2026-07-07_t169D:
+Traceback (most recent call last):
+  File "/home/sanxez/exam-v3/old/processing/src/lifeline/pipeline.py", line 156, in _process_job
+    return ps["id"], process_pass(area, communities, ps, out_root, token, river=river), None
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sanxez/exam-v3/new/benchmark/exam_bridge.py", line 281, in process_pass
+    raise RuntimeError(f"pass {ps['id']}: no granule window reaches the area")
+RuntimeError: pass 2026-07-07_t169D: no granule window reaches the area
+
+04:28:23 2026-07-12_t060A: coverage 0 %, water 0.0 km², read 67.1 MB in 327.4 s, not evaluated (partial coverage)
+04:39:54 2026-07-19_t161A: coverage 81 %, water 928.14 km², read 528.5 MB in 690.9 s, connected 128 / at risk 3 / isolated 40
+04:45:38 2026-07-24_t060A: coverage 0 %, water 0.0 km², read 138.4 MB in 343.6 s, not evaluated (partial coverage)
+04:48:07 2026-08-12_t169D: coverage 21 %, water 206.24 km², read 130.0 MB in 149.4 s, not evaluated (partial coverage)
+04:50:15 2026-08-17_t060A: coverage 0 %, water 0.0 km², read 125.8 MB in 127.4 s, not evaluated (partial coverage)
+04:53:02 2026-08-19_t097D: coverage 99 %, water 885.1 km², read 130.0 MB in 167.8 s, connected 122 / at risk 4 / isolated 73
+05:01:17 2026-08-24_t161A: coverage 100 %, water 899.17 km², read 343.9 MB in 495.1 s, connected 123 / at risk 6 / isolated 75
+05:07:46 2026-08-24_t169D: coverage 21 %, water 205.41 km², read 276.8 MB in 388.2 s, not evaluated (partial coverage)
+05:09:51 2026-08-29_t060A: coverage 0 %, water 0.0 km², read 134.2 MB in 125.6 s, not evaluated (partial coverage)
+05:17:29 2026-08-31_t097D: coverage 99 %, water 875.21 km², read 255.9 MB in 457.3 s, connected 122 / at risk 5 / isolated 73
+05:25:27 2026-09-05_t161A: coverage 100 %, water 868.67 km², read 348.1 MB in 477.8 s, connected 108 / at risk 14 / isolated 82
+05:29:39 2026-09-05_t169D: coverage 21 %, water 205.2 km², read 142.6 MB in 252.1 s, not evaluated (partial coverage)
+05:31:38 2026-09-10_t060A: coverage 0 %, water 0.0 km², read 138.4 MB in 119.0 s, not evaluated (partial coverage)
+05:34:38 2026-09-12_t097D: coverage 99 %, water 852.29 km², read 134.2 MB in 180.0 s, connected 95 / at risk 29 / isolated 75
+05:41:11 2026-09-17_t161A: coverage 100 %, water 861.43 km², read 348.1 MB in 393.5 s, connected 99 / at risk 24 / isolated 81
+05:42:30 2026-09-22_t060A: coverage 0 %, water 0.0 km², read 67.1 MB in 78.5 s, not evaluated (partial coverage)
+05:49:34 2026-09-24_t097D: coverage 99 %, water 841.67 km², read 251.7 MB in 424.1 s, connected 113 / at risk 8 / isolated 79
+05:59:09 2026-09-29_t161A: coverage 100 %, water 847.41 km², read 343.9 MB in 575.0 s, connected 106 / at risk 15 / isolated 83
+06:03:38 2026-09-29_t169D: coverage 21 %, water 193.06 km², read 134.2 MB in 268.9 s, not evaluated (partial coverage)
+06:08:06 2026-10-04_t060A: coverage 0 %, water 0.0 km², read 113.2 MB in 268.2 s, not evaluated (partial coverage)
+06:12:08 2026-10-06_t097D: coverage 99 %, water 837.88 km², read 125.8 MB in 241.7 s, connected 102 / at risk 19 / isolated 78
+06:20:14 2026-10-11_t161A: coverage 100 %, water 837.5 km², read 356.5 MB in 486.2 s, connected 112 / at risk 10 / isolated 82
+06:26:49 2026-10-11_t169D: coverage 21 %, water 187.98 km², read 293.6 MB in 394.8 s, not evaluated (partial coverage)
+06:28:39 2026-10-16_t060A: coverage 0 %, water 0.0 km², read 142.6 MB in 110.7 s, not evaluated (partial coverage)
+06:37:16 2026-10-23_t161A: coverage 100 %, water 831.24 km², read 352.3 MB in 516.5 s, connected 107 / at risk 12 / isolated 85
+06:37:41 Catalog: /home/sanxez/exam-v3/cache/runs/tefe/tefe/catalog.json (31 passes); communities {'monitored': 130, 'unresolved': 39, 'inland': 35, 'no_data': 0}
+07:40:20 benchmark: 2025-11-04_t097D vs consensus (S2 2025-11-05, dswx_hls): IoU 0.924, status agreement 1.0, 0 cases, 7 undecided
+08:02:37 benchmark: 2026-07-07_t161A vs consensus (S2 2026-07-06, dswx_hls): IoU 0.9561, status agreement 1.0, 0 cases, 9 undecided
+08:08:18 benchmark: 2026-08-19_t097D vs consensus (S2 2026-08-20, dswx_hls): IoU 0.9478, status agreement 0.8681, 12 cases, 1 undecided
+08:14:21 benchmark: 2026-08-24_t161A vs consensus (S2 2026-08-25, dswx_hls): IoU 0.9426, status agreement 0.9901, 1 cases, 16 undecided
+08:19:51 benchmark: 2026-08-31_t097D vs consensus (S2 2026-08-30, dswx_hls): IoU 0.935, status agreement 0.9753, 4 cases, 13 undecided
+08:29:33 benchmark: 2026-10-11_t161A vs consensus (S2 2026-10-11, dswx_hls): IoU 0.8988, status agreement 0.9189, 3 cases, 1 undecided
+08:43:49 benchmark: 2026-10-23_t161A vs consensus (S2 2026-10-21, dswx_hls): IoU 0.8359, status agreement 1.0, 0 cases, 0 undecided
+08:43:49 benchmark written to /home/sanxez/exam-v3/old/processing/benchmark/history/20261115T024114Z_v3-new-worker.md
