@@ -265,15 +265,17 @@ test("the explanation uses the area's connected width from the API", async () =>
   assert.match(document.querySelector("#status-content .insight-copy").textContent, /at least 60 m wide/);
 });
 
-test("the layers panel folds and unfolds", async () => {
+test("the layers panel starts folded, so the map shows first, and unfolds and folds", async () => {
   const { document } = await startApp(liveApi);
   const toggle = document.querySelector("#layers-toggle");
-
-  toggle.click();
   assert.equal(document.querySelector("#layer-controls").hidden, true);
   assert.equal(toggle.getAttribute("aria-expanded"), "false");
+
   toggle.click();
   assert.equal(document.querySelector("#layer-controls").hidden, false);
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  toggle.click();
+  assert.equal(document.querySelector("#layer-controls").hidden, true);
 });
 
 test("in demo mode the panel says there is no imagery and the passes still switch", async (t) => {

@@ -492,3 +492,31 @@
   color: var(--muted);
   margin-top: 2px;
 }
+
+/* While a panel is folded, its "Show" / "+" nudges every 6 s so people notice they can open it. Short and small on
+   purpose: the rest of the cycle it is still, and reduced motion turns it off (responsive.css) */
+@keyframes toggle-nudge {
+  0%,
+  88%,
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+  92% {
+    transform: scale(1.18);
+    opacity: 0.7;
+  }
+  96% {
+    transform: scale(0.96);
+  }
+}
+
+.card-toggle[aria-expanded="false"] .card-toggle-closed,
+.layers-toggle[aria-expanded="false"]::after {
+  display: inline-block;
+  animation: toggle-nudge 6s ease-in-out 2s infinite;
+}
+
+.card-toggle[aria-expanded="false"] .card-toggle-closed {
+  color: var(--accent);
+}

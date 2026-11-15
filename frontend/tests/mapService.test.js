@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { community, installLeaflet } from "./helpers/browser.js";
-import { SATELLITE_URL, createMap, tileUrl } from "../src/services/mapService.js";
+import { SATELLITE_URL, createMap, markerRadius, tileUrl } from "../src/services/mapService.js";
 
 const leaflet = installLeaflet({ zoom: 9 });
 const selected = [];
@@ -218,6 +218,25 @@ test("when CARTO refuses a tile it falls back to OpenStreetMap once, which the d
   assert.deepEqual([...leaflet.containerClasses], []);
   controls.setBasemap("map");
   assert.equal(leaflet.tiles.at(-1).url, "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+});
+
+test("markerRadius shrinks the dots as the map zooms out, never below 2 px nor above 7 px", () => {
+  assert.deepEqual([4, 7, 8, 9, 10, 11, 12, 15].map(markerRadius), [2, 2, 3, 4, 5, 6, 7, 7]);
+});
+
+test("the dots have no outline and follow the zoom, the hub 2 px larger", () => {
+  // An earlier test redrew the communities as a single one: the marker drawn last
+  const current = () => [leaflet.markers.at(-1)];
+  assert.equal(hubMarker.options.stroke, false);
+  assert.ok(current().every((marker) => marker.options.stroke === false));
+
+  leaflet.zoomTo(7);
+  assert.ok(current().every((marker) => marker.options.radius === 2));
+  assert.equal(hubMarker.options.radius, 4);
+
+  leaflet.zoomTo(12);
+  assert.ok(current().every((marker) => marker.options.radius === 7));
+  assert.equal(hubMarker.options.radius, 9);
 });
 
 test("without bounds the map frames every place, and a single place by its centre", async () => {
