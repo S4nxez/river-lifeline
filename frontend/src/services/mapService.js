@@ -79,7 +79,8 @@ export async function createMap({
   if (hub) {
     hubMarker = L.circleMarker([hub.lat, hub.lng], {
       radius: markerRadius(map.getZoom()) + 2,
-      stroke: false,
+      color: "#ffffff",
+      weight: 1,
       fillColor: "#111214",
       fillOpacity: 1,
     })
@@ -172,7 +173,8 @@ function setCommunities(communities, onSelect) {
     const status = statusOf(community);
     const marker = L.circleMarker([community.lat, community.lng], {
       radius: markerRadius(map.getZoom()),
-      stroke: false,
+      color: "#ffffff",
+      weight: 1,
       fillColor: STATUSES[status].color,
       fillOpacity: 1,
     }).bindTooltip(`${community.name} · ${STATUSES[status].label}`, { direction: "top", offset: [0, -7] });
