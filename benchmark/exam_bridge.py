@@ -353,6 +353,7 @@ def process_pass(area, communities, ps, out_root, token, read=None, river=None):
             "sentinel1_only_km2": a.sentinel1_only_km2,
             "mud_km2": a.mud_km2,
         }
+    entry["judged_by"] = "river-lifeline worker"
     entry["seconds"] = round(time.time() - t0, 1)
     return entry
 
@@ -363,6 +364,7 @@ def install():
     analyzer_module.vegetated_water = _capture_vegetated_water
     s1_module.pass_view = _capture_pass_view
     pipeline.process_pass = process_pass
+    config.log("benchmark: every pass is judged by the river-lifeline worker (RadarPassAnalyzer)")
 
 
 def main():
