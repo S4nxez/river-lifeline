@@ -224,11 +224,13 @@ test("markerRadius shrinks the dots as the map zooms out, never below 2 px nor a
   assert.deepEqual([4, 7, 8, 9, 10, 11, 12, 15].map(markerRadius), [2, 2, 3, 4, 5, 6, 7, 7]);
 });
 
-test("the dots have no outline and follow the zoom, the hub 2 px larger", () => {
+test("the dots have a thin white outline and follow the zoom, the hub 2 px larger", () => {
   // An earlier test redrew the communities as a single one: the marker drawn last
   const current = () => [leaflet.markers.at(-1)];
-  assert.equal(hubMarker.options.stroke, false);
-  assert.ok(current().every((marker) => marker.options.stroke === false));
+  for (const marker of [hubMarker, ...current()]) {
+    assert.equal(marker.options.color, "#ffffff");
+    assert.equal(marker.options.weight, 1);
+  }
 
   leaflet.zoomTo(7);
   assert.ok(current().every((marker) => marker.options.radius === 2));
