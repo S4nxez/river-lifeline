@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="./src/styles/main.css" />
     <link rel="stylesheet" href="./src/styles/components.css" />
     <link rel="stylesheet" href="./src/styles/details.css" />
+    <link rel="stylesheet" href="./src/styles/early-warning.css" />
     <!-- Last, so the breakpoints override the rules above -->
     <link rel="stylesheet" href="./src/styles/responsive.css" />
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -281,6 +282,28 @@
             such stretches can be closed to boats, so they are never counted as a route.
           </p>
         </div>
+      </section>
+
+      <section id="early-warning" class="early-warning" hidden aria-labelledby="early-warning-title">
+        <div class="log-head">
+          <div>
+            <h2 id="early-warning-title" class="section-title">
+              Early warning <span class="ew-tag telemetry">Hindcast · experimental</span>
+            </h2>
+            <p class="section-copy">
+              Had this run during the 2026 dry season, how many days ahead would it have said which communities were
+              going to lose their water route? Each forecast below used only the data of its day.
+            </p>
+          </div>
+        </div>
+        <div class="ew-columns">
+          <div id="early-warning-content" class="ew-content"></div>
+          <div class="ew-figure">
+            <p class="telemetry ew-figure-title">River level at <span data-gauge-name>the river gauge</span></p>
+            <div id="level-forecast-chart" class="ew-chart-wrap"></div>
+          </div>
+        </div>
+        <div class="method-columns ew-method" id="early-warning-limits"></div>
       </section>
     </main>
 

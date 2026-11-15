@@ -5,6 +5,7 @@ import com.riverlifeline.monitoring.domain.exception.AoiNotFoundException;
 import com.riverlifeline.monitoring.domain.exception.CatalogSchemaUnsupportedException;
 import com.riverlifeline.monitoring.domain.exception.CatalogUnavailableException;
 import com.riverlifeline.monitoring.domain.exception.CommunityNotFoundException;
+import com.riverlifeline.monitoring.domain.exception.EarlyWarningNotFoundException;
 import com.riverlifeline.monitoring.domain.exception.LayerNotFoundException;
 import com.riverlifeline.monitoring.domain.exception.PassNotFoundException;
 import com.riverlifeline.monitoring.infrastructure.adapter.in.web.dto.ApiResponses.ErrorResponse;
@@ -55,6 +56,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(LayerNotFoundException.class)
     ResponseEntity<ErrorResponse> layerNotFound(LayerNotFoundException e) {
         return error(HttpStatus.NOT_FOUND, "layer_not_found", e.getMessage(), null);
+    }
+
+    @ExceptionHandler(EarlyWarningNotFoundException.class)
+    ResponseEntity<ErrorResponse> earlyWarningNotFound(EarlyWarningNotFoundException e) {
+        return error(HttpStatus.NOT_FOUND, "early_warning_not_found", e.getMessage(), null);
     }
 
     @ExceptionHandler(CatalogUnavailableException.class)

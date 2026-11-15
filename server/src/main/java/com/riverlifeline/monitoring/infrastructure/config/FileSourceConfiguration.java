@@ -2,12 +2,14 @@ package com.riverlifeline.monitoring.infrastructure.config;
 
 import com.riverlifeline.monitoring.application.port.out.CatalogRepository;
 import com.riverlifeline.monitoring.application.port.out.CommunityRepository;
+import com.riverlifeline.monitoring.application.port.out.EarlyWarningRepository;
 import com.riverlifeline.monitoring.application.port.out.LayerImageRepository;
 import com.riverlifeline.monitoring.application.port.out.PassStatusRepository;
 import com.riverlifeline.monitoring.application.port.out.RiverLevelRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.DataDirectory;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemCatalogRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemCommunityRepository;
+import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemEarlyWarningRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemLayerImageRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemPassStatusRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemRiverLevelRepository;
@@ -44,6 +46,11 @@ public class FileSourceConfiguration {
     @Bean
     RiverLevelRepository riverLevelRepository(DataDirectory directory, Clock clock, RiverProperties properties) {
         return new FileSystemRiverLevelRepository(directory, clock, properties.catalogCheckInterval());
+    }
+
+    @Bean
+    EarlyWarningRepository earlyWarningRepository(DataDirectory directory, Clock clock, RiverProperties properties) {
+        return new FileSystemEarlyWarningRepository(directory, clock, properties.catalogCheckInterval());
     }
 
     @Bean

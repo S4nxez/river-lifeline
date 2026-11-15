@@ -3,16 +3,18 @@
 import { expectedPasses, neighbourPass, passForDay, renderClock } from "./components/clock.js";
 import { filterCommunities, renderCommunityList, renderListFilters } from "./components/communityList.js";
 import { renderDossier } from "./components/dossier.js";
+import { renderEarlyWarningPanel, renderLimits } from "./components/earlyWarningPanel.js";
 import { renderHeadline } from "./components/headline.js";
 import { renderPlate } from "./components/imagePlate.js";
 import { renderLayerControls } from "./components/layerControls.js";
 import { renderLedger } from "./components/ledger.js";
+import { renderLevelForecastChart } from "./components/levelForecastChart.js";
 import { renderMapKey } from "./components/mapKey.js";
 import { renderPassLog } from "./components/passLog.js";
 import { formatDay, formatShortDay, formatUtcTime } from "./format.js";
 import { readHash, writeHash } from "./hashState.js";
 import { imageryChoices, layersToShow } from "./imagery.js";
-import { exportUrl, loadHistory, loadOverview, loadPass, loadRiverLevel } from "./services/api.js";
+import { exportUrl, loadEarlyWarning, loadHistory, loadOverview, loadPass, loadRiverLevel } from "./services/api.js";
 import { createMap } from "./services/mapService.js";
 import { bySeverity } from "./status.js";
 import { currentTheme, toggleTheme } from "./theme.js";
@@ -44,6 +46,8 @@ const state = {
   logAnimated: false,
 };
 let mapControls;
+// The early warning: its own section at the bottom, never read by the rest of the page
+const earlyWarning = { report: null, selectedId: null };
 let playTimer = null;
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -186,6 +190,45 @@ function drawPassLog() {
   );
 }
 
+/** The early warning section: its list, and the level chart of the community picked in it. */
+function renderEarlyWarning() {
+  const { report } = earlyWarning;
+  const content = $("#early-warning-content");
+  if (!report || !content) return;
+  const listed = report.communities.filter((item) => item.class === "monitored");
+  if (!listed.some((item) => item.community_id === earlyWarning.selectedId)) {
+    earlyWarning.selectedId = null;
+  }
+  const names = Object.fromEntries(state.communities.map((community) => [community.id, community.name]));
+  const shown = renderEarlyWarningPanel(content, report, {
+    names,
+    selectedId: earlyWarning.selectedId,
+    onSelect: (id) => {
+      earlyWarning.selectedId = id;
+      renderEarlyWarning();
+    },
+  });
+  if (!earlyWarning.selectedId && shown.length) {
+    earlyWarning.selectedId = shown[0].community_id;
+    renderEarlyWarning();
+    return;
+  }
+  const community = report.communities.find((item) => item.community_id === earlyWarning.selectedId) ?? null;
+  renderLevelForecastChart($("#level-forecast-chart"), report, { community });
+}
+
+/** Shows the early warning section only when the API has one; nothing else on the page depends on it. */
+async function setUpEarlyWarning() {
+  const section = $("#early-warning");
+  if (!section) return;
+  const report = await loadEarlyWarning();
+  if (!report) return;
+  earlyWarning.report = report;
+  section.hidden = false;
+  renderLimits($("#early-warning-limits"), report);
+  renderEarlyWarning();
+}
+
 function applyImagery() {
   mapControls?.showImagery(layersToShow(state.choices, state.imagery));
   renderPlate($("#image-plate"), state.plate, state.choices.radar);
@@ -256,6 +299,10 @@ async function select(id, { fly = true } = {}) {
   state.selectedId = id;
   renderList();
   renderDesk();
+  if (earlyWarning.report?.communities.some((item) => item.community_id === id && item.class === "monitored")) {
+    earlyWarning.selectedId = id;
+    renderEarlyWarning();
+  }
   mapControls?.selectCommunity(id, { fly });
   saveView();
 
@@ -388,7 +435,10 @@ function setUpResize() {
   let timer = null;
   globalThis.addEventListener?.("resize", () => {
     clearTimeout(timer);
-    timer = setTimeout(drawPassLog, 150);
+    timer = setTimeout(() => {
+      drawPassLog();
+      renderEarlyWarning();
+    }, 150);
   });
 }
 
@@ -413,6 +463,7 @@ async function init() {
   renderFilters();
   renderNextPass();
   renderPassViews();
+  setUpEarlyWarning();
 
   createMap({
     area: overview.area,

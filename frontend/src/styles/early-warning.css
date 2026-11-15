@@ -1,0 +1,186 @@
+/* The early warning: a band like the pass log's, in the gauge's colour. Never the status colours of the main view:
+   a probability is not an observed status. */
+
+.early-warning {
+  padding: 28px 30px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ew-tag {
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--faint);
+  font-size: 9.5px;
+  vertical-align: 2px;
+}
+
+.ew-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 30px;
+  margin-top: 18px;
+}
+
+.ew-headline {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--gauge);
+  color: var(--star);
+}
+
+.ew-issued {
+  margin: 12px 0 8px;
+}
+
+.ew-list {
+  max-height: 340px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+}
+
+.ew-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 9px 6px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ew-row:hover {
+  background: var(--deck);
+}
+
+.ew-row.is-selected {
+  background: var(--deck-2);
+  box-shadow: inset 2px 0 0 var(--gauge);
+}
+
+.ew-name {
+  font-weight: 700;
+  color: var(--star);
+}
+
+.ew-date {
+  justify-self: end;
+}
+
+.ew-chips {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 6px;
+}
+
+.ew-chip {
+  padding: 1px 8px;
+  border: 1px solid color-mix(in srgb, var(--gauge) 55%, transparent);
+  border-radius: 999px;
+  color: var(--gauge);
+  font: 600 10px var(--mono);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ew-empty {
+  padding: 10px 6px;
+  color: var(--dust);
+}
+
+.ew-figure-title {
+  margin: 0 0 8px;
+}
+
+.ew-grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+
+.ew-band {
+  fill: var(--gauge);
+  fill-opacity: 0.16;
+}
+
+.ew-observed,
+.ew-median {
+  fill: none;
+  stroke: var(--gauge);
+  stroke-width: 1.6;
+}
+
+.ew-median {
+  stroke-dasharray: 5 4;
+}
+
+.ew-threshold line {
+  stroke: var(--star);
+  stroke-width: 1;
+}
+
+.ew-threshold-at-risk line {
+  stroke: var(--dust);
+  stroke-dasharray: 6 4;
+}
+
+.ew-threshold-cut-off line {
+  stroke-dasharray: 2 3;
+}
+
+.ew-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 0;
+  border-top: 2px solid var(--gauge);
+}
+
+.ew-swatch-median {
+  border-top-style: dashed;
+}
+
+.ew-swatch-band {
+  height: 10px;
+  border: 0;
+  background: color-mix(in srgb, var(--gauge) 16%, transparent);
+}
+
+.ew-swatch-threshold {
+  border-top: 2px dotted var(--star);
+}
+
+.ew-method {
+  margin-top: 22px;
+  font-size: 13.5px;
+}
+
+.ew-method p {
+  margin: 0 0 12px;
+}
+
+.ew-limits-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.ew-limits-list li {
+  margin-bottom: 6px;
+  break-inside: avoid;
+}
+
+@media (max-width: 900px) {
+  .early-warning {
+    padding: 24px 16px;
+  }
+
+  .ew-columns {
+    grid-template-columns: 1fr;
+  }
+}
