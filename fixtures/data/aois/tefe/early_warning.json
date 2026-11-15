@@ -1,0 +1,6635 @@
+{
+ "schema_version": "1.0.0",
+ "aoi_id": "tefe",
+ "generated_at": "2026-11-15T13:09:31Z",
+ "experimental": true,
+ "method": {
+  "summary": "Each pixel is dry when the gauge is below the level it was dry at in 1984-2021 (JRC water occurrence against the gauge record); the routes of the method run on that water at every level, giving each community the level below which it is at risk or cut off. An anomaly-persistence forecast of the gauge, with the spread of its past errors, turns those levels into probabilities and an expected cut-off date. FIXTURE: the passes are hand-made (fixtures/data/aois/tefe/early_warning_passes.json, invented statuses, no water masks), so the hindcast numbers only exercise the page; they are not results.",
+  "limitations": [
+   "Width is not depth: a channel wide enough on the radar can still be too shallow for a boat.",
+   "The water occurrence ends in 2021, and sediment moves channels: the drying map ages.",
+   "Lake Tefé does not always follow the gauge on the Solimões: its level lags and differs.",
+   "One dry season of radar labels (2026) to check it against.",
+   "A hindcast is not a promise: the next drought will not repeat the last one."
+  ],
+  "level_step_cm": 10.0,
+  "levels_swept_cm": [
+   410.0,
+   1730.0
+  ],
+  "occurrence_no_data_share": 0.0
+ },
+ "gauge": {
+  "station_code": "12900001",
+  "datum_note": "Current datum. ANA gauge Tefé-Missões moved about +497 cm in 2024; 2024-08-14..2024-12-31 dropped (inconsistent readings around the change)"
+ },
+ "issued_at": "2026-09-01",
+ "level_forecast": [
+  {
+   "date": "2026-09-02",
+   "p10_cm": 1303.9,
+   "p50_cm": 1311.8,
+   "p90_cm": 1319.0
+  },
+  {
+   "date": "2026-09-03",
+   "p10_cm": 1281.2,
+   "p50_cm": 1297.1,
+   "p90_cm": 1310.9
+  },
+  {
+   "date": "2026-09-04",
+   "p10_cm": 1258.5,
+   "p50_cm": 1282.1,
+   "p90_cm": 1302.3
+  },
+  {
+   "date": "2026-09-05",
+   "p10_cm": 1235.1,
+   "p50_cm": 1266.8,
+   "p90_cm": 1294.6
+  },
+  {
+   "date": "2026-09-06",
+   "p10_cm": 1213.0,
+   "p50_cm": 1251.8,
+   "p90_cm": 1286.2
+  },
+  {
+   "date": "2026-09-07",
+   "p10_cm": 1191.1,
+   "p50_cm": 1236.7,
+   "p90_cm": 1277.0
+  },
+  {
+   "date": "2026-09-08",
+   "p10_cm": 1168.4,
+   "p50_cm": 1221.2,
+   "p90_cm": 1267.9
+  },
+  {
+   "date": "2026-09-09",
+   "p10_cm": 1147.2,
+   "p50_cm": 1206.3,
+   "p90_cm": 1258.5
+  },
+  {
+   "date": "2026-09-10",
+   "p10_cm": 1125.5,
+   "p50_cm": 1191.6,
+   "p90_cm": 1248.6
+  },
+  {
+   "date": "2026-09-11",
+   "p10_cm": 1105.2,
+   "p50_cm": 1177.1,
+   "p90_cm": 1239.8
+  },
+  {
+   "date": "2026-09-12",
+   "p10_cm": 1085.2,
+   "p50_cm": 1162.9,
+   "p90_cm": 1231.1
+  },
+  {
+   "date": "2026-09-13",
+   "p10_cm": 1065.8,
+   "p50_cm": 1147.8,
+   "p90_cm": 1221.9
+  },
+  {
+   "date": "2026-09-14",
+   "p10_cm": 1046.6,
+   "p50_cm": 1133.5,
+   "p90_cm": 1212.7
+  },
+  {
+   "date": "2026-09-15",
+   "p10_cm": 1026.1,
+   "p50_cm": 1119.2,
+   "p90_cm": 1204.2
+  },
+  {
+   "date": "2026-09-16",
+   "p10_cm": 1006.1,
+   "p50_cm": 1105.2,
+   "p90_cm": 1194.2
+  },
+  {
+   "date": "2026-09-17",
+   "p10_cm": 987.3,
+   "p50_cm": 1091.9,
+   "p90_cm": 1185.6
+  },
+  {
+   "date": "2026-09-18",
+   "p10_cm": 968.0,
+   "p50_cm": 1079.0,
+   "p90_cm": 1177.5
+  },
+  {
+   "date": "2026-09-19",
+   "p10_cm": 952.0,
+   "p50_cm": 1067.2,
+   "p90_cm": 1168.4
+  },
+  {
+   "date": "2026-09-20",
+   "p10_cm": 938.5,
+   "p50_cm": 1055.3,
+   "p90_cm": 1161.8
+  },
+  {
+   "date": "2026-09-21",
+   "p10_cm": 923.3,
+   "p50_cm": 1044.5,
+   "p90_cm": 1154.6
+  },
+  {
+   "date": "2026-09-22",
+   "p10_cm": 909.2,
+   "p50_cm": 1033.8,
+   "p90_cm": 1148.8
+  },
+  {
+   "date": "2026-09-23",
+   "p10_cm": 897.7,
+   "p50_cm": 1023.8,
+   "p90_cm": 1143.5
+  },
+  {
+   "date": "2026-09-24",
+   "p10_cm": 880.1,
+   "p50_cm": 1014.4,
+   "p90_cm": 1136.9
+  },
+  {
+   "date": "2026-09-25",
+   "p10_cm": 863.7,
+   "p50_cm": 1005.5,
+   "p90_cm": 1132.2
+  },
+  {
+   "date": "2026-09-26",
+   "p10_cm": 852.3,
+   "p50_cm": 997.9,
+   "p90_cm": 1128.6
+  },
+  {
+   "date": "2026-09-27",
+   "p10_cm": 842.9,
+   "p50_cm": 992.2,
+   "p90_cm": 1125.8
+  },
+  {
+   "date": "2026-09-28",
+   "p10_cm": 832.0,
+   "p50_cm": 985.6,
+   "p90_cm": 1122.9
+  },
+  {
+   "date": "2026-09-29",
+   "p10_cm": 821.2,
+   "p50_cm": 979.5,
+   "p90_cm": 1119.8
+  },
+  {
+   "date": "2026-09-30",
+   "p10_cm": 812.6,
+   "p50_cm": 974.4,
+   "p90_cm": 1116.8
+  },
+  {
+   "date": "2026-10-01",
+   "p10_cm": 809.0,
+   "p50_cm": 970.2,
+   "p90_cm": 1114.9
+  },
+  {
+   "date": "2026-10-02",
+   "p10_cm": 804.4,
+   "p50_cm": 966.4,
+   "p90_cm": 1113.8
+  },
+  {
+   "date": "2026-10-03",
+   "p10_cm": 797.9,
+   "p50_cm": 963.0,
+   "p90_cm": 1113.9
+  },
+  {
+   "date": "2026-10-04",
+   "p10_cm": 785.6,
+   "p50_cm": 958.3,
+   "p90_cm": 1114.0
+  },
+  {
+   "date": "2026-10-05",
+   "p10_cm": 779.8,
+   "p50_cm": 956.0,
+   "p90_cm": 1113.8
+  },
+  {
+   "date": "2026-10-06",
+   "p10_cm": 773.9,
+   "p50_cm": 953.5,
+   "p90_cm": 1113.6
+  },
+  {
+   "date": "2026-10-07",
+   "p10_cm": 772.6,
+   "p50_cm": 952.0,
+   "p90_cm": 1113.8
+  },
+  {
+   "date": "2026-10-08",
+   "p10_cm": 767.9,
+   "p50_cm": 949.7,
+   "p90_cm": 1115.9
+  },
+  {
+   "date": "2026-10-09",
+   "p10_cm": 763.7,
+   "p50_cm": 949.0,
+   "p90_cm": 1116.2
+  },
+  {
+   "date": "2026-10-10",
+   "p10_cm": 761.9,
+   "p50_cm": 947.2,
+   "p90_cm": 1117.2
+  },
+  {
+   "date": "2026-10-11",
+   "p10_cm": 762.1,
+   "p50_cm": 946.5,
+   "p90_cm": 1119.1
+  },
+  {
+   "date": "2026-10-12",
+   "p10_cm": 756.9,
+   "p50_cm": 945.8,
+   "p90_cm": 1119.7
+  },
+  {
+   "date": "2026-10-13",
+   "p10_cm": 753.9,
+   "p50_cm": 944.9,
+   "p90_cm": 1120.1
+  },
+  {
+   "date": "2026-10-14",
+   "p10_cm": 753.4,
+   "p50_cm": 944.8,
+   "p90_cm": 1122.3
+  },
+  {
+   "date": "2026-10-15",
+   "p10_cm": 751.8,
+   "p50_cm": 945.1,
+   "p90_cm": 1123.6
+  },
+  {
+   "date": "2026-10-16",
+   "p10_cm": 747.0,
+   "p50_cm": 946.2,
+   "p90_cm": 1127.2
+  },
+  {
+   "date": "2026-10-17",
+   "p10_cm": 746.1,
+   "p50_cm": 948.3,
+   "p90_cm": 1130.1
+  },
+  {
+   "date": "2026-10-18",
+   "p10_cm": 747.9,
+   "p50_cm": 949.2,
+   "p90_cm": 1131.8
+  },
+  {
+   "date": "2026-10-19",
+   "p10_cm": 748.0,
+   "p50_cm": 951.9,
+   "p90_cm": 1135.6
+  },
+  {
+   "date": "2026-10-20",
+   "p10_cm": 748.2,
+   "p50_cm": 954.3,
+   "p90_cm": 1140.3
+  },
+  {
+   "date": "2026-10-21",
+   "p10_cm": 748.4,
+   "p50_cm": 956.5,
+   "p90_cm": 1142.8
+  },
+  {
+   "date": "2026-10-22",
+   "p10_cm": 748.9,
+   "p50_cm": 959.9,
+   "p90_cm": 1149.0
+  },
+  {
+   "date": "2026-10-23",
+   "p10_cm": 754.4,
+   "p50_cm": 963.3,
+   "p90_cm": 1152.7
+  },
+  {
+   "date": "2026-10-24",
+   "p10_cm": 754.4,
+   "p50_cm": 966.8,
+   "p90_cm": 1157.4
+  },
+  {
+   "date": "2026-10-25",
+   "p10_cm": 756.3,
+   "p50_cm": 970.2,
+   "p90_cm": 1164.0
+  },
+  {
+   "date": "2026-10-26",
+   "p10_cm": 759.0,
+   "p50_cm": 974.3,
+   "p90_cm": 1169.1
+  },
+  {
+   "date": "2026-10-27",
+   "p10_cm": 761.8,
+   "p50_cm": 979.4,
+   "p90_cm": 1177.9
+  },
+  {
+   "date": "2026-10-28",
+   "p10_cm": 763.8,
+   "p50_cm": 983.8,
+   "p90_cm": 1182.8
+  },
+  {
+   "date": "2026-10-29",
+   "p10_cm": 767.8,
+   "p50_cm": 988.8,
+   "p90_cm": 1189.5
+  },
+  {
+   "date": "2026-10-30",
+   "p10_cm": 768.9,
+   "p50_cm": 994.4,
+   "p90_cm": 1194.7
+  },
+  {
+   "date": "2026-10-31",
+   "p10_cm": 778.0,
+   "p50_cm": 999.8,
+   "p90_cm": 1199.9
+  },
+  {
+   "date": "2026-11-01",
+   "p10_cm": 780.3,
+   "p50_cm": 1005.1,
+   "p90_cm": 1206.0
+  },
+  {
+   "date": "2026-11-02",
+   "p10_cm": 787.4,
+   "p50_cm": 1011.0,
+   "p90_cm": 1213.4
+  },
+  {
+   "date": "2026-11-03",
+   "p10_cm": 790.0,
+   "p50_cm": 1016.8,
+   "p90_cm": 1218.7
+  },
+  {
+   "date": "2026-11-04",
+   "p10_cm": 794.1,
+   "p50_cm": 1022.0,
+   "p90_cm": 1225.0
+  },
+  {
+   "date": "2026-11-05",
+   "p10_cm": 799.1,
+   "p50_cm": 1026.3,
+   "p90_cm": 1232.7
+  },
+  {
+   "date": "2026-11-06",
+   "p10_cm": 803.6,
+   "p50_cm": 1031.6,
+   "p90_cm": 1237.6
+  },
+  {
+   "date": "2026-11-07",
+   "p10_cm": 811.1,
+   "p50_cm": 1037.1,
+   "p90_cm": 1246.4
+  },
+  {
+   "date": "2026-11-08",
+   "p10_cm": 812.3,
+   "p50_cm": 1042.8,
+   "p90_cm": 1254.6
+  },
+  {
+   "date": "2026-11-09",
+   "p10_cm": 814.7,
+   "p50_cm": 1047.5,
+   "p90_cm": 1260.8
+  },
+  {
+   "date": "2026-11-10",
+   "p10_cm": 821.2,
+   "p50_cm": 1051.6,
+   "p90_cm": 1266.6
+  },
+  {
+   "date": "2026-11-11",
+   "p10_cm": 824.8,
+   "p50_cm": 1056.1,
+   "p90_cm": 1271.8
+  },
+  {
+   "date": "2026-11-12",
+   "p10_cm": 830.4,
+   "p50_cm": 1059.6,
+   "p90_cm": 1277.2
+  },
+  {
+   "date": "2026-11-13",
+   "p10_cm": 833.1,
+   "p50_cm": 1063.6,
+   "p90_cm": 1284.2
+  },
+  {
+   "date": "2026-11-14",
+   "p10_cm": 837.1,
+   "p50_cm": 1067.7,
+   "p90_cm": 1290.3
+  },
+  {
+   "date": "2026-11-15",
+   "p10_cm": 842.0,
+   "p50_cm": 1072.2,
+   "p90_cm": 1298.2
+  },
+  {
+   "date": "2026-11-16",
+   "p10_cm": 845.9,
+   "p50_cm": 1077.7,
+   "p90_cm": 1302.2
+  },
+  {
+   "date": "2026-11-17",
+   "p10_cm": 855.8,
+   "p50_cm": 1082.7,
+   "p90_cm": 1308.2
+  },
+  {
+   "date": "2026-11-18",
+   "p10_cm": 858.4,
+   "p50_cm": 1086.2,
+   "p90_cm": 1316.3
+  },
+  {
+   "date": "2026-11-19",
+   "p10_cm": 860.6,
+   "p50_cm": 1089.4,
+   "p90_cm": 1319.8
+  },
+  {
+   "date": "2026-11-20",
+   "p10_cm": 864.7,
+   "p50_cm": 1093.8,
+   "p90_cm": 1326.2
+  },
+  {
+   "date": "2026-11-21",
+   "p10_cm": 867.6,
+   "p50_cm": 1098.7,
+   "p90_cm": 1332.0
+  },
+  {
+   "date": "2026-11-22",
+   "p10_cm": 873.2,
+   "p50_cm": 1104.9,
+   "p90_cm": 1339.3
+  },
+  {
+   "date": "2026-11-23",
+   "p10_cm": 877.6,
+   "p50_cm": 1109.7,
+   "p90_cm": 1344.6
+  },
+  {
+   "date": "2026-11-24",
+   "p10_cm": 884.8,
+   "p50_cm": 1114.5,
+   "p90_cm": 1351.5
+  },
+  {
+   "date": "2026-11-25",
+   "p10_cm": 888.1,
+   "p50_cm": 1120.8,
+   "p90_cm": 1358.5
+  },
+  {
+   "date": "2026-11-26",
+   "p10_cm": 890.1,
+   "p50_cm": 1127.5,
+   "p90_cm": 1366.1
+  },
+  {
+   "date": "2026-11-27",
+   "p10_cm": 892.2,
+   "p50_cm": 1133.5,
+   "p90_cm": 1374.5
+  },
+  {
+   "date": "2026-11-28",
+   "p10_cm": 898.5,
+   "p50_cm": 1139.7,
+   "p90_cm": 1382.2
+  },
+  {
+   "date": "2026-11-29",
+   "p10_cm": 901.5,
+   "p50_cm": 1145.4,
+   "p90_cm": 1385.9
+  },
+  {
+   "date": "2026-11-30",
+   "p10_cm": 909.7,
+   "p50_cm": 1152.7,
+   "p90_cm": 1393.7
+  },
+  {
+   "date": "2026-12-01",
+   "p10_cm": 912.8,
+   "p50_cm": 1159.1,
+   "p90_cm": 1404.1
+  },
+  {
+   "date": "2026-12-02",
+   "p10_cm": 916.1,
+   "p50_cm": 1166.7,
+   "p90_cm": 1414.9
+  },
+  {
+   "date": "2026-12-03",
+   "p10_cm": 922.3,
+   "p50_cm": 1174.4,
+   "p90_cm": 1421.3
+  },
+  {
+   "date": "2026-12-04",
+   "p10_cm": 927.5,
+   "p50_cm": 1180.1,
+   "p90_cm": 1429.5
+  },
+  {
+   "date": "2026-12-05",
+   "p10_cm": 932.8,
+   "p50_cm": 1187.5,
+   "p90_cm": 1437.3
+  },
+  {
+   "date": "2026-12-06",
+   "p10_cm": 937.4,
+   "p50_cm": 1194.3,
+   "p90_cm": 1443.2
+  },
+  {
+   "date": "2026-12-07",
+   "p10_cm": 941.3,
+   "p50_cm": 1200.8,
+   "p90_cm": 1451.6
+  },
+  {
+   "date": "2026-12-08",
+   "p10_cm": 946.9,
+   "p50_cm": 1206.4,
+   "p90_cm": 1457.0
+  },
+  {
+   "date": "2026-12-09",
+   "p10_cm": 953.2,
+   "p50_cm": 1213.1,
+   "p90_cm": 1463.3
+  },
+  {
+   "date": "2026-12-10",
+   "p10_cm": 957.3,
+   "p50_cm": 1220.3,
+   "p90_cm": 1469.9
+  },
+  {
+   "date": "2026-12-11",
+   "p10_cm": 961.2,
+   "p50_cm": 1226.7,
+   "p90_cm": 1477.2
+  },
+  {
+   "date": "2026-12-12",
+   "p10_cm": 965.6,
+   "p50_cm": 1231.9,
+   "p90_cm": 1482.5
+  },
+  {
+   "date": "2026-12-13",
+   "p10_cm": 969.8,
+   "p50_cm": 1237.6,
+   "p90_cm": 1490.1
+  },
+  {
+   "date": "2026-12-14",
+   "p10_cm": 973.8,
+   "p50_cm": 1241.9,
+   "p90_cm": 1495.5
+  },
+  {
+   "date": "2026-12-15",
+   "p10_cm": 980.1,
+   "p50_cm": 1247.2,
+   "p90_cm": 1503.0
+  },
+  {
+   "date": "2026-12-16",
+   "p10_cm": 984.7,
+   "p50_cm": 1254.3,
+   "p90_cm": 1509.2
+  },
+  {
+   "date": "2026-12-17",
+   "p10_cm": 988.7,
+   "p50_cm": 1259.8,
+   "p90_cm": 1514.6
+  },
+  {
+   "date": "2026-12-18",
+   "p10_cm": 993.7,
+   "p50_cm": 1266.0,
+   "p90_cm": 1520.3
+  },
+  {
+   "date": "2026-12-19",
+   "p10_cm": 997.8,
+   "p50_cm": 1271.2,
+   "p90_cm": 1526.8
+  },
+  {
+   "date": "2026-12-20",
+   "p10_cm": 1004.2,
+   "p50_cm": 1275.5,
+   "p90_cm": 1532.4
+  },
+  {
+   "date": "2026-12-21",
+   "p10_cm": 1009.0,
+   "p50_cm": 1282.0,
+   "p90_cm": 1538.5
+  },
+  {
+   "date": "2026-12-22",
+   "p10_cm": 1013.0,
+   "p50_cm": 1287.5,
+   "p90_cm": 1544.2
+  },
+  {
+   "date": "2026-12-23",
+   "p10_cm": 1017.8,
+   "p50_cm": 1292.6,
+   "p90_cm": 1550.1
+  },
+  {
+   "date": "2026-12-24",
+   "p10_cm": 1023.6,
+   "p50_cm": 1297.1,
+   "p90_cm": 1556.2
+  },
+  {
+   "date": "2026-12-25",
+   "p10_cm": 1028.5,
+   "p50_cm": 1303.3,
+   "p90_cm": 1562.3
+  },
+  {
+   "date": "2026-12-26",
+   "p10_cm": 1034.9,
+   "p50_cm": 1309.6,
+   "p90_cm": 1569.0
+  },
+  {
+   "date": "2026-12-27",
+   "p10_cm": 1038.4,
+   "p50_cm": 1315.8,
+   "p90_cm": 1575.8
+  },
+  {
+   "date": "2026-12-28",
+   "p10_cm": 1042.5,
+   "p50_cm": 1320.5,
+   "p90_cm": 1583.1
+  },
+  {
+   "date": "2026-12-29",
+   "p10_cm": 1049.8,
+   "p50_cm": 1325.3,
+   "p90_cm": 1591.3
+  },
+  {
+   "date": "2026-12-30",
+   "p10_cm": 1056.1,
+   "p50_cm": 1331.3,
+   "p90_cm": 1595.9
+  }
+ ],
+ "observed_level": [
+  {
+   "date": "2026-05-04",
+   "level_cm": 1782.0
+  },
+  {
+   "date": "2026-05-05",
+   "level_cm": 1785.0
+  },
+  {
+   "date": "2026-05-06",
+   "level_cm": 1786.5
+  },
+  {
+   "date": "2026-05-07",
+   "level_cm": 1790.5
+  },
+  {
+   "date": "2026-05-08",
+   "level_cm": 1794.5
+  },
+  {
+   "date": "2026-05-09",
+   "level_cm": 1797.5
+  },
+  {
+   "date": "2026-05-10",
+   "level_cm": 1797.0
+  },
+  {
+   "date": "2026-05-11",
+   "level_cm": 1802.5
+  },
+  {
+   "date": "2026-05-12",
+   "level_cm": 1803.5
+  },
+  {
+   "date": "2026-05-13",
+   "level_cm": 1804.0
+  },
+  {
+   "date": "2026-05-14",
+   "level_cm": 1805.5
+  },
+  {
+   "date": "2026-05-15",
+   "level_cm": 1808.5
+  },
+  {
+   "date": "2026-05-16",
+   "level_cm": 1810.5
+  },
+  {
+   "date": "2026-05-17",
+   "level_cm": 1813.5
+  },
+  {
+   "date": "2026-05-18",
+   "level_cm": 1816.5
+  },
+  {
+   "date": "2026-05-19",
+   "level_cm": 1820.0
+  },
+  {
+   "date": "2026-05-20",
+   "level_cm": 1822.5
+  },
+  {
+   "date": "2026-05-21",
+   "level_cm": 1824.5
+  },
+  {
+   "date": "2026-05-22",
+   "level_cm": 1826.5
+  },
+  {
+   "date": "2026-05-23",
+   "level_cm": 1829.0
+  },
+  {
+   "date": "2026-05-24",
+   "level_cm": 1831.5
+  },
+  {
+   "date": "2026-05-25",
+   "level_cm": 1833.0
+  },
+  {
+   "date": "2026-05-26",
+   "level_cm": 1833.0
+  },
+  {
+   "date": "2026-05-27",
+   "level_cm": 1837.0
+  },
+  {
+   "date": "2026-05-28",
+   "level_cm": 1836.5
+  },
+  {
+   "date": "2026-05-29",
+   "level_cm": 1840.0
+  },
+  {
+   "date": "2026-05-30",
+   "level_cm": 1841.5
+  },
+  {
+   "date": "2026-05-31",
+   "level_cm": 1842.0
+  },
+  {
+   "date": "2026-06-01",
+   "level_cm": 1843.0
+  },
+  {
+   "date": "2026-06-02",
+   "level_cm": 1845.0
+  },
+  {
+   "date": "2026-06-03",
+   "level_cm": 1845.0
+  },
+  {
+   "date": "2026-06-04",
+   "level_cm": 1846.0
+  },
+  {
+   "date": "2026-06-05",
+   "level_cm": 1848.5
+  },
+  {
+   "date": "2026-06-06",
+   "level_cm": 1850.0
+  },
+  {
+   "date": "2026-06-07",
+   "level_cm": 1852.5
+  },
+  {
+   "date": "2026-06-08",
+   "level_cm": 1852.5
+  },
+  {
+   "date": "2026-06-09",
+   "level_cm": 1854.0
+  },
+  {
+   "date": "2026-06-10",
+   "level_cm": 1855.5
+  },
+  {
+   "date": "2026-06-11",
+   "level_cm": 1856.0
+  },
+  {
+   "date": "2026-06-12",
+   "level_cm": 1857.0
+  },
+  {
+   "date": "2026-06-13",
+   "level_cm": 1858.0
+  },
+  {
+   "date": "2026-06-14",
+   "level_cm": 1859.5
+  },
+  {
+   "date": "2026-06-15",
+   "level_cm": 1861.0
+  },
+  {
+   "date": "2026-06-16",
+   "level_cm": 1862.5
+  },
+  {
+   "date": "2026-06-17",
+   "level_cm": 1862.5
+  },
+  {
+   "date": "2026-06-18",
+   "level_cm": 1863.5
+  },
+  {
+   "date": "2026-06-19",
+   "level_cm": 1864.0
+  },
+  {
+   "date": "2026-06-20",
+   "level_cm": 1865.0
+  },
+  {
+   "date": "2026-06-21",
+   "level_cm": 1865.0
+  },
+  {
+   "date": "2026-06-22",
+   "level_cm": 1865.5
+  },
+  {
+   "date": "2026-06-23",
+   "level_cm": 1867.0
+  },
+  {
+   "date": "2026-06-24",
+   "level_cm": 1868.5
+  },
+  {
+   "date": "2026-06-25",
+   "level_cm": 1869.0
+  },
+  {
+   "date": "2026-06-26",
+   "level_cm": 1870.0
+  },
+  {
+   "date": "2026-06-27",
+   "level_cm": 1870.0
+  },
+  {
+   "date": "2026-06-28",
+   "level_cm": 1870.0
+  },
+  {
+   "date": "2026-06-29",
+   "level_cm": 1871.5
+  },
+  {
+   "date": "2026-06-30",
+   "level_cm": 1873.0
+  },
+  {
+   "date": "2026-07-01",
+   "level_cm": 1873.0
+  },
+  {
+   "date": "2026-07-02",
+   "level_cm": 1873.0
+  },
+  {
+   "date": "2026-07-03",
+   "level_cm": 1872.5
+  },
+  {
+   "date": "2026-07-04",
+   "level_cm": 1870.5
+  },
+  {
+   "date": "2026-07-05",
+   "level_cm": 1867.5
+  },
+  {
+   "date": "2026-07-06",
+   "level_cm": 1865.5
+  },
+  {
+   "date": "2026-07-07",
+   "level_cm": 1863.5
+  },
+  {
+   "date": "2026-07-08",
+   "level_cm": 1861.0
+  },
+  {
+   "date": "2026-07-09",
+   "level_cm": 1860.0
+  },
+  {
+   "date": "2026-07-10",
+   "level_cm": 1858.0
+  },
+  {
+   "date": "2026-07-11",
+   "level_cm": 1856.5
+  },
+  {
+   "date": "2026-07-12",
+   "level_cm": 1855.0
+  },
+  {
+   "date": "2026-07-13",
+   "level_cm": 1848.5
+  },
+  {
+   "date": "2026-07-14",
+   "level_cm": 1848.0
+  },
+  {
+   "date": "2026-07-15",
+   "level_cm": 1839.5
+  },
+  {
+   "date": "2026-07-16",
+   "level_cm": 1834.5
+  },
+  {
+   "date": "2026-07-17",
+   "level_cm": 1830.5
+  },
+  {
+   "date": "2026-07-18",
+   "level_cm": 1825.5
+  },
+  {
+   "date": "2026-07-19",
+   "level_cm": 1821.0
+  },
+  {
+   "date": "2026-07-20",
+   "level_cm": 1815.0
+  },
+  {
+   "date": "2026-07-21",
+   "level_cm": 1810.5
+  },
+  {
+   "date": "2026-07-22",
+   "level_cm": 1804.5
+  },
+  {
+   "date": "2026-07-23",
+   "level_cm": 1797.0
+  },
+  {
+   "date": "2026-07-24",
+   "level_cm": 1787.0
+  },
+  {
+   "date": "2026-07-25",
+   "level_cm": 1784.0
+  },
+  {
+   "date": "2026-07-26",
+   "level_cm": 1772.5
+  },
+  {
+   "date": "2026-07-27",
+   "level_cm": 1770.5
+  },
+  {
+   "date": "2026-07-28",
+   "level_cm": 1763.0
+  },
+  {
+   "date": "2026-07-29",
+   "level_cm": 1754.5
+  },
+  {
+   "date": "2026-07-30",
+   "level_cm": 1745.5
+  },
+  {
+   "date": "2026-07-31",
+   "level_cm": 1738.0
+  },
+  {
+   "date": "2026-08-01",
+   "level_cm": 1730.0
+  },
+  {
+   "date": "2026-08-02",
+   "level_cm": 1724.0
+  },
+  {
+   "date": "2026-08-03",
+   "level_cm": 1714.0
+  },
+  {
+   "date": "2026-08-04",
+   "level_cm": 1704.0
+  },
+  {
+   "date": "2026-08-05",
+   "level_cm": 1698.0
+  },
+  {
+   "date": "2026-08-06",
+   "level_cm": 1684.5
+  },
+  {
+   "date": "2026-08-07",
+   "level_cm": 1675.5
+  },
+  {
+   "date": "2026-08-08",
+   "level_cm": 1668.0
+  },
+  {
+   "date": "2026-08-09",
+   "level_cm": 1658.0
+  },
+  {
+   "date": "2026-08-10",
+   "level_cm": 1651.0
+  },
+  {
+   "date": "2026-08-11",
+   "level_cm": 1634.0
+  },
+  {
+   "date": "2026-08-12",
+   "level_cm": 1625.0
+  },
+  {
+   "date": "2026-08-13",
+   "level_cm": 1610.5
+  },
+  {
+   "date": "2026-08-14",
+   "level_cm": 1594.0
+  },
+  {
+   "date": "2026-08-15",
+   "level_cm": 1583.0
+  },
+  {
+   "date": "2026-08-16",
+   "level_cm": 1569.5
+  },
+  {
+   "date": "2026-08-17",
+   "level_cm": 1555.0
+  },
+  {
+   "date": "2026-08-18",
+   "level_cm": 1536.0
+  },
+  {
+   "date": "2026-08-19",
+   "level_cm": 1528.0
+  },
+  {
+   "date": "2026-08-20",
+   "level_cm": 1510.5
+  },
+  {
+   "date": "2026-08-21",
+   "level_cm": 1497.5
+  },
+  {
+   "date": "2026-08-22",
+   "level_cm": 1481.5
+  },
+  {
+   "date": "2026-08-23",
+   "level_cm": 1449.5
+  },
+  {
+   "date": "2026-08-24",
+   "level_cm": 1454.5
+  },
+  {
+   "date": "2026-08-25",
+   "level_cm": 1440.0
+  },
+  {
+   "date": "2026-08-26",
+   "level_cm": 1424.5
+  },
+  {
+   "date": "2026-08-27",
+   "level_cm": 1409.5
+  },
+  {
+   "date": "2026-08-28",
+   "level_cm": 1396.0
+  },
+  {
+   "date": "2026-08-29",
+   "level_cm": 1376.0
+  },
+  {
+   "date": "2026-08-30",
+   "level_cm": 1361.0
+  },
+  {
+   "date": "2026-08-31",
+   "level_cm": 1338.0
+  },
+  {
+   "date": "2026-09-01",
+   "level_cm": 1326.5
+  },
+  {
+   "date": "2026-09-02",
+   "level_cm": 1312.0
+  },
+  {
+   "date": "2026-09-03",
+   "level_cm": 1290.5
+  },
+  {
+   "date": "2026-09-04",
+   "level_cm": 1267.5
+  },
+  {
+   "date": "2026-09-05",
+   "level_cm": 1254.0
+  },
+  {
+   "date": "2026-09-06",
+   "level_cm": 1239.5
+  },
+  {
+   "date": "2026-09-07",
+   "level_cm": 1228.0
+  },
+  {
+   "date": "2026-09-08",
+   "level_cm": 1215.0
+  },
+  {
+   "date": "2026-09-09",
+   "level_cm": 1194.5
+  },
+  {
+   "date": "2026-09-10",
+   "level_cm": 1182.0
+  },
+  {
+   "date": "2026-09-11",
+   "level_cm": 1163.0
+  },
+  {
+   "date": "2026-09-12",
+   "level_cm": 1147.0
+  },
+  {
+   "date": "2026-09-13",
+   "level_cm": 1126.0
+  },
+  {
+   "date": "2026-09-14",
+   "level_cm": 1115.0
+  },
+  {
+   "date": "2026-09-15",
+   "level_cm": 1094.5
+  },
+  {
+   "date": "2026-09-16",
+   "level_cm": 1074.0
+  },
+  {
+   "date": "2026-09-17",
+   "level_cm": 1056.0
+  },
+  {
+   "date": "2026-09-18",
+   "level_cm": 1037.0
+  },
+  {
+   "date": "2026-09-19",
+   "level_cm": 1024.0
+  },
+  {
+   "date": "2026-09-20",
+   "level_cm": 1003.0
+  },
+  {
+   "date": "2026-09-21",
+   "level_cm": 984.0
+  },
+  {
+   "date": "2026-09-22",
+   "level_cm": 971.5
+  },
+  {
+   "date": "2026-09-23",
+   "level_cm": 956.0
+  },
+  {
+   "date": "2026-09-24",
+   "level_cm": 946.0
+  },
+  {
+   "date": "2026-09-25",
+   "level_cm": 938.0
+  },
+  {
+   "date": "2026-09-26",
+   "level_cm": 933.5
+  },
+  {
+   "date": "2026-09-27",
+   "level_cm": 931.0
+  },
+  {
+   "date": "2026-09-28",
+   "level_cm": 931.0
+  },
+  {
+   "date": "2026-09-29",
+   "level_cm": 932.5
+  },
+  {
+   "date": "2026-09-30",
+   "level_cm": 934.5
+  },
+  {
+   "date": "2026-10-01",
+   "level_cm": 939.5
+  },
+  {
+   "date": "2026-10-02",
+   "level_cm": 944.0
+  },
+  {
+   "date": "2026-10-03",
+   "level_cm": 950.0
+  },
+  {
+   "date": "2026-10-04",
+   "level_cm": 956.0
+  },
+  {
+   "date": "2026-10-05",
+   "level_cm": 954.0
+  },
+  {
+   "date": "2026-10-06",
+   "level_cm": 951.0
+  },
+  {
+   "date": "2026-10-07",
+   "level_cm": 951.0
+  },
+  {
+   "date": "2026-10-08",
+   "level_cm": 947.0
+  },
+  {
+   "date": "2026-10-09",
+   "level_cm": 944.0
+  },
+  {
+   "date": "2026-10-10",
+   "level_cm": 938.0
+  },
+  {
+   "date": "2026-10-11",
+   "level_cm": 929.5
+  },
+  {
+   "date": "2026-10-12",
+   "level_cm": 916.0
+  },
+  {
+   "date": "2026-10-13",
+   "level_cm": 909.0
+  },
+  {
+   "date": "2026-10-14",
+   "level_cm": 893.5
+  },
+  {
+   "date": "2026-10-15",
+   "level_cm": 883.5
+  },
+  {
+   "date": "2026-10-16",
+   "level_cm": 870.5
+  },
+  {
+   "date": "2026-10-17",
+   "level_cm": 860.0
+  },
+  {
+   "date": "2026-10-18",
+   "level_cm": 846.0
+  },
+  {
+   "date": "2026-10-19",
+   "level_cm": 836.0
+  },
+  {
+   "date": "2026-10-20",
+   "level_cm": 827.0
+  },
+  {
+   "date": "2026-10-21",
+   "level_cm": 811.0
+  },
+  {
+   "date": "2026-10-22",
+   "level_cm": 807.0
+  },
+  {
+   "date": "2026-10-23",
+   "level_cm": 797.0
+  },
+  {
+   "date": "2026-10-24",
+   "level_cm": 790.5
+  },
+  {
+   "date": "2026-10-25",
+   "level_cm": 783.5
+  },
+  {
+   "date": "2026-10-26",
+   "level_cm": 778.5
+  },
+  {
+   "date": "2026-10-27",
+   "level_cm": 781.0
+  },
+  {
+   "date": "2026-10-28",
+   "level_cm": 785.0
+  },
+  {
+   "date": "2026-10-29",
+   "level_cm": 788.0
+  },
+  {
+   "date": "2026-10-30",
+   "level_cm": 795.5
+  },
+  {
+   "date": "2026-10-31",
+   "level_cm": 802.0
+  },
+  {
+   "date": "2026-11-01",
+   "level_cm": 810.0
+  },
+  {
+   "date": "2026-11-02",
+   "level_cm": 816.5
+  },
+  {
+   "date": "2026-11-03",
+   "level_cm": 821.0
+  },
+  {
+   "date": "2026-11-04",
+   "level_cm": 825.5
+  },
+  {
+   "date": "2026-11-05",
+   "level_cm": 826.5
+  },
+  {
+   "date": "2026-11-06",
+   "level_cm": 829.0
+  },
+  {
+   "date": "2026-11-07",
+   "level_cm": 831.0
+  },
+  {
+   "date": "2026-11-08",
+   "level_cm": 828.0
+  },
+  {
+   "date": "2026-11-09",
+   "level_cm": 828.0
+  },
+  {
+   "date": "2026-11-10",
+   "level_cm": 825.0
+  },
+  {
+   "date": "2026-11-11",
+   "level_cm": 823.5
+  },
+  {
+   "date": "2026-11-12",
+   "level_cm": 823.0
+  },
+  {
+   "date": "2026-11-13",
+   "level_cm": 823.0
+  },
+  {
+   "date": "2026-11-14",
+   "level_cm": 822.5
+  }
+ ],
+ "communities": [
+  {
+   "community_id": "osm3984711997",
+   "class": "monitored",
+   "at_risk_below_cm": 1400.0,
+   "isolated_below_cm": 1350.0,
+   "bottleneck": {
+    "location": [
+     -64.78549,
+     -3.13073
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-02"
+  },
+  {
+   "community_id": "osm3984833652",
+   "class": "monitored",
+   "at_risk_below_cm": 1610.0,
+   "isolated_below_cm": 1410.0,
+   "bottleneck": {
+    "location": [
+     -64.94965,
+     -3.59783
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-02"
+  },
+  {
+   "community_id": "osm3986860600",
+   "class": "monitored",
+   "at_risk_below_cm": 1730.0,
+   "isolated_below_cm": 1490.0,
+   "bottleneck": {
+    "location": [
+     -64.79395,
+     -3.42521
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-02"
+  },
+  {
+   "community_id": "osm3986860623",
+   "class": "monitored",
+   "at_risk_below_cm": 1730.0,
+   "isolated_below_cm": 1490.0,
+   "bottleneck": {
+    "location": [
+     -64.79395,
+     -3.42521
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-02"
+  },
+  {
+   "community_id": "osm9755637967",
+   "class": "monitored",
+   "at_risk_below_cm": 1570.0,
+   "isolated_below_cm": 1500.0,
+   "bottleneck": {
+    "location": [
+     -64.64869,
+     -3.29525
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-02"
+  },
+  {
+   "community_id": "osm3984833620",
+   "class": "monitored",
+   "at_risk_below_cm": 1550.0,
+   "isolated_below_cm": 1270.0,
+   "bottleneck": {
+    "location": [
+     -65.00509,
+     -3.48353
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.918
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-05"
+  },
+  {
+   "community_id": "osm3986860562",
+   "class": "monitored",
+   "at_risk_below_cm": 1340.0,
+   "isolated_below_cm": 1230.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.575
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 1.0
+    }
+   ],
+   "expected_cutoff_date": "2026-09-08"
+  },
+  {
+   "community_id": "osm3984833626",
+   "class": "monitored",
+   "at_risk_below_cm": 1550.0,
+   "isolated_below_cm": 1110.0,
+   "bottleneck": {
+    "location": [
+     -65.00509,
+     -3.48353
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.46
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.886
+    }
+   ],
+   "expected_cutoff_date": "2026-09-16"
+  },
+  {
+   "community_id": "osm3984712016",
+   "class": "monitored",
+   "at_risk_below_cm": 1330.0,
+   "isolated_below_cm": 1090.0,
+   "bottleneck": {
+    "location": [
+     -64.88557,
+     -3.10067
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.375
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.831
+    }
+   ],
+   "expected_cutoff_date": "2026-09-18"
+  },
+  {
+   "community_id": "osm3984833648",
+   "class": "monitored",
+   "at_risk_below_cm": 1130.0,
+   "isolated_below_cm": 1080.0,
+   "bottleneck": {
+    "location": [
+     -64.98619,
+     -3.48317
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.551,
+     "p_isolated": 0.332
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.942,
+     "p_isolated": 0.804
+    }
+   ],
+   "expected_cutoff_date": "2026-09-18"
+  },
+  {
+   "community_id": "osm3986860636",
+   "class": "monitored",
+   "at_risk_below_cm": 1090.0,
+   "isolated_below_cm": 1040.0,
+   "bottleneck": {
+    "location": [
+     -64.79647,
+     -3.41585
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.16
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.831,
+     "p_isolated": 0.693
+    }
+   ],
+   "expected_cutoff_date": "2026-09-22"
+  },
+  {
+   "community_id": "osm8583554431",
+   "class": "monitored",
+   "at_risk_below_cm": 1120.0,
+   "isolated_below_cm": 1040.0,
+   "bottleneck": {
+    "location": [
+     -64.88215,
+     -3.47471
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.504,
+     "p_isolated": 0.16
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.914,
+     "p_isolated": 0.693
+    }
+   ],
+   "expected_cutoff_date": "2026-09-22"
+  },
+  {
+   "community_id": "osm3924267828",
+   "class": "monitored",
+   "at_risk_below_cm": 1020.0,
+   "isolated_below_cm": 1000.0,
+   "bottleneck": {
+    "location": [
+     -64.76245,
+     -3.12767
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.074,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.638,
+     "p_isolated": 0.582
+    }
+   ],
+   "expected_cutoff_date": "2026-09-26"
+  },
+  {
+   "community_id": "osm3924267833",
+   "class": "monitored",
+   "at_risk_below_cm": 1020.0,
+   "isolated_below_cm": 1000.0,
+   "bottleneck": {
+    "location": [
+     -64.76245,
+     -3.12767
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.074,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.638,
+     "p_isolated": 0.582
+    }
+   ],
+   "expected_cutoff_date": "2026-09-26"
+  },
+  {
+   "community_id": "osm3924302380",
+   "class": "monitored",
+   "at_risk_below_cm": 1020.0,
+   "isolated_below_cm": 1000.0,
+   "bottleneck": {
+    "location": [
+     -64.76245,
+     -3.12767
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.074,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.638,
+     "p_isolated": 0.582
+    }
+   ],
+   "expected_cutoff_date": "2026-09-26"
+  },
+  {
+   "community_id": "osm3924302384",
+   "class": "monitored",
+   "at_risk_below_cm": 1020.0,
+   "isolated_below_cm": 1000.0,
+   "bottleneck": {
+    "location": [
+     -64.76245,
+     -3.12767
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.074,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.638,
+     "p_isolated": 0.582
+    }
+   ],
+   "expected_cutoff_date": "2026-09-26"
+  },
+  {
+   "community_id": "osm3984711996",
+   "class": "monitored",
+   "at_risk_below_cm": 1700.0,
+   "isolated_below_cm": 1000.0,
+   "bottleneck": {
+    "location": [
+     -64.82167,
+     -3.11759
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.582
+    }
+   ],
+   "expected_cutoff_date": "2026-09-26"
+  },
+  {
+   "community_id": "osm3984833616",
+   "class": "monitored",
+   "at_risk_below_cm": 1180.0,
+   "isolated_below_cm": 980.0,
+   "bottleneck": {
+    "location": [
+     -64.98385,
+     -3.56669
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.188,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.786,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.527
+    }
+   ],
+   "expected_cutoff_date": "2026-09-29"
+  },
+  {
+   "community_id": "osm3986860646",
+   "class": "monitored",
+   "at_risk_below_cm": 1610.0,
+   "isolated_below_cm": 960.0,
+   "bottleneck": {
+    "location": [
+     -64.96261,
+     -3.62681
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.475
+    }
+   ],
+   "expected_cutoff_date": "2026-10-04"
+  },
+  {
+   "community_id": "osm10300290342",
+   "class": "monitored",
+   "at_risk_below_cm": 720.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": {
+    "location": [
+     -64.77109,
+     -3.30443
+    ],
+    "width_class_m": null
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm10654589227",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm2661355762",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675578758",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675578774",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675578808",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675578818",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675578822",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675584335",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675584336",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3675584358",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924265055",
+   "class": "monitored",
+   "at_risk_below_cm": 1730.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.32109,
+     -3.24539
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267758",
+   "class": "monitored",
+   "at_risk_below_cm": 960.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.72933,
+     -2.95433
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.475,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267772",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267794",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267797",
+   "class": "monitored",
+   "at_risk_below_cm": 1670.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.38535,
+     -3.28265
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267813",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267817",
+   "class": "monitored",
+   "at_risk_below_cm": 960.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.72933,
+     -2.95433
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.475,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924267831",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302370",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302371",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302372",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302373",
+   "class": "monitored",
+   "at_risk_below_cm": 1230.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.57543,
+     -3.18383
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.575,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302374",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302375",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302376",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302377",
+   "class": "monitored",
+   "at_risk_below_cm": 1230.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.57543,
+     -3.18383
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.575,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302378",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302379",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302381",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302382",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302383",
+   "class": "monitored",
+   "at_risk_below_cm": 1230.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.57543,
+     -3.18383
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.575,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302385",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302386",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302387",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302388",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302389",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302390",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302391",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302392",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302393",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302394",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302395",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.60045,
+     -3.22181
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3924302396",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984711998",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712000",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712003",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712006",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712015",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712023",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712024",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712031",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984712038",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833606",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833607",
+   "class": "monitored",
+   "at_risk_below_cm": 720.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833608",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833609",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833610",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833612",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833613",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833614",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833615",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833617",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833618",
+   "class": "monitored",
+   "at_risk_below_cm": 770.0,
+   "isolated_below_cm": 770.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.003,
+     "p_isolated": 0.003
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833619",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833621",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833622",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833623",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833624",
+   "class": "monitored",
+   "at_risk_below_cm": 720.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833625",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833627",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833628",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833629",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833630",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833631",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833632",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833634",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833635",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833636",
+   "class": "monitored",
+   "at_risk_below_cm": 720.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": {
+    "location": [
+     -64.77631,
+     -3.30569
+    ],
+    "width_class_m": null
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833637",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833638",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833639",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833640",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833642",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833643",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833644",
+   "class": "monitored",
+   "at_risk_below_cm": 770.0,
+   "isolated_below_cm": 770.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.003,
+     "p_isolated": 0.003
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833646",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833647",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833650",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833653",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833654",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833655",
+   "class": "monitored",
+   "at_risk_below_cm": 940.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.98259,
+     -3.55607
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.425,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984833656",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984835457",
+   "class": "monitored",
+   "at_risk_below_cm": 770.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": {
+    "location": [
+     -64.92931,
+     -3.46805
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.003,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984835459",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984835460",
+   "class": "monitored",
+   "at_risk_below_cm": 810.0,
+   "isolated_below_cm": 770.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.102,
+     "p_isolated": 0.003
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984835462",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3984835463",
+   "class": "monitored",
+   "at_risk_below_cm": 940.0,
+   "isolated_below_cm": 850.0,
+   "bottleneck": {
+    "location": [
+     -64.97755,
+     -3.49469
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.425,
+     "p_isolated": 0.202
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858839",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858840",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858841",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858842",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858843",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858845",
+   "class": "monitored",
+   "at_risk_below_cm": 870.0,
+   "isolated_below_cm": 830.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.251,
+     "p_isolated": 0.152
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858847",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858849",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858851",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858853",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858854",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986858856",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860558",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860560",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860565",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860568",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.83931,
+     -3.43007
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860569",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 920.0,
+   "bottleneck": {
+    "location": [
+     -64.83229,
+     -3.42179
+    ],
+    "width_class_m": null
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.375
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860570",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860571",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860572",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860573",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860574",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860575",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860576",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860578",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860579",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860580",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860581",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860582",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860583",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860584",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860585",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860586",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860587",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860588",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860589",
+   "class": "monitored",
+   "at_risk_below_cm": 890.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.67371,
+     -3.35699
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.301,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860591",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860593",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860595",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860596",
+   "class": "monitored",
+   "at_risk_below_cm": 870.0,
+   "isolated_below_cm": 850.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.251,
+     "p_isolated": 0.202
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860598",
+   "class": "monitored",
+   "at_risk_below_cm": 850.0,
+   "isolated_below_cm": 830.0,
+   "bottleneck": {
+    "location": [
+     -64.69405,
+     -3.32801
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.202,
+     "p_isolated": 0.152
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860599",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860601",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860602",
+   "class": "monitored",
+   "at_risk_below_cm": 940.0,
+   "isolated_below_cm": 920.0,
+   "bottleneck": {
+    "location": [
+     -64.81051,
+     -3.41099
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.425,
+     "p_isolated": 0.375
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860603",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860604",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860605",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860606",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860608",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860610",
+   "class": "monitored",
+   "at_risk_below_cm": 890.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.67371,
+     -3.35699
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.301,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860611",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860612",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860614",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860615",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860619",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860622",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860624",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860626",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860627",
+   "class": "monitored",
+   "at_risk_below_cm": 940.0,
+   "isolated_below_cm": 920.0,
+   "bottleneck": {
+    "location": [
+     -64.81051,
+     -3.41099
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.425,
+     "p_isolated": 0.375
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860629",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860632",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860633",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860634",
+   "class": "monitored",
+   "at_risk_below_cm": 890.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.66723,
+     -3.35195
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.301,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860635",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860637",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860639",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860640",
+   "class": "monitored",
+   "at_risk_below_cm": 940.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.59685,
+     -3.32153
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.425,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860641",
+   "class": "monitored",
+   "at_risk_below_cm": 890.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.67371,
+     -3.35699
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.301,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860642",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860644",
+   "class": "monitored",
+   "at_risk_below_cm": 810.0,
+   "isolated_below_cm": 810.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.102,
+     "p_isolated": 0.102
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860647",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860648",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860650",
+   "class": "monitored",
+   "at_risk_below_cm": 890.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.301,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860651",
+   "class": "monitored",
+   "at_risk_below_cm": 870.0,
+   "isolated_below_cm": 850.0,
+   "bottleneck": {
+    "location": [
+     -64.67677,
+     -3.35645
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.251,
+     "p_isolated": 0.202
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860652",
+   "class": "monitored",
+   "at_risk_below_cm": 810.0,
+   "isolated_below_cm": 810.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.102,
+     "p_isolated": 0.102
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860653",
+   "class": "monitored",
+   "at_risk_below_cm": 810.0,
+   "isolated_below_cm": 810.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.102,
+     "p_isolated": 0.102
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm3986860654",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm415524054",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm416652595",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm416757398",
+   "class": "monitored",
+   "at_risk_below_cm": 1240.0,
+   "isolated_below_cm": 890.0,
+   "bottleneck": {
+    "location": [
+     -64.52359,
+     -3.16133
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.661,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 1.0,
+     "p_isolated": 0.301
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm416757401",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm416757403",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm416757413",
+   "class": "unresolved",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm8583188413",
+   "class": "monitored",
+   "at_risk_below_cm": 720.0,
+   "isolated_below_cm": 720.0,
+   "bottleneck": null,
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm8595241926",
+   "class": "inland",
+   "at_risk_below_cm": null,
+   "isolated_below_cm": null,
+   "bottleneck": null,
+   "warnings": [],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm8632395939",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  },
+  {
+   "community_id": "osm9829129139",
+   "class": "monitored",
+   "at_risk_below_cm": 920.0,
+   "isolated_below_cm": 870.0,
+   "bottleneck": {
+    "location": [
+     -64.68523,
+     -3.31703
+    ],
+    "width_class_m": 0
+   },
+   "warnings": [
+    {
+     "horizon_days": 7,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 14,
+     "p_at_risk": 0.0,
+     "p_isolated": 0.0
+    },
+    {
+     "horizon_days": 30,
+     "p_at_risk": 0.375,
+     "p_isolated": 0.251
+    }
+   ],
+   "expected_cutoff_date": null
+  }
+ ],
+ "hindcast": {
+  "issues": [
+   "2026-08-01",
+   "2026-08-15",
+   "2026-09-01"
+  ],
+  "communities": [
+   {
+    "community_id": "osm10300290342",
+    "observed_isolated_on": "2026-09-20",
+    "first_warned_on": null,
+    "lead_days": null
+   },
+   {
+    "community_id": "osm2661355762",
+    "observed_isolated_on": "2026-09-20",
+    "first_warned_on": null,
+    "lead_days": null
+   },
+   {
+    "community_id": "osm3675578808",
+    "observed_isolated_on": "2026-10-20",
+    "first_warned_on": null,
+    "lead_days": null
+   }
+  ],
+  "misses": [
+   "osm10300290342",
+   "osm2661355762",
+   "osm3675578808"
+  ],
+  "false_alarms": [],
+  "predicted_cutoffs": {
+   "2026-08-01": {
+    "osm3924302389": null,
+    "osm3986860652": null,
+    "osm3986860641": null,
+    "osm3986860634": null,
+    "osm3984712006": null,
+    "osm3986860615": null,
+    "osm3924302371": null,
+    "osm3986860636": "2026-09-27",
+    "osm3924267797": null,
+    "osm3986858849": null,
+    "osm3986858845": null,
+    "osm416757401": null,
+    "osm3984833607": null,
+    "osm3984833653": null,
+    "osm3986860576": null,
+    "osm2661355762": null,
+    "osm3986860622": null,
+    "osm3924267817": null,
+    "osm3924302382": null,
+    "osm3984833624": null,
+    "osm3984833616": null,
+    "osm3984833643": null,
+    "osm3924302381": null,
+    "osm3984712000": null,
+    "osm3984833648": "2026-09-23",
+    "osm3984833637": null,
+    "osm3924267758": null,
+    "osm415524054": null,
+    "osm3984835457": null,
+    "osm3924302387": null,
+    "osm3986860629": null,
+    "osm3986858851": null,
+    "osm3986860646": null,
+    "osm3984833619": null,
+    "osm3675584336": null,
+    "osm3986860632": null,
+    "osm3924302384": "2026-10-07",
+    "osm3986860619": null,
+    "osm3986860562": "2026-09-11",
+    "osm3984833647": null,
+    "osm3986860596": null,
+    "osm3986860572": null,
+    "osm3924302370": null,
+    "osm3924302375": null,
+    "osm3986860640": null,
+    "osm3986858853": null,
+    "osm3924302385": null,
+    "osm3924302383": null,
+    "osm3986860637": null,
+    "osm3984712024": null,
+    "osm3986860569": null,
+    "osm3986860565": null,
+    "osm3986860610": null,
+    "osm9829129139": null,
+    "osm3984712003": null,
+    "osm3984835460": null,
+    "osm3984833646": null,
+    "osm3984833618": null,
+    "osm3984833621": null,
+    "osm3984833628": null,
+    "osm3984833638": null,
+    "osm8632395939": null,
+    "osm3984833629": null,
+    "osm3984712016": "2026-09-22",
+    "osm3986860651": null,
+    "osm3984833614": null,
+    "osm3984833631": null,
+    "osm3924267813": null,
+    "osm3984833636": null,
+    "osm3924302374": null,
+    "osm3984833650": null,
+    "osm3986860653": null,
+    "osm3924302380": "2026-10-07",
+    "osm3984833644": null,
+    "osm3984711997": "2026-09-03",
+    "osm3986860573": null,
+    "osm3675578808": null,
+    "osm3984833620": "2026-09-09",
+    "osm3984711996": "2026-10-07",
+    "osm3986860580": null,
+    "osm3924302378": null,
+    "osm3924302376": null,
+    "osm3924265055": null,
+    "osm3924302393": null,
+    "osm3924302395": null,
+    "osm3984833652": "2026-08-30",
+    "osm8583554431": "2026-09-27",
+    "osm3924302386": null,
+    "osm3986860568": null,
+    "osm3924267833": "2026-10-07",
+    "osm3984833630": null,
+    "osm3986860602": null,
+    "osm3986860650": null,
+    "osm3986860583": null,
+    "osm3986858854": null,
+    "osm416652595": null,
+    "osm3986860644": null,
+    "osm416757398": null,
+    "osm9755637967": "2026-08-23",
+    "osm3924302390": null,
+    "osm3924302391": null,
+    "osm3984833655": null,
+    "osm3986860639": null,
+    "osm3986860614": null,
+    "osm3984835463": null,
+    "osm3924302396": null,
+    "osm3924267772": null,
+    "osm3986860627": null,
+    "osm3984833626": "2026-09-20",
+    "osm8583188413": null,
+    "osm3924302388": null,
+    "osm3924302377": null,
+    "osm3675584335": null,
+    "osm3986860585": null,
+    "osm3924267831": null,
+    "osm10300290342": null,
+    "osm3924302372": null,
+    "osm3984833608": null,
+    "osm3984712038": null,
+    "osm3986860600": "2026-08-24",
+    "osm3924302394": null,
+    "osm3984833640": null,
+    "osm3924302373": null,
+    "osm3924302392": null,
+    "osm3986860589": null,
+    "osm3986860598": null,
+    "osm3984833656": null,
+    "osm3986860623": "2026-08-24",
+    "osm3924302379": null,
+    "osm3924267828": "2026-10-07"
+   },
+   "2026-08-15": {
+    "osm3924302389": null,
+    "osm3986860652": null,
+    "osm3986860641": null,
+    "osm3986860634": null,
+    "osm3984712006": null,
+    "osm3986860615": null,
+    "osm3924302371": null,
+    "osm3986860636": "2026-09-26",
+    "osm3924267797": null,
+    "osm3986858849": null,
+    "osm3986858845": null,
+    "osm416757401": null,
+    "osm3984833607": null,
+    "osm3984833653": null,
+    "osm3986860576": null,
+    "osm2661355762": null,
+    "osm3986860622": null,
+    "osm3924267817": null,
+    "osm3924302382": null,
+    "osm3984833624": null,
+    "osm3984833616": null,
+    "osm3984833643": null,
+    "osm3924302381": null,
+    "osm3984712000": null,
+    "osm3984833648": "2026-09-22",
+    "osm3984833637": null,
+    "osm3924267758": null,
+    "osm415524054": null,
+    "osm3984835457": null,
+    "osm3924302387": null,
+    "osm3986860629": null,
+    "osm3986858851": null,
+    "osm3986860646": null,
+    "osm3984833619": null,
+    "osm3675584336": null,
+    "osm3986860632": null,
+    "osm3924302384": "2026-10-04",
+    "osm3986860619": null,
+    "osm3986860562": "2026-09-11",
+    "osm3984833647": null,
+    "osm3986860596": null,
+    "osm3986860572": null,
+    "osm3924302370": null,
+    "osm3924302375": null,
+    "osm3986860640": null,
+    "osm3986858853": null,
+    "osm3924302385": null,
+    "osm3924302383": null,
+    "osm3986860637": null,
+    "osm3984712024": null,
+    "osm3986860569": null,
+    "osm3986860565": null,
+    "osm3986860610": null,
+    "osm9829129139": null,
+    "osm3984712003": null,
+    "osm3984835460": null,
+    "osm3984833646": null,
+    "osm3984833618": null,
+    "osm3984833621": null,
+    "osm3984833628": null,
+    "osm3984833638": null,
+    "osm8632395939": null,
+    "osm3984833629": null,
+    "osm3984712016": "2026-09-21",
+    "osm3986860651": null,
+    "osm3984833614": null,
+    "osm3984833631": null,
+    "osm3924267813": null,
+    "osm3984833636": null,
+    "osm3924302374": null,
+    "osm3984833650": null,
+    "osm3986860653": null,
+    "osm3924302380": "2026-10-04",
+    "osm3984833644": null,
+    "osm3984711997": "2026-09-03",
+    "osm3986860573": null,
+    "osm3675578808": null,
+    "osm3984833620": "2026-09-08",
+    "osm3984711996": "2026-10-04",
+    "osm3986860580": null,
+    "osm3924302378": null,
+    "osm3924302376": null,
+    "osm3924265055": null,
+    "osm3924302393": null,
+    "osm3924302395": null,
+    "osm3984833652": "2026-08-29",
+    "osm8583554431": "2026-09-26",
+    "osm3924302386": null,
+    "osm3986860568": null,
+    "osm3924267833": "2026-10-04",
+    "osm3984833630": null,
+    "osm3986860602": null,
+    "osm3986860650": null,
+    "osm3986860583": null,
+    "osm3986858854": null,
+    "osm416652595": null,
+    "osm3986860644": null,
+    "osm416757398": null,
+    "osm9755637967": "2026-08-22",
+    "osm3924302390": null,
+    "osm3924302391": null,
+    "osm3984833655": null,
+    "osm3986860639": null,
+    "osm3986860614": null,
+    "osm3984835463": null,
+    "osm3924302396": null,
+    "osm3924267772": null,
+    "osm3986860627": null,
+    "osm3984833626": "2026-09-19",
+    "osm8583188413": null,
+    "osm3924302388": null,
+    "osm3924302377": null,
+    "osm3675584335": null,
+    "osm3986860585": null,
+    "osm3924267831": null,
+    "osm10300290342": null,
+    "osm3924302372": null,
+    "osm3984833608": null,
+    "osm3984712038": null,
+    "osm3986860600": "2026-08-23",
+    "osm3924302394": null,
+    "osm3984833640": null,
+    "osm3924302373": null,
+    "osm3924302392": null,
+    "osm3986860589": null,
+    "osm3986860598": null,
+    "osm3984833656": null,
+    "osm3986860623": "2026-08-23",
+    "osm3924302379": null,
+    "osm3924267828": "2026-10-04"
+   },
+   "2026-09-01": {
+    "osm3924302389": null,
+    "osm3986860652": null,
+    "osm3986860641": null,
+    "osm3986860634": null,
+    "osm3984712006": null,
+    "osm3986860615": null,
+    "osm3924302371": null,
+    "osm3986860636": "2026-09-22",
+    "osm3924267797": null,
+    "osm3986858849": null,
+    "osm3986858845": null,
+    "osm416757401": null,
+    "osm3984833607": null,
+    "osm3984833653": null,
+    "osm3986860576": null,
+    "osm2661355762": null,
+    "osm3986860622": null,
+    "osm3924267817": null,
+    "osm3924302382": null,
+    "osm3984833624": null,
+    "osm3984833616": "2026-09-29",
+    "osm3984833643": null,
+    "osm3924302381": null,
+    "osm3984712000": null,
+    "osm3984833648": "2026-09-18",
+    "osm3984833637": null,
+    "osm3924267758": null,
+    "osm415524054": null,
+    "osm3984835457": null,
+    "osm3924302387": null,
+    "osm3986860629": null,
+    "osm3986858851": null,
+    "osm3986860646": "2026-10-04",
+    "osm3984833619": null,
+    "osm3675584336": null,
+    "osm3986860632": null,
+    "osm3924302384": "2026-09-26",
+    "osm3986860619": null,
+    "osm3986860562": "2026-09-08",
+    "osm3984833647": null,
+    "osm3986860596": null,
+    "osm3986860572": null,
+    "osm3924302370": null,
+    "osm3924302375": null,
+    "osm3986860640": null,
+    "osm3986858853": null,
+    "osm3924302385": null,
+    "osm3924302383": null,
+    "osm3986860637": null,
+    "osm3984712024": null,
+    "osm3986860569": null,
+    "osm3986860565": null,
+    "osm3986860610": null,
+    "osm9829129139": null,
+    "osm3984712003": null,
+    "osm3984835460": null,
+    "osm3984833646": null,
+    "osm3984833618": null,
+    "osm3984833621": null,
+    "osm3984833628": null,
+    "osm3984833638": null,
+    "osm8632395939": null,
+    "osm3984833629": null,
+    "osm3984712016": "2026-09-18",
+    "osm3986860651": null,
+    "osm3984833614": null,
+    "osm3984833631": null,
+    "osm3924267813": null,
+    "osm3984833636": null,
+    "osm3924302374": null,
+    "osm3984833650": null,
+    "osm3986860653": null,
+    "osm3924302380": "2026-09-26",
+    "osm3984833644": null,
+    "osm3984711997": "2026-09-02",
+    "osm3986860573": null,
+    "osm3675578808": null,
+    "osm3984833620": "2026-09-05",
+    "osm3984711996": "2026-09-26",
+    "osm3986860580": null,
+    "osm3924302378": null,
+    "osm3924302376": null,
+    "osm3924265055": null,
+    "osm3924302393": null,
+    "osm3924302395": null,
+    "osm3984833652": "2026-09-02",
+    "osm8583554431": "2026-09-22",
+    "osm3924302386": null,
+    "osm3986860568": null,
+    "osm3924267833": "2026-09-26",
+    "osm3984833630": null,
+    "osm3986860602": null,
+    "osm3986860650": null,
+    "osm3986860583": null,
+    "osm3986858854": null,
+    "osm416652595": null,
+    "osm3986860644": null,
+    "osm416757398": null,
+    "osm9755637967": "2026-09-02",
+    "osm3924302390": null,
+    "osm3924302391": null,
+    "osm3984833655": null,
+    "osm3986860639": null,
+    "osm3986860614": null,
+    "osm3984835463": null,
+    "osm3924302396": null,
+    "osm3924267772": null,
+    "osm3986860627": null,
+    "osm3984833626": "2026-09-16",
+    "osm8583188413": null,
+    "osm3924302388": null,
+    "osm3924302377": null,
+    "osm3675584335": null,
+    "osm3986860585": null,
+    "osm3924267831": null,
+    "osm10300290342": null,
+    "osm3924302372": null,
+    "osm3984833608": null,
+    "osm3984712038": null,
+    "osm3986860600": "2026-09-02",
+    "osm3924302394": null,
+    "osm3984833640": null,
+    "osm3924302373": null,
+    "osm3924302392": null,
+    "osm3986860589": null,
+    "osm3986860598": null,
+    "osm3984833656": null,
+    "osm3986860623": "2026-09-02",
+    "osm3924302379": null,
+    "osm3924267828": "2026-09-26"
+   }
+  },
+  "summary": {
+   "median_lead_days": null,
+   "warned": 0,
+   "observed": 3,
+   "false_alarms": 0,
+   "passes": 3
+  }
+ },
+ "validation": {
+  "mask_iou": null,
+  "status_confusion": {
+   "observed_vs_synthetic": {
+    "connected": {
+     "connected": 12,
+     "at_risk": 2,
+     "isolated": 5
+    },
+    "at_risk": {
+     "connected": 0,
+     "at_risk": 0,
+     "isolated": 0
+    },
+    "isolated": {
+     "connected": 3,
+     "at_risk": 0,
+     "isolated": 2
+    }
+   },
+   "agreement": 0.5833
+  },
+  "passes": [
+   {
+    "pass_id": "handmade-2026-08-20",
+    "date": "2026-08-20",
+    "level_cm": 1510.5
+   },
+   {
+    "pass_id": "handmade-2026-09-20",
+    "date": "2026-09-20",
+    "level_cm": 1003.0
+   },
+   {
+    "pass_id": "handmade-2026-10-20",
+    "date": "2026-10-20",
+    "level_cm": 827.0
+   }
+  ]
+ }
+}

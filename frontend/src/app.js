@@ -1,11 +1,13 @@
 import { renderCommunityList, renderSelectedSummary } from "./components/communityList.js";
+import { renderEarlyWarningPanel, renderLimits } from "./components/earlyWarningPanel.js";
 import { renderLayerControls } from "./components/layerControls.js";
+import { renderLevelForecastChart } from "./components/levelForecastChart.js";
 import { renderRouteChart } from "./components/routeChart.js";
 import { renderStatusFilter, toggleStatus } from "./components/statusFilter.js";
 import { renderStatusPanel } from "./components/statusPanel.js";
 import { formatDay, formatRiverLevel } from "./format.js";
 import { imageryChoices, layersToShow } from "./imagery.js";
-import { loadHistory, loadOverview, loadPass } from "./services/api.js";
+import { loadEarlyWarning, loadHistory, loadOverview, loadPass } from "./services/api.js";
 import { createMap } from "./services/mapService.js";
 import { STATUSES, bySeverity, countByStatus, statusOf } from "./status.js";
 import { currentTheme, toggleTheme } from "./theme.js";
@@ -37,6 +39,8 @@ const state = {
   chartHistory: null,
 };
 let mapControls;
+// The experimental early warning: a separate section, never read by the main view
+const earlyWarning = { report: null, selectedId: null };
 
 const thresholdM = () => state.overview?.area?.connectedMinWidthM ?? null;
 const hubName = () => state.overview?.hub?.name ?? state.overview?.area?.name ?? "the hub";
@@ -176,6 +180,42 @@ async function changePass(passId) {
   renderControls();
 }
 
+/** The early warning section: its list, and the level chart of the community picked in it (when open). */
+function renderEarlyWarning() {
+  const { report } = earlyWarning;
+  const content = $("#early-warning-content");
+  if (!report || !content) return;
+  const names = Object.fromEntries(state.communities.map((community) => [community.id, community.name]));
+  const listed = renderEarlyWarningPanel(content, report, {
+    names,
+    selectedId: earlyWarning.selectedId,
+    onSelect: (id) => {
+      earlyWarning.selectedId = id;
+      renderEarlyWarning();
+    },
+  });
+  earlyWarning.selectedId ??= listed[0]?.community_id ?? null;
+  if ($("#early-warning-body")?.hidden === false) {
+    const community = report.communities.find((item) => item.community_id === earlyWarning.selectedId);
+    renderLevelForecastChart($("#level-forecast-chart"), report, { community, theme: currentTheme() });
+  }
+}
+
+/** Shows the early warning section only when the API has one; nothing else on the page depends on it. */
+async function setUpEarlyWarning() {
+  const section = $("#early-warning");
+  if (!section) return;
+  const report = await loadEarlyWarning();
+  if (!report) return;
+  earlyWarning.report = report;
+  section.hidden = false;
+  const toggle = $("#early-warning-toggle");
+  setUpPanelToggle(toggle, false);
+  toggle?.addEventListener("click", renderEarlyWarning);
+  renderLimits($("#early-warning-limits"), report);
+  renderEarlyWarning();
+}
+
 /** The area's name wherever the page says it. */
 function applyArea(area) {
   if (!area?.name) return;
@@ -195,6 +235,7 @@ function setUpThemeToggle() {
     sync();
     mapControls?.setTheme(theme);
     if (state.chartHistory) drawChart();
+    renderEarlyWarning();
   });
 }
 
@@ -229,6 +270,7 @@ async function init() {
   renderControls();
   // The community most in need first
   select(state.communities[0]?.id);
+  setUpEarlyWarning();
 
   createMap({
     area: overview.area,
