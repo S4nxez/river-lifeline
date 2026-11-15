@@ -52,6 +52,13 @@ public interface PassRepository {
             LeaseId lease,
             Instant now);
 
+    /**
+     * Records that a pass covers too little of the area to be evaluated: nothing of it is kept (no rasters, routes,
+     * Sentinel-1 or change) but the fact that it was assessed and its coverage, so the pass search never stages it
+     * again and the public API never shows it.
+     */
+    void saveUnevaluated(AreaId area, PassId pass, double coverage, String digest, LeaseId lease, Instant now);
+
     record StagingCandidate(AreaId area, NisarPass pass, int stagingAttempts) {}
 
     /** A pass as stored: rasters are null when the pass has none. */

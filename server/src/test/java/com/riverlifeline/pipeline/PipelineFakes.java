@@ -430,6 +430,31 @@ public final class PipelineFakes {
         }
 
         @Override
+        public void saveUnevaluated(
+                AreaId area, PassId pass, double coverage, String digest, LeaseId lease, Instant now) {
+            PassRow row = row(area, pass);
+            row.assessment = new PassAssessment(
+                    pass,
+                    coverage,
+                    false,
+                    false,
+                    0,
+                    0,
+                    null,
+                    new PassAssessment.Threshold("fixed", 0, null, null, null),
+                    null,
+                    null,
+                    null,
+                    List.of(),
+                    List.of(),
+                    null,
+                    null,
+                    Map.of());
+            row.rasters.clear();
+            row.digest = digest;
+        }
+
+        @Override
         public void saveAssessment(
                 AreaId area,
                 PassAssessment assessment,

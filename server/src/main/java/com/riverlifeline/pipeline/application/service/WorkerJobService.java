@@ -158,7 +158,10 @@ public final class WorkerJobService implements WorkerJobs {
         transactions.run(() -> {
             Job current = held(lease);
             Instant now = clock.instant();
-            uploaded.forEach((name, id) -> rasters.promote(id, result.rasters().get(name)));
+            if (!(result instanceof PassAssessment pass) || pass.evaluated()) {
+                uploaded.forEach(
+                        (name, id) -> rasters.promote(id, result.rasters().get(name)));
+            }
             store(current, result, area, uploaded, now);
             jobs.finish(current, true, null, now);
             if (result instanceof PassAssessment pass) {
@@ -171,8 +174,13 @@ public final class WorkerJobService implements WorkerJobs {
 
     private void store(Job job, JobResult result, Area area, Map<ResultRasterName, RasterId> uploaded, Instant now) {
         switch (result) {
-            case PassAssessment pass ->
-                passes.saveAssessment(area.id(), pass, uploaded, area.digest(), job.lease(), now);
+            case PassAssessment pass -> {
+                if (pass.evaluated()) {
+                    passes.saveAssessment(area.id(), pass, uploaded, area.digest(), job.lease(), now);
+                } else {
+                    passes.saveUnevaluated(area.id(), pass.passId(), pass.coverage(), area.digest(), job.lease(), now);
+                }
+            }
             case ChangeResult change ->
                 results.saveChange(area.id(), change, uploaded.get(ResultRasterName.CHANGE), now);
             case Classification classification -> results.saveClassification(classification, now);
