@@ -58,7 +58,7 @@ public class JdbcPipelineReader implements PipelineReader {
                 LEFT JOIN raster v ON v.id = p.sentinel1_vv_raster_id
                 LEFT JOIN pass_counts k ON k.area_id = p.area_id AND k.pass_id = p.pass_id
                 LEFT JOIN pass_sentinel1 s ON s.area_id = p.area_id AND s.pass_id = p.pass_id
-                WHERE p.area_id = :area AND p.assessed_at IS NOT NULL AND p.shown = TRUE
+                WHERE p.area_id = :area AND p.assessed_at IS NOT NULL AND p.shown = TRUE AND p.evaluated = TRUE
                 ORDER BY p.acquired_on, p.time_utc, p.pass_id
                 """.formatted(boxColumns("w"), boxColumns("r"), boxColumns("v")), area, (rs, i) -> pass(rs, changes));
     }

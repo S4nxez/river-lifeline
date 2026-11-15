@@ -198,6 +198,35 @@ public class JdbcPassRepository implements PassRepository {
     }
 
     @Override
+    public void saveUnevaluated(AreaId area, PassId pass, double coverage, String digest, LeaseId lease, Instant now) {
+        MapSqlParameterSource p = new MapSqlParameterSource()
+                .addValue("area", area.value())
+                .addValue("pass", pass.value())
+                .addValue("coverage", coverage)
+                .addValue("digest", digest)
+                .addValue("lease", lease.value())
+                .addValue("now", ts(now));
+        int updated = jdbc.update("""
+                UPDATE radar_pass SET assessed_at = :now, lease_id = :lease, method_digest = :digest,
+                    coverage = :coverage, shown = FALSE, evaluated = FALSE, water_km2 = NULL, narrow_km2 = NULL,
+                    vegetated_km2 = NULL, threshold_source = NULL, threshold_strong_db = NULL,
+                    threshold_weak_db = NULL, threshold_measured_db = NULL, threshold_tiles = NULL,
+                    river_level_cm = NULL, low_water = NULL, hub_status = NULL, hub_bottleneck_m = NULL,
+                    hub_distance_to_water_m = NULL, stats_seconds = NULL, stats_spacing_m = NULL,
+                    water_raster_id = NULL, radar_raster_id = NULL, sentinel1_raster_id = NULL,
+                    sentinel1_vv_raster_id = NULL, staging_error = NULL
+                WHERE area_id = :area AND pass_id = :pass
+                """, p);
+        if (updated == 0) {
+            throw new IllegalStateException("No pass " + pass + " in " + area);
+        }
+        jdbc.update("DELETE FROM connectivity_assessment WHERE area_id = :area AND pass_id = :pass", p);
+        jdbc.update("DELETE FROM pass_sentinel1 WHERE area_id = :area AND pass_id = :pass", p);
+        jdbc.update("DELETE FROM pass_counts WHERE area_id = :area AND pass_id = :pass", p);
+        jdbc.update("DELETE FROM pass_change WHERE area_id = :area AND (pass_id = :pass OR since_pass_id = :pass)", p);
+    }
+
+    @Override
     public void saveAssessment(
             AreaId area,
             PassAssessment a,

@@ -8,7 +8,7 @@ import java.util.Map;
 
 /** Reads the worker's results the pipeline stored. One implementation reads MySQL; tests use an in-memory one. */
 public interface PipelineReader {
-    /** The assessed passes of an area that are shown (enough coverage), oldest first. */
+    /** The assessed passes of an area that were evaluated (enough coverage), oldest first. */
     List<PassRow> passes(String areaId);
 
     /** Every community route of the area's passes. */

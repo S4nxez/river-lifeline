@@ -20,10 +20,12 @@ import com.riverlifeline.pipeline.domain.model.job.LeasedJob;
 import com.riverlifeline.pipeline.domain.model.pass.NisarPass;
 import com.riverlifeline.pipeline.domain.model.raster.RasterRole;
 import com.riverlifeline.pipeline.domain.model.raster.ResultRasterName;
+import com.riverlifeline.pipeline.domain.model.result.PassAssessment;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -110,6 +112,48 @@ class WorkerJobServiceTest {
 
         assertThat(second.lease()).isNotEqualTo(first.lease());
         assertThatThrownBy(() -> h.worker.complete(first.lease().value(), "{}")).isInstanceOf(NotLeasedException.class);
+    }
+
+    @Test
+    void aPassTooPoorlyCoveredToBeEvaluatedKeepsNothingButTheFactItWasAssessed() throws IOException {
+        LeasedJob job = lease();
+        h.worker.uploadRaster(job.lease().value(), "water", bytes(classes().byteLength()));
+        h.worker.uploadRaster(job.lease().value(), "radar", bytes(radar().byteLength()));
+        PassAssessment rich = assessment(
+                pass.info().id(), Map.of(ResultRasterName.WATER, classes(), ResultRasterName.RADAR, radar()));
+        h.decoder.results.put(
+                "poor",
+                new PassAssessment(
+                        rich.passId(),
+                        0.12,
+                        true,
+                        false,
+                        3.0,
+                        0.5,
+                        null,
+                        rich.threshold(),
+                        980.0,
+                        null,
+                        null,
+                        List.of(),
+                        List.of(),
+                        null,
+                        rich.stats(),
+                        rich.rasters()));
+
+        h.worker.complete(job.lease().value(), "poor");
+
+        PassRow row = h.passes.row(AREA_ID, pass.info().id());
+        assertThat(row.assessment.evaluated()).isFalse();
+        assertThat(row.assessment.shown()).isFalse();
+        assertThat(row.assessment.coverage()).isEqualTo(0.12);
+        assertThat(row.rasters).isEmpty();
+        assertThat(h.rasters.rasters.values())
+                .noneMatch(r -> r.role() == RasterRole.RESULT || r.role() == RasterRole.PENDING);
+        assertThat(h.jobs.ofType(JobType.ASSESS_PASS).get(0).job.state()).isEqualTo(JobState.DONE);
+        assertThat(h.jobs.ofType(JobType.DETECT_CHANGE)).isEmpty();
+        h.staging.stageAssessments();
+        assertThat(h.jobs.ofType(JobType.ASSESS_PASS)).hasSize(1); // never staged again
     }
 
     @Test
