@@ -294,9 +294,11 @@ export function apiPassItem(
     track = 81,
     direction = "descending",
     counts = { monitored: 4, connected: 1, at_risk: 1, isolated: 2, no_data: 0, changed: 1 },
+    layerIds = undefined,
   } = {},
 ) {
   return {
+    ...(layerIds ? { layer_ids: layerIds } : {}),
     id: `nisar-${day}`,
     acquired_at: `${day}T09:45:12Z`,
     platform: "NISAR",

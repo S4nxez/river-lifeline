@@ -191,15 +191,22 @@ test("the clock steps to another pass: its statuses, figures and images, keeping
   assert.match(window.location.hash, /d=2026-08-28/);
 });
 
-test("a day without its own pass shows the latest pass before it, and says so", async () => {
-  const { document } = await startLive();
+test("the page opens on the latest complete pass and the clock offers only the complete ones", async () => {
+  const both = ["radar_hh", "sentinel1_vv", "water"];
+  const items = [
+    apiPassItem("2026-08-28", { layerIds: both }),
+    apiPassItem("2026-09-02", { layerIds: ["radar_hh", "water"] }),
+    apiPassItem("2026-09-09", { layerIds: ["radar_hh", "water"] }),
+  ];
+  const { document } = await startApp((url) => (url === `${API}/passes` ? { items } : liveApi(url)));
+  await waitFor(() => /28 Aug 2026/.test(document.querySelector("#headline").textContent));
+
   const field = document.querySelector(".clock-date");
-
-  field.value = "2026-09-01";
-  field.dispatchEvent(new window.Event("change"));
-  await waitFor(() => /latest pass before 1 Sep, 4 days earlier/.test(document.querySelector("#headline").textContent));
-
-  assert.match(document.querySelector("#headline").textContent, /28 Aug 2026/);
+  assert.deepEqual(
+    [...field.options].map((option) => option.value),
+    ["2026-08-28"],
+  );
+  assert.equal(field.value, "2026-08-28");
 });
 
 test("a shared link opens its day and its community", async () => {

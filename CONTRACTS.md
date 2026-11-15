@@ -3,6 +3,12 @@
 The contract between the backend and the worker is [`api/worker-api.md`](api/worker-api.md)
 ([`api/worker-api.yaml`](api/worker-api.yaml)). This file keeps the other documents the layers exchange.
 
+## Pass list: `layer_ids`
+
+Every item of `GET /api/v1/aois/{aoi}/passes` (and the pass detail, which repeats the item) lists the ids of the layers
+the pass has, e.g. `["radar_hh", "sentinel1_vv", "water", "change", "nodata"]`, the same ids as the detail's
+`layers[].id`. The page's clock offers only the evaluated passes that have both `radar_hh` and `sentinel1_vv`.
+
 ## Early warning (experimental): `aois/<id>/early_warning.json`
 
 Written offline by the worker's CLI (`python -m worker early-warning`, [`docs/early-warning.md`](docs/early-warning.md)),

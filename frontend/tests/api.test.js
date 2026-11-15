@@ -234,6 +234,20 @@ test("lists the passes oldest first, with their orbit, counts and whether they c
   assert.equal(overview.passes[1].acquiredAt, "2026-09-09T09:45:12Z");
 });
 
+test("each pass keeps the layers the API lists for it, or null when it lists none", async () => {
+  const routes = overviewRoutes([apiFeature()]);
+  const [first, second] = routes[`${BASE}/passes`].items;
+  respond({
+    ...routes,
+    [`${BASE}/passes`]: { items: [{ ...first, layer_ids: ["radar_hh", "sentinel1_vv"] }, second] },
+  });
+
+  const { overview } = await loadOverview("tefe");
+
+  assert.deepEqual(overview.passes[0].layerIds, ["radar_hh", "sentinel1_vv"]);
+  assert.equal(overview.passes[1].layerIds, null);
+});
+
 test("the plate of the radar image comes from the pass's image card", async () => {
   respond(overviewRoutes([apiFeature()]));
 

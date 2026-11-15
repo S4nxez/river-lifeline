@@ -17,6 +17,7 @@ import com.riverlifeline.monitoring.domain.model.aoi.AoiParameters;
 import com.riverlifeline.monitoring.domain.model.community.BoardingPoint;
 import com.riverlifeline.monitoring.domain.model.community.Community;
 import com.riverlifeline.monitoring.domain.model.community.CommunitySnapshot;
+import com.riverlifeline.monitoring.domain.model.pass.LayerId;
 import com.riverlifeline.monitoring.domain.model.pass.LayerImage;
 import com.riverlifeline.monitoring.domain.model.pass.Pass;
 import com.riverlifeline.monitoring.domain.model.pass.PassId;
@@ -188,7 +189,8 @@ final class ApiMapper {
                 pass.lowWaterRule().active(),
                 counts(pass.counts()),
                 id(entry.previousPassId()),
-                id(entry.nextPassId()));
+                id(entry.nextPassId()),
+                pass.layers().keySet().stream().map(LayerId::code).toList());
     }
 
     static PassDetailResponse passDetail(PassDetail detail) {

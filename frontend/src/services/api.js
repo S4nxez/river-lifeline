@@ -115,6 +115,8 @@ function passOf(item) {
     riverLevelCm: centimetres(item.river_level_m),
     counts: countsOf(item.counts),
     previousPassId: item.previous_pass_id ?? null,
+    // Null when the API doesn't say (older backends, the demo data)
+    layerIds: Array.isArray(item.layer_ids) ? item.layer_ids : null,
   };
 }
 
