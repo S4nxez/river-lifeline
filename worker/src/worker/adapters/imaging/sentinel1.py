@@ -97,7 +97,7 @@ def pass_view(
     for scenes in dates:
         vv = np.fmin(vv, refined_lee(mosaic_date(scenes, rasters, grid, transform_factory), LOOKS))
     water, land, seen = classify(vv, method, grid.pixel_m)
-    return Sentinel1View(tuple(d.date for d in dates), water, land, seen)
+    return Sentinel1View(tuple(d.date for d in dates), water, land, seen, vv)
 
 
 def agreement(

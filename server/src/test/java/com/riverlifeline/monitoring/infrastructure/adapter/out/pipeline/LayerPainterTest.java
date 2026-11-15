@@ -89,6 +89,19 @@ class LayerPainterTest {
     }
 
     @Test
+    void sentinel1IsPaintedInGreysLikeTheRadar() throws IOException {
+        RasterBox box = new RasterBox("v1", 2, 1, "float32", -64.75, -3.40, 0.02, -0.02);
+        ByteBuffer values = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        values.putFloat(-21f).putFloat(Float.NaN);
+
+        BufferedImage image = paint(LayerId.SENTINEL1_VV, box, values.array(), null);
+
+        assertThat(alpha(image, 0, 0)).isEqualTo(255);
+        assertThat(image.getRGB(0, 0) & 0xFF).isBetween(39, 43); // -21 dB: 4/25 of the way to white
+        assertThat(alpha(image, 1, 0)).isZero();
+    }
+
+    @Test
     void aBodyThatDoesNotFitItsLayoutIsRefused() {
         assertThatThrownBy(() -> paint(LayerId.WATER, CLASSES, new byte[3], null))
                 .isInstanceOf(IllegalArgumentException.class);

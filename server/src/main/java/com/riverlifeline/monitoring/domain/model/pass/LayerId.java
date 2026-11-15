@@ -6,6 +6,7 @@ import java.util.Optional;
 /** The image layers of a pass, in drawing order, with how the map shows them by default. */
 public enum LayerId {
     RADAR_HH("radar_hh", "Radar (HH)", true, 1.0),
+    SENTINEL1_VV("sentinel1_vv", "Sentinel-1 (VV)", false, 1.0),
     WATER("water", "Open water", true, 0.8),
     FLOODED_VEGETATION("flooded_vegetation", "Water under vegetation", true, 0.8),
     CHANGE("change", "Change vs previous pass", false, 0.9),

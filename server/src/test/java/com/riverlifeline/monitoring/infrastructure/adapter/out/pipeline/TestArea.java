@@ -77,6 +77,7 @@ final class TestArea {
                 null,
                 counts,
                 List.of(),
+                null,
                 null);
     }
 
@@ -101,6 +102,7 @@ final class TestArea {
                 new RasterBox("r1", 2, 1, "float32", -64.995, -3.005, 0.02, -0.02),
                 row.counts(),
                 List.of(LocalDate.parse("2026-10-25")),
-                change);
+                change,
+                new RasterBox("v1", 2, 1, "float32", -64.995, -3.005, 0.02, -0.02));
     }
 }

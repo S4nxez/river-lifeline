@@ -44,7 +44,11 @@ public final class ResultCheck {
                     problems.add("passId " + pass.passId() + " is not the job's pass");
                 }
                 Set<ResultRasterName> allowed = job.type() == JobType.ASSESS_PASS
-                        ? Set.of(ResultRasterName.WATER, ResultRasterName.RADAR, ResultRasterName.SENTINEL1)
+                        ? Set.of(
+                                ResultRasterName.WATER,
+                                ResultRasterName.RADAR,
+                                ResultRasterName.SENTINEL1,
+                                ResultRasterName.SENTINEL1_VV)
                         : Set.of(ResultRasterName.WATER);
                 rasters(pass.rasters(), Set.of(ResultRasterName.WATER), allowed, area, problems);
                 if (area != null) {
@@ -120,7 +124,8 @@ public final class ResultCheck {
 
     /** Null when the raster has the layout the contract fixes for its name. */
     static String gridIssue(ResultRasterName name, RasterMeta meta, AreaGrid grid) {
-        if (name == ResultRasterName.RADAR) {
+        // the images for the page: half the area grid, in dB
+        if (name == ResultRasterName.RADAR || name == ResultRasterName.SENTINEL1_VV) {
             if (meta.dtype() != DataType.FLOAT32 || meta.unit() != RasterUnit.DB) {
                 return "must be float32 dB";
             }

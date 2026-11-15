@@ -110,6 +110,8 @@ class RadarPassAnalyzer:
         result_rasters = {"radar": _radar(hh, grid)} if grid.width >= 2 and grid.height >= 2 else {}
         if view is not None:
             result_rasters["sentinel1"] = sentinel1.encode(view, grid)
+            if view.vv is not None and grid.width >= 2 and grid.height >= 2:
+                result_rasters["sentinel1_vv"] = _half_resolution(view.vv, grid)
         occurrence = _occurrence(inputs.occurrence, rasters, grid)
         return _judge(
             area,
@@ -288,6 +290,11 @@ def _occurrence(ref: RasterRef | None, rasters: RasterSource, grid: AreaGrid) ->
 
 def _radar(db: np.ndarray, grid: AreaGrid) -> Raster:
     """Filtered HH in dB averaged over 2 x 2 area pixels (the odd last row and column dropped)."""
+    return _half_resolution(db, grid)
+
+
+def _half_resolution(db: np.ndarray, grid: AreaGrid) -> Raster:
+    """A dB image averaged over 2 x 2 area pixels (the odd last row and column dropped), for the page."""
     origin = XY(grid.origin.x + grid.step.x / 2, grid.origin.y + grid.step.y / 2)
     return db_raster(block_mean(db, 2), origin, XY(grid.step.x * 2, grid.step.y * 2), grid.crs)
 

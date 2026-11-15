@@ -301,12 +301,14 @@ def seasonal_ground(occurrence: np.ndarray, low_pct: float, high_pct: float) -> 
 
 @dataclass(frozen=True)
 class Sentinel1View:
-    """What Sentinel-1 saw around a pass, on the area grid: the scene dates used (closest first) and its classes."""
+    """What Sentinel-1 saw around a pass, on the area grid: the scene dates used (closest first), its classes and,
+    when the scenes were read for this pass, the darkest filtered VV (dB, NaN where no scene saw the pixel)."""
 
     dates: tuple
     water: np.ndarray
     land: np.ndarray
     seen: np.ndarray
+    vv: np.ndarray | None = None
 
 
 def low_water_route(

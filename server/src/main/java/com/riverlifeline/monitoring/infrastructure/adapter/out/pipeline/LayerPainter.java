@@ -39,7 +39,7 @@ public final class LayerPainter {
     public static void paint(LayerId layer, RasterBox box, byte[] body, AreaFile area, OutputStream out)
             throws IOException {
         BufferedImage image = switch (layer) {
-            case RADAR_HH -> radar(box, body);
+            case RADAR_HH, SENTINEL1_VV -> radar(box, body);
             case WATER ->
                 classes(box, body, palette(new int[][] {{}, {61, 139, 255}, {255, 176, 32}}), code -> switch (code) {
                     case WATER_WIDE -> 1;
@@ -61,7 +61,7 @@ public final class LayerPainter {
         }
     }
 
-    /** Filtered HH (float32 dB, NaN no data) in greys; no data transparent. */
+    /** A filtered radar image (float32 dB, NaN no data: NISAR HH or Sentinel-1 VV) in greys; no data transparent. */
     static BufferedImage radar(RasterBox box, byte[] body) {
         requireLength(box, body, 4);
         int[][] greys = new int[256][];

@@ -160,6 +160,23 @@ def test_a_reevaluation_reports_the_sentinel1_agreement_without_sending_its_clas
     assert set(result.rasters) == set(result.data["rasters"]) == {"water"}
 
 
+def test_returns_the_sentinel1_image_with_the_sentinel1_classes():
+    image = Raster(RasterMeta(2, 1, DType.FLOAT32, "NaN", Unit.DB, "EPSG:4326", XY(0, 0), XY(0.02, -0.02)), bytes(8))
+    rasters = {"water": classes(*([0] * 12)), "sentinel1": classes(*([1] * 12)), "sentinel1_vv": image}
+
+    result, _ = assess(assessment(sentinel1=AGREEMENT, rasters=rasters))
+
+    assert set(result.rasters) == {"water", "sentinel1", "sentinel1_vv"}
+    assert result.data["rasters"]["sentinel1_vv"]["unit"] == "db"
+
+
+def test_a_sentinel1_image_without_its_classes_is_never_posted():
+    image = Raster(RasterMeta(2, 1, DType.FLOAT32, "NaN", Unit.DB, "EPSG:4326", XY(0, 0), XY(0.02, -0.02)), bytes(8))
+
+    with pytest.raises(InvalidResult, match="sentinel1_vv"):
+        assess(assessment(rasters={"water": classes(*([0] * 12)), "sentinel1_vv": image}))
+
+
 def test_a_reevaluation_never_sends_sentinel1_classes():
     analyzer = FakeAnalyzer(
         assessment(sentinel1=AGREEMENT, rasters={"water": classes(*([0] * 12)), "sentinel1": classes(*([1] * 12))})

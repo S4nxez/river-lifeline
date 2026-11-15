@@ -49,6 +49,26 @@ class ResultCheckTest {
     }
 
     @Test
+    void anAssessmentMayBringTheSentinel1ImageAtHalfTheAreaGridLikeTheRadar() {
+        String subject = JobSubject.pass(AREA_ID, PASS);
+        PassAssessment withImage = assessment(
+                PASS,
+                Map.of(
+                        ResultRasterName.WATER, classes(),
+                        ResultRasterName.SENTINEL1, classes(),
+                        ResultRasterName.SENTINEL1_VV, radar()));
+        PassAssessment classesAsImage =
+                assessment(PASS, Map.of(ResultRasterName.WATER, classes(), ResultRasterName.SENTINEL1_VV, classes()));
+
+        assertThat(ResultCheck.problems(job(JobType.ASSESS_PASS, subject), withImage, area()))
+                .isEmpty();
+        assertThat(ResultCheck.problems(job(JobType.ASSESS_PASS, subject), classesAsImage, area()))
+                .anyMatch(p -> p.startsWith("raster sentinel1_vv"));
+        assertThat(ResultCheck.problems(job(JobType.REEVALUATE_PASS, subject), withImage, area()))
+                .contains("raster sentinel1_vv is not expected from this job");
+    }
+
+    @Test
     void anotherPassAMissingWaterOrAnUnexpectedRadarDoNot() {
         PassAssessment other = assessment(new PassId("2026-10-11_t161A"), Map.of(ResultRasterName.WATER, classes()));
         PassAssessment noWater = assessment(PASS, Map.of());

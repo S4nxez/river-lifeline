@@ -9,7 +9,7 @@ from worker.domain.rasters import DType, Unit
 
 # Result rasters each job type may return; `water` is always required. A reevaluation returns only `water`: the
 # Sentinel-1 classes it judged with are the ones the backend already keeps from the pass's assessment.
-ASSESS_RASTERS = {"water", "radar", "sentinel1"}
+ASSESS_RASTERS = {"water", "radar", "sentinel1", "sentinel1_vv"}
 REEVALUATE_RASTERS = {"water"}
 
 
@@ -54,6 +54,8 @@ def _checked_result(
             raise InvalidResult(f"raster {name!r} must be a uint8 class raster on the area grid")
     if "sentinel1" in allowed and (assessment.sentinel1 is None) != ("sentinel1" not in names):
         raise InvalidResult("the sentinel1 raster comes with the Sentinel-1 agreement, and only with it")
+    if "sentinel1_vv" in names and "sentinel1" not in names:
+        raise InvalidResult("the sentinel1_vv image comes only with the Sentinel-1 classes")
     if assessment.evaluated:
         expected = sorted(c.id for c in area.communities)
         if sorted(c.community_id for c in assessment.communities) != expected:

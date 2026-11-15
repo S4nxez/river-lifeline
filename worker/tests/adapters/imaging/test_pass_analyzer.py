@@ -302,7 +302,34 @@ def test_at_low_water_a_bed_sentinel1_sees_as_mud_leaves_the_routes():
     assert result.sentinel1.dates == (date(2026, 10, 25),)
     assert result.sentinel1.mud_km2 > 0
     assert result.unverified_route == ()
-    assert set(result.rasters) == {"water", "radar", "sentinel1"}
+    assert set(result.rasters) == {"water", "radar", "sentinel1", "sentinel1_vv"}
+
+
+def test_returns_the_sentinel1_image_it_judged_with_at_half_resolution():
+    vv, scenes = mud_scene()
+
+    result = run(
+        LOW_WATER_AREA,
+        window("hh", WATER_THEN_LAND),
+        vv,
+        gauge=LOW_RIVER,
+        occurrence=occurrence_layer(),
+        candidates=[scenes],
+    )
+
+    image = result.rasters["sentinel1_vv"]
+    assert (image.meta.width, image.meta.height) == (GRID.width // 2, GRID.height // 2)
+    assert (image.meta.unit, image.meta.dtype, image.meta.nodata) == (Unit.DB, DType.FLOAT32, "NaN")
+    assert (image.meta.origin.x, image.meta.origin.y) == pytest.approx((BBOX[0] + STEP, BBOX[3] - STEP))
+    db = np.frombuffer(image.data, "<f4").reshape(GRID.height // 2, GRID.width // 2)
+    assert abs(float(np.nanmedian(db[:, :10])) + 21) < 0.5  # open water, west of the seasonal band
+    assert abs(float(np.nanmedian(db[:, 30:50])) + 5) < 0.5  # the bright mud of the seasonal band
+
+
+def test_a_pass_without_sentinel1_scenes_has_no_sentinel1_image():
+    result = run(LOW_WATER_AREA, window("hh", WATER_THEN_LAND), gauge=LOW_RIVER, occurrence=occurrence_layer())
+
+    assert "sentinel1_vv" not in result.rasters
 
 
 def test_at_low_water_without_sentinel1_a_route_over_a_seasonal_bed_is_only_at_risk():

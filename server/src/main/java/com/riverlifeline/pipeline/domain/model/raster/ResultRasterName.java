@@ -5,6 +5,7 @@ public enum ResultRasterName {
     WATER("water"),
     RADAR("radar"),
     SENTINEL1("sentinel1"),
+    SENTINEL1_VV("sentinel1_vv"),
     CHANGE("change");
 
     private final String wire;

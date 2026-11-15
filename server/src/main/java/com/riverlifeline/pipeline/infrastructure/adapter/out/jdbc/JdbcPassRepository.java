@@ -236,7 +236,8 @@ public class JdbcPassRepository implements PassRepository {
                 .addValue("spacing", a.stats() == null ? null : a.stats().spacingM())
                 .addValue("waterRaster", id(rasters, ResultRasterName.WATER))
                 .addValue("radarRaster", id(rasters, ResultRasterName.RADAR))
-                .addValue("s1Raster", id(rasters, ResultRasterName.SENTINEL1));
+                .addValue("s1Raster", id(rasters, ResultRasterName.SENTINEL1))
+                .addValue("s1VvRaster", id(rasters, ResultRasterName.SENTINEL1_VV));
         int updated = jdbc.update("""
                 UPDATE radar_pass SET assessed_at = :now, lease_id = :lease, method_digest = :digest,
                     coverage = :coverage, shown = :shown, evaluated = :evaluated, water_km2 = :water,
@@ -248,6 +249,7 @@ public class JdbcPassRepository implements PassRepository {
                     water_raster_id = COALESCE(:waterRaster, water_raster_id),
                     radar_raster_id = COALESCE(:radarRaster, radar_raster_id),
                     sentinel1_raster_id = COALESCE(:s1Raster, sentinel1_raster_id),
+                    sentinel1_vv_raster_id = COALESCE(:s1VvRaster, sentinel1_vv_raster_id),
                     staging_error = NULL
                 WHERE area_id = :area AND pass_id = :pass
                 """, p);

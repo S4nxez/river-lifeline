@@ -66,8 +66,9 @@ class ApiContractTest {
                 .andExpect(jsonPath("$.reasons[0].label").value("Route ≥ 60 m"))
                 .andExpect(jsonPath("$.reasons[7].label").value("Pass covers < 80 % of the area"))
                 .andExpect(jsonPath("$.layers[*].id")
-                        .value(contains("radar_hh", "water", "flooded_vegetation", "change", "nodata")))
-                .andExpect(jsonPath("$.layers[3].default_visible").value(false));
+                        .value(contains("radar_hh", "sentinel1_vv", "water", "flooded_vegetation", "change", "nodata")))
+                .andExpect(jsonPath("$.layers[1].default_visible").value(false))
+                .andExpect(jsonPath("$.layers[4].default_visible").value(false));
     }
 
     @Test
