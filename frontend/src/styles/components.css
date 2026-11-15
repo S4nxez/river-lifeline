@@ -3,6 +3,7 @@
 .scene {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: minmax(0, 1fr);
   height: clamp(600px, 88vh, 920px);
   border-bottom: 1px solid var(--rule);
 }
@@ -485,6 +486,9 @@
 }
 
 .roster-list {
+  /* Positioned, so the rows' visually hidden labels (absolute) scroll inside the list instead of stretching the
+     page below the footer */
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow-y: auto;

@@ -96,11 +96,13 @@ export function renderLevelForecastChart(container, report, { community = null }
         `<line class="log-tick" x1="${tick.x.toFixed(1)}" x2="${tick.x.toFixed(1)}" y1="${scene.base}" y2="${scene.base + 4}"/>${text(tick.x + 3, scene.base + 16, tick.label)}`,
     )
     .join("");
+  // Two close thresholds: the lower one's label goes under its line, so the labels never overlap
+  const close = scene.thresholds.length === 2 && Math.abs(scene.thresholds[1].y - scene.thresholds[0].y) < 14;
   const thresholds = scene.thresholds
-    .map(
-      (threshold) =>
-        `<g class="ew-threshold ew-threshold-${threshold.kind}"><line x1="${MARGIN.left}" x2="${right}" y1="${threshold.y.toFixed(1)}" y2="${threshold.y.toFixed(1)}"/>${text(MARGIN.left + 4, threshold.y - 4, `${escapeHtml(threshold.label)} ${threshold.cm} cm`)}</g>`,
-    )
+    .map((threshold, index) => {
+      const labelY = close && index === 1 ? threshold.y + 12 : threshold.y - 4;
+      return `<g class="ew-threshold ew-threshold-${threshold.kind}"><line x1="${MARGIN.left}" x2="${right}" y1="${threshold.y.toFixed(1)}" y2="${threshold.y.toFixed(1)}"/>${text(MARGIN.left + 4, labelY, `${escapeHtml(threshold.label)} ${threshold.cm} cm`)}</g>`;
+    })
     .join("");
   const issued =
     scene.issued == null
