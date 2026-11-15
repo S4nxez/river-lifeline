@@ -14,53 +14,21 @@ import com.riverlifeline.monitoring.application.service.CommunityQueryService;
 import com.riverlifeline.monitoring.application.service.PassQueryService;
 import com.riverlifeline.monitoring.application.service.SystemQueryService;
 import com.riverlifeline.monitoring.domain.model.aoi.AoiId;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.DataDirectory;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemCatalogRepository;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemCommunityRepository;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemLayerImageRepository;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemPassStatusRepository;
-import com.riverlifeline.monitoring.infrastructure.adapter.out.filesystem.FileSystemRiverLevelRepository;
 import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Wires the hexagon: the application services (plain Java) get the file system adapters as their ports. */
+/**
+ * Wires the hexagon: the application services (plain Java) get their ports from the adapters of the configured
+ * source, {@code river.source}: the processing files ({@link FileSourceConfiguration}) or the worker's results
+ * ({@link PipelineSourceConfiguration}).
+ */
 @Configuration
 public class BeanConfiguration {
 
     @Bean
     Clock clock() {
         return Clock.systemUTC();
-    }
-
-    @Bean
-    DataDirectory dataDirectory(RiverProperties properties) {
-        return new DataDirectory(properties.dataPath());
-    }
-
-    @Bean
-    CatalogRepository catalogRepository(DataDirectory directory, Clock clock, RiverProperties properties) {
-        return new FileSystemCatalogRepository(directory, clock, properties.catalogCheckInterval());
-    }
-
-    @Bean
-    CommunityRepository communityRepository(DataDirectory directory, Clock clock, RiverProperties properties) {
-        return new FileSystemCommunityRepository(directory, clock, properties.catalogCheckInterval());
-    }
-
-    @Bean
-    PassStatusRepository passStatusRepository(DataDirectory directory) {
-        return new FileSystemPassStatusRepository(directory);
-    }
-
-    @Bean
-    RiverLevelRepository riverLevelRepository(DataDirectory directory, Clock clock, RiverProperties properties) {
-        return new FileSystemRiverLevelRepository(directory, clock, properties.catalogCheckInterval());
-    }
-
-    @Bean
-    LayerImageRepository layerImageRepository(DataDirectory directory) {
-        return new FileSystemLayerImageRepository(directory);
     }
 
     @Bean
