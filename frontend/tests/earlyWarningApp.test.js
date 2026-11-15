@@ -25,8 +25,7 @@ const PAGE = `
   <div id="layer-controls"></div><p id="image-plate" hidden></p><div id="map-key"></div>
   <span id="list-count"></span><input id="list-search" /><div id="list-filters"></div><div id="community-list"></div>
   <div id="list-download" hidden><a data-format="csv"></a><a data-format="geojson"></a></div>
-  <p id="next-pass" hidden><b id="next-pass-value"></b></p><div id="pass-log"></div>
-  <div id="ledger"></div><div id="dossier"></div><span id="record-updated" hidden></span>
+    <div id="ledger"></div><div id="dossier"></div><span id="record-updated" hidden></span>
   <section id="early-warning" hidden>
     <div id="early-warning-content"></div><div id="level-forecast-chart"></div><div id="early-warning-limits"></div>
   </section>`;

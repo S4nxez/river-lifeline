@@ -102,3 +102,17 @@ test("without a selected community the chart has no threshold lines; with no dat
   assert.equal(renderLevelForecastChart(document.querySelector("#c"), { communities: [] }), null);
   assert.equal(document.querySelector("#c").innerHTML, "");
 });
+
+test("close thresholds keep their labels apart: the cut-off one goes under its line", () => {
+  const document = installDom('<div id="c"></div>');
+  const close = { ...REPORT.communities[2], at_risk_below_cm: 880, isolated_below_cm: 870 };
+
+  renderLevelForecastChart(document.querySelector("#c"), REPORT, { community: close });
+
+  const [atRisk, cutOff] = [...document.querySelectorAll("#c .ew-threshold")].map((group) => ({
+    line: Number(group.querySelector("line").getAttribute("y1")),
+    label: Number(group.querySelector("text").getAttribute("y")),
+  }));
+  assert.ok(atRisk.label < atRisk.line);
+  assert.ok(cutOff.label > cutOff.line);
+});

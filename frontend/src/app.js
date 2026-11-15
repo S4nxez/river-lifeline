@@ -1,6 +1,6 @@
 // The page: one area, one NISAR pass at a time. It loads the overview, keeps the user's choices in `state` and
 // redraws the parts that depend on them. Every part reads from `state`; the map is driven through its controls.
-import { expectedPasses, neighbourPass, passForDay, renderClock } from "./components/clock.js";
+import { neighbourPass, passForDay, renderClock } from "./components/clock.js";
 import { filterCommunities, renderCommunityList, renderListFilters } from "./components/communityList.js";
 import { renderDossier } from "./components/dossier.js";
 import { renderEarlyWarningPanel, renderLimits } from "./components/earlyWarningPanel.js";
@@ -10,17 +10,15 @@ import { renderLayerControls } from "./components/layerControls.js";
 import { renderLedger } from "./components/ledger.js";
 import { renderLevelForecastChart } from "./components/levelForecastChart.js";
 import { renderMapKey } from "./components/mapKey.js";
-import { renderPassLog } from "./components/passLog.js";
-import { formatDay, formatShortDay, formatUtcTime } from "./format.js";
+import { formatShortDay, formatUtcTime } from "./format.js";
 import { readHash, writeHash } from "./hashState.js";
 import { imageryChoices, layersToShow } from "./imagery.js";
-import { exportUrl, loadEarlyWarning, loadHistory, loadOverview, loadPass, loadRiverLevel } from "./services/api.js";
+import { exportUrl, loadEarlyWarning, loadHistory, loadOverview, loadPass } from "./services/api.js";
 import { createMap } from "./services/mapService.js";
 import { bySeverity } from "./status.js";
 import { currentTheme, toggleTheme } from "./theme.js";
 
 const PLAY_STEP_MS = 1300;
-const ARROWS = { ascending: "↑", descending: "↓" };
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -34,7 +32,6 @@ const state = {
   communities: [],
   imagery: [],
   plate: null,
-  river: null,
   choices: { radar: null, opacity: 1, overlays: {} },
   basemap: "map",
   filter: "all",
@@ -43,7 +40,6 @@ const state = {
   selectedId: null,
   history: null,
   playing: false,
-  logAnimated: false,
 };
 let mapControls;
 // The early warning: its own section at the bottom, never read by the rest of the page
@@ -95,18 +91,6 @@ function renderTimeControls() {
       onPlay: togglePlay,
     },
   );
-}
-
-/** "Next pass over the area": when NISAR is next due back, from the tracks that covered it. */
-function renderNextPass() {
-  const target = $("#next-pass");
-  if (!target) return;
-  const next = expectedPasses(passes(), today())[0];
-  target.hidden = !next;
-  if (!next) return;
-  const track = next.track == null ? "" : ` · track ${next.track} ${ARROWS[next.orbitDirection] ?? ""}`.trimEnd();
-  $("#next-pass-value").textContent =
-    next.day === today() ? "acquired today, published within days" : `${formatDay(next.day)}${track}`;
 }
 
 function renderList() {
@@ -162,32 +146,6 @@ function renderDesk() {
     hubName: hubName(),
     classesM: classes(),
   });
-}
-
-function drawPassLog() {
-  const container = $("#pass-log");
-  if (!container) return;
-  // The "downlink" entrance plays once, and only for someone watching who hasn't asked for less motion
-  const animate =
-    !state.logAnimated &&
-    globalThis.document?.visibilityState === "visible" &&
-    !(globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false);
-  state.logAnimated = true;
-  renderPassLog(
-    container,
-    {
-      passes: passes(),
-      passId: state.passId,
-      river: state.river,
-      today: today(),
-      expected: expectedPasses(passes(), today()),
-      animate,
-    },
-    (passId) => {
-      stopPlaying();
-      changePass(passId);
-    },
-  );
 }
 
 /** The early warning section: its list, and the level chart of the community picked in it. */
@@ -289,7 +247,6 @@ function renderPassViews() {
   renderList();
   renderDownload();
   renderDesk();
-  drawPassLog();
   renderControls();
 }
 
@@ -430,15 +387,12 @@ function setUpSearch() {
   });
 }
 
-/** The pass log is drawn to its width: redraw it when the window settles on a new size. */
+/** The early warning's chart is drawn to its width: redraw it when the window settles on a new size. */
 function setUpResize() {
   let timer = null;
   globalThis.addEventListener?.("resize", () => {
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      drawPassLog();
-      renderEarlyWarning();
-    }, 150);
+    timer = setTimeout(renderEarlyWarning, 150);
   });
 }
 
@@ -449,10 +403,9 @@ async function init() {
   setUpSearch();
   setUpResize();
 
-  const [{ overview, live }, river] = await Promise.all([loadOverview(), loadRiverLevel(true).catch(() => null)]);
+  const { overview, live } = await loadOverview();
   state.overview = overview;
   state.live = live;
-  state.river = live ? river : await loadRiverLevel(false);
   state.passId = overview.passId;
   state.communities = bySeverity(overview.communities);
   state.imagery = overview.imagery;
@@ -461,7 +414,6 @@ async function init() {
   state.day = currentPass()?.acquiredOn ?? null;
   applyArea();
   renderFilters();
-  renderNextPass();
   renderPassViews();
   setUpEarlyWarning();
 

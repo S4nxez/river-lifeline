@@ -233,21 +233,26 @@
         </aside>
       </section>
 
-      <section class="log-section" aria-labelledby="log-title">
+      <section id="early-warning" class="early-warning" hidden aria-labelledby="early-warning-title">
         <div class="log-head">
           <div>
-            <h2 id="log-title" class="section-title">Pass log</h2>
+            <h2 id="early-warning-title" class="section-title">
+              Early warning <span class="ew-tag telemetry">Hindcast · experimental</span>
+            </h2>
             <p class="section-copy">
-              Every NISAR pass over the area. Each strip leans the way the satellite was flying and is split by how many
-              communities were connected, at risk or isolated. The line is the official river level at
-              <span data-gauge-name>the river gauge</span>.
+              Had this run during the 2026 dry season, how many days ahead would it have said which communities were
+              going to lose their water route? Each forecast below used only the data of its day.
             </p>
           </div>
-          <p id="next-pass" class="next-pass telemetry" hidden>
-            <span>Next pass over the area</span> <b id="next-pass-value"></b>
-          </p>
         </div>
-        <div id="pass-log" class="pass-log"></div>
+        <div class="ew-columns">
+          <div id="early-warning-content" class="ew-content"></div>
+          <div class="ew-figure">
+            <p class="telemetry ew-figure-title">River level at <span data-gauge-name>the river gauge</span></p>
+            <div id="level-forecast-chart" class="ew-chart-wrap"></div>
+          </div>
+        </div>
+        <div class="method-columns ew-method" id="early-warning-limits"></div>
       </section>
 
       <section class="desk">
@@ -282,28 +287,6 @@
             such stretches can be closed to boats, so they are never counted as a route.
           </p>
         </div>
-      </section>
-
-      <section id="early-warning" class="early-warning" hidden aria-labelledby="early-warning-title">
-        <div class="log-head">
-          <div>
-            <h2 id="early-warning-title" class="section-title">
-              Early warning <span class="ew-tag telemetry">Hindcast · experimental</span>
-            </h2>
-            <p class="section-copy">
-              Had this run during the 2026 dry season, how many days ahead would it have said which communities were
-              going to lose their water route? Each forecast below used only the data of its day.
-            </p>
-          </div>
-        </div>
-        <div class="ew-columns">
-          <div id="early-warning-content" class="ew-content"></div>
-          <div class="ew-figure">
-            <p class="telemetry ew-figure-title">River level at <span data-gauge-name>the river gauge</span></p>
-            <div id="level-forecast-chart" class="ew-chart-wrap"></div>
-          </div>
-        </div>
-        <div class="method-columns ew-method" id="early-warning-limits"></div>
       </section>
     </main>
 

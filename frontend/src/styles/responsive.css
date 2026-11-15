@@ -105,16 +105,12 @@
     padding-inline: 16px;
   }
 
-  .log-section,
   .method {
     padding: 24px 16px;
   }
   .log-head {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .next-pass {
-    text-align: left;
   }
   .desk {
     grid-template-columns: 1fr;

@@ -25,8 +25,7 @@ const PAGE = `
   <div id="layer-controls"></div><p id="image-plate" hidden></p><div id="map-key"></div>
   <span id="list-count"></span><input id="list-search" /><div id="list-filters"></div><div id="community-list"></div>
   <div id="list-download" hidden><a data-format="csv"></a><a data-format="geojson"></a></div>
-  <p id="next-pass" hidden><b id="next-pass-value"></b></p><div id="pass-log"></div>
-  <div id="ledger"></div><div id="dossier"></div><span id="record-updated" hidden></span>`;
+    <div id="ledger"></div><div id="dossier"></div><span id="record-updated" hidden></span>`;
 
 const API = "./api/v1/aois/tefe";
 const OVERVIEW = apiOverview([
@@ -133,8 +132,6 @@ test("shows the live monitor: the day's sentence, the communities most in need f
   assert.equal(document.querySelector("#list-count").textContent, "4 of 4");
   assert.match(document.querySelector("#ledger").textContent, /Isolated\s*2\s*\/ 4\s*\+2 since 28 Aug/);
   assert.match(document.querySelector("#image-plate").textContent, /NISAR · L-band HH · Track 97 ↓ descending/);
-  assert.equal(document.querySelectorAll("#pass-log .log-strip").length, 2);
-  assert.equal(document.querySelector("#next-pass").hidden, false);
   assert.match(document.querySelector("#record-updated").textContent, /Record updated 2026-11-15 04:54 UTC/);
 });
 
@@ -192,15 +189,6 @@ test("the clock steps to another pass: its statuses, figures and images, keeping
   assert.match(map.images.at(-1).url, /nisar-2026-08-28/);
   assert.equal(document.querySelector(".clock-date").value, "2026-08-28");
   assert.match(window.location.hash, /d=2026-08-28/);
-});
-
-test("a strip of the pass log shows its pass", async () => {
-  const { document } = await startLive();
-
-  document.querySelector('.log-strip[data-pass="nisar-2026-08-28"]').dispatchEvent(new window.MouseEvent("click"));
-  await waitFor(() => /28 Aug 2026/.test(document.querySelector("#headline").textContent));
-
-  assert.equal(document.querySelector(".log-strip.is-selected").dataset.pass, "nisar-2026-08-28");
 });
 
 test("a day without its own pass shows the latest pass before it, and says so", async () => {
@@ -334,7 +322,6 @@ test("falls back to the demo data when the API is unreachable, and its passes st
   assert.equal(document.querySelector("#list-count").textContent, "4 of 4");
   assert.equal(document.querySelector("#list-download").hidden, true);
   assert.match(document.querySelector("#layer-controls").textContent, /Demo data/);
-  assert.equal(document.querySelectorAll("#pass-log .log-strip").length, 4);
   // The overview's calls, and none for a pass or a history: the demo data answers those
   assert.ok(requests.every((url) => !url.includes("/communities/")));
 

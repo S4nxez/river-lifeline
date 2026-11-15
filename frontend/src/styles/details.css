@@ -47,12 +47,7 @@
   color: var(--dust);
 }
 
-/* Pass log */
-
-.log-section {
-  padding: 28px 30px 24px;
-  border-bottom: 1px solid var(--rule);
-}
+/* Section heads and the hand-drawn SVG charts (the early warning's) */
 
 .log-head {
   display: flex;
@@ -65,27 +60,6 @@
   max-width: 72ch;
   margin: 8px 0 0;
   color: var(--dust);
-}
-
-.next-pass {
-  margin: 0;
-  text-align: right;
-}
-
-.next-pass b {
-  display: block;
-  margin-top: 4px;
-  color: var(--gauge);
-  font-weight: 600;
-  font-size: 12px;
-}
-
-.next-pass[hidden] {
-  display: none;
-}
-
-.pass-log {
-  margin-top: 18px;
 }
 
 .log-svg {
@@ -104,85 +78,9 @@
   font: 10px var(--mono);
 }
 
-.log-gap {
-  font-style: italic;
-}
-
-.log-river path {
-  fill: none;
-  stroke: var(--gauge);
-  stroke-opacity: 0.85;
-  stroke-width: 1.5;
-}
-
 .log-today {
   stroke: var(--dust);
   stroke-dasharray: 1 3;
-}
-
-.log-bar-isolated {
-  fill: var(--isolated);
-}
-
-.log-bar-at_risk {
-  fill: var(--at-risk);
-}
-
-.log-bar-connected {
-  fill: var(--connected);
-  fill-opacity: 0.32;
-}
-
-.log-strip {
-  cursor: pointer;
-  outline: none;
-}
-
-.log-outline {
-  fill: transparent;
-  stroke: none;
-}
-
-.log-strip:hover .log-outline,
-.log-strip:focus-visible .log-outline {
-  stroke: var(--dust);
-  stroke-width: 1;
-}
-
-.log-strip.is-selected .log-outline {
-  stroke: var(--selected);
-  stroke-width: 2;
-}
-
-.log-strip.is-partial .log-outline {
-  stroke: var(--faint);
-  stroke-dasharray: 3 3;
-}
-
-.log-selected-day {
-  fill: var(--star);
-  font-weight: 600;
-}
-
-.log-ghost {
-  fill: none;
-  stroke: var(--gauge);
-  stroke-dasharray: 2 3;
-}
-
-/* "Downlink": the strips grow from the base, one after the other, the first time the log is drawn */
-@keyframes downlink {
-  from {
-    transform: scaleY(0);
-    opacity: 0;
-  }
-}
-
-.log-downlink .log-bars {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: downlink 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
-  animation-delay: calc(var(--i) * 40ms);
 }
 
 .log-legend {
@@ -198,36 +96,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.log-swatch {
-  display: inline-block;
-  width: 8px;
-  height: 12px;
-  transform: skewX(-12deg);
-}
-
-.log-swatch-isolated {
-  background: var(--isolated);
-}
-
-.log-swatch-at_risk {
-  background: var(--at-risk);
-}
-
-.log-swatch-connected {
-  background: color-mix(in srgb, var(--connected) 32%, transparent);
-}
-
-.log-swatch-partial {
-  border: 1px dashed var(--faint);
-}
-
-.log-swatch-river {
-  width: 16px;
-  height: 0;
-  border-top: 1.5px solid var(--gauge);
-  transform: none;
 }
 
 /* The desk: the pass in figures beside the selected community's dossier */
