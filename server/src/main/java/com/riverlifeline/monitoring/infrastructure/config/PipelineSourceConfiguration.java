@@ -1,6 +1,7 @@
 package com.riverlifeline.monitoring.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.riverlifeline.monitoring.application.port.out.EarlyWarningRepository;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.pipeline.AreaFileReader;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.pipeline.JdbcPipelineReader;
 import com.riverlifeline.monitoring.infrastructure.adapter.out.pipeline.PipelineMonitoringRepository;
@@ -8,6 +9,7 @@ import com.riverlifeline.monitoring.infrastructure.adapter.out.pipeline.RasterLa
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +35,12 @@ public class PipelineSourceConfiguration {
             AreaFileReader areas, NamedParameterJdbcTemplate jdbc, Clock clock, RiverProperties properties) {
         return new PipelineMonitoringRepository(
                 areas, new JdbcPipelineReader(jdbc, json), json, clock, properties.catalogCheckInterval());
+    }
+
+    /** The early warning is computed offline and published as a file: the pipeline has none yet (404). */
+    @Bean
+    EarlyWarningRepository earlyWarningRepository() {
+        return aoiId -> Optional.empty();
     }
 
     @Bean

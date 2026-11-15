@@ -211,6 +211,24 @@ class ApiContractTest {
     }
 
     @Test
+    void earlyWarningIsServedAsPublished() throws Exception {
+        mvc.perform(get(TEFE + "/early-warning"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.schema_version").value("1.0.0"))
+                .andExpect(jsonPath("$.aoi_id").value("tefe"))
+                .andExpect(jsonPath("$.experimental").value(true))
+                .andExpect(jsonPath("$.hindcast.issues.length()").value(3));
+    }
+
+    @Test
+    void anAoiWithoutAnEarlyWarningAnswers404() throws Exception {
+        mvc.perform(get("/api/v1/aois/nowhere/early-warning"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error.code").value("early_warning_not_found"));
+    }
+
+    @Test
     void riverLevel() throws Exception {
         mvc.perform(get(TEFE + "/river-level").param("from", "2026-10-15").param("to", "2026-10-23"))
                 .andExpect(status().isOk())
