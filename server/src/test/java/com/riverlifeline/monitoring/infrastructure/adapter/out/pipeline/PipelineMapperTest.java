@@ -181,7 +181,12 @@ class PipelineMapperTest {
 
         assertThat(layers.keySet())
                 .containsExactlyInAnyOrder(
-                        LayerId.RADAR_HH, LayerId.WATER, LayerId.FLOODED_VEGETATION, LayerId.NODATA, LayerId.CHANGE);
+                        LayerId.RADAR_HH,
+                        LayerId.SENTINEL1_VV,
+                        LayerId.WATER,
+                        LayerId.FLOODED_VEGETATION,
+                        LayerId.NODATA,
+                        LayerId.CHANGE);
         LayerImage water = layers.get(LayerId.WATER);
         assertThat(water.path()).isEqualTo("rasters/w1/water.png");
         assertThat(List.of(
@@ -194,6 +199,7 @@ class PipelineMapperTest {
         assertThat(water.widthPx()).isEqualTo(4);
         assertThat(layers.get(LayerId.CHANGE).path()).isEqualTo("rasters/c1/change.png");
         assertThat(layers.get(LayerId.RADAR_HH).path()).isEqualTo("rasters/r1/radar_hh.png");
+        assertThat(layers.get(LayerId.SENTINEL1_VV).path()).isEqualTo("rasters/v1/sentinel1_vv.png");
     }
 
     @Test

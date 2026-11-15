@@ -137,7 +137,8 @@ public class JdbcRasterRepository implements RasterRepository {
                         SELECT 1 FROM job j WHERE j.lease_id = r.lease_id AND j.state = 'leased'))
                     OR (r.role = 'result'
                         AND NOT EXISTS (SELECT 1 FROM radar_pass p
-                            WHERE r.id IN (p.water_raster_id, p.radar_raster_id, p.sentinel1_raster_id))
+                            WHERE r.id IN (p.water_raster_id, p.radar_raster_id, p.sentinel1_raster_id,
+                                p.sentinel1_vv_raster_id))
                         AND NOT EXISTS (SELECT 1 FROM pass_change c WHERE c.change_raster_id = r.id)
                         AND NOT EXISTS (SELECT 1 FROM job_raster jr JOIN job j ON j.id = jr.job_id
                             WHERE jr.raster_id = r.id AND j.state IN ('pending', 'leased'))))

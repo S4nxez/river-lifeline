@@ -14,6 +14,7 @@ public final class PipelineRows {
      * @param counts null until classify_communities has run for the pass
      * @param sentinel1Dates the Sentinel-1 scene dates the pass was judged with; empty without them
      * @param change the change against the previous shown pass of its track, or null
+     * @param sentinel1Vv the Sentinel-1 image the pass was judged with, or null
      */
     public record PassRow(
             String passId,
@@ -35,7 +36,8 @@ public final class PipelineRows {
             RasterBox radar,
             CountsRow counts,
             List<LocalDate> sentinel1Dates,
-            ChangeRow change) {}
+            ChangeRow change,
+            RasterBox sentinel1Vv) {}
 
     /** {@code pass_counts}: counts over monitored communities, and the unconfirmed isolations. */
     public record CountsRow(int connected, int atRisk, int isolated, int noData, List<String> unconfirmed) {}

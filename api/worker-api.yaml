@@ -254,10 +254,11 @@ components:
 
     ResultRasterName:
       type: string
-      enum: [water, radar, sentinel1, change]
+      enum: [water, radar, sentinel1, sentinel1_vv, change]
       description: |
         water      class, area grid: 0 dry, 1 wide water, 2 narrow water, 3 water under vegetation, 255 no data
         radar      db, float32, NaN no data: filtered HH averaged over 2 × 2 area pixels (odd last row/column dropped)
+        sentinel1_vv  db, float32, NaN no data: the darkest filtered VV of the Sentinel-1 scenes used, same layout as radar
         sentinel1  class, area grid: 0 undecided, 1 water, 2 land, 255 not seen
         change     class, area grid: 0 unchanged, 1 water lost, 2 water gained, 255 not judged
 
@@ -579,12 +580,13 @@ components:
             spacingM: { type: [number, "null"], description: "Pixel spacing of the NISAR product" }
         rasters:
           type: object
-          description: Uploaded with PUT /jobs/{id}/rasters/{name} before the result. `radar` only from assess_pass, `sentinel1` only when scenes were used.
+          description: Uploaded with PUT /jobs/{id}/rasters/{name} before the result. `radar` only from assess_pass, `sentinel1` only when scenes were used, `sentinel1_vv` only from assess_pass and with `sentinel1`.
           required: [water]
           properties:
             water: { $ref: "#/components/schemas/RasterMeta" }
             radar: { $ref: "#/components/schemas/RasterMeta" }
             sentinel1: { $ref: "#/components/schemas/RasterMeta" }
+            sentinel1_vv: { $ref: "#/components/schemas/RasterMeta" }
           additionalProperties: false
 
     ChangeResult:

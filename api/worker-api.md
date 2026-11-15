@@ -98,7 +98,7 @@ it from the area file: for a `circle`, the bbox is the square around it; `width 
 
 | `type` | What the worker does | Inputs (all in the job) | Result |
 |---|---|---|---|
-| `assess_pass` | Reads one NISAR pass onto the area grid (fill mask, dB, speckle filter per granule, resampling), trims the swath edge, maps water and water under vegetation, picks the usable Sentinel-1 dates and classifies them, applies the low-water rule, measures every community's route to the hub | `area`, `pass`, `granules` (HH and, if dual-pol, HV windows, linear power, product CRS), `gauge` days, `occurrence`, `sentinel1Candidates` (VV tiles per date, linear power) | `PassAssessment` + rasters `water`, `radar` (filtered HH, dB, half resolution) and, when a scene was used, `sentinel1` |
+| `assess_pass` | Reads one NISAR pass onto the area grid (fill mask, dB, speckle filter per granule, resampling), trims the swath edge, maps water and water under vegetation, picks the usable Sentinel-1 dates and classifies them, applies the low-water rule, measures every community's route to the hub | `area`, `pass`, `granules` (HH and, if dual-pol, HV windows, linear power, product CRS), `gauge` days, `occurrence`, `sentinel1Candidates` (VV tiles per date, linear power) | `PassAssessment` + rasters `water`, `radar` (filtered HH, dB, half resolution) and, when a scene was used, `sentinel1` and `sentinel1_vv` (the darkest filtered VV of the scenes used, dB, half resolution) |
 | `reevaluate_pass` | Same judgement from the stored masks, without radar: after a change to the method parameters or the communities | `area`, `pass`, stored `water`, stored `sentinel1` and its dates, `gauge`, `occurrence` | `PassAssessment` + raster `water` |
 | `detect_change` | Water lost and gained between two shown passes of the same track, where both have data | `grid`, both `water` rasters | `ChangeResult` + raster `change` |
 | `classify_communities` | Whole-record classes (`monitored`, `unresolved`, `inland`, `no_data`), per-pass counts over monitored communities and unconfirmed isolations | `accessRadiusM`, community ids, every evaluated pass's routes in time order | `Classification` |
@@ -147,7 +147,7 @@ Tefé (`circle` of 55 km, `step_deg` 0.00018) gives an area grid of about 5 500 
 | NISAR window, one band of one granule, 20 m (20 MHz) | ~120 MB float32 (~480 MB at 10 m, 40 MHz) | until the job ends |
 | Sentinel-1 VV tile cropped to the bbox, 20 m overview | ~120 MB float32, up to ~9 dates in ±4 days | until the job ends |
 | `water`, `sentinel1`, `change` (area grid, uint8) | ~30 MB each, a few MB gzipped | always |
-| `radar` (half resolution, float32) | ~30 MB | until its image is rendered |
+| `radar`, `sentinel1_vv` (half resolution, float32) | ~30 MB each | always (the page paints them on demand) |
 
 An `assess_pass` job stages roughly 0.5–1.5 GB of inputs. Results add a few MB per pass. Production runs on a
 Raspberry Pi, so inputs are streamed to disk, never held whole in memory, never put in MySQL, and deleted once used.

@@ -48,17 +48,19 @@ public class JdbcPipelineReader implements PipelineReader {
                             rs.getDouble("gained_km2"),
                             box(rs, "r_")));
         });
-        return jdbc.query("""
-                SELECT p.*, %s, %s,
+        return jdbc.query(
+                """
+                SELECT p.*, %s, %s, %s,
                     k.connected, k.at_risk, k.isolated, k.no_data, k.unconfirmed, s.dates AS s1_dates
                 FROM radar_pass p
                 LEFT JOIN raster w ON w.id = p.water_raster_id
                 LEFT JOIN raster r ON r.id = p.radar_raster_id
+                LEFT JOIN raster v ON v.id = p.sentinel1_vv_raster_id
                 LEFT JOIN pass_counts k ON k.area_id = p.area_id AND k.pass_id = p.pass_id
                 LEFT JOIN pass_sentinel1 s ON s.area_id = p.area_id AND s.pass_id = p.pass_id
                 WHERE p.area_id = :area AND p.assessed_at IS NOT NULL AND p.shown = TRUE
                 ORDER BY p.acquired_on, p.time_utc, p.pass_id
-                """.formatted(boxColumns("w"), boxColumns("r")), area, (rs, i) -> pass(rs, changes));
+                """.formatted(boxColumns("w"), boxColumns("r"), boxColumns("v")), area, (rs, i) -> pass(rs, changes));
     }
 
     private PassRow pass(ResultSet rs, Map<String, ChangeRow> changes) throws SQLException {
@@ -96,7 +98,8 @@ public class JdbcPipelineReader implements PipelineReader {
                 dates == null
                         ? List.of()
                         : strings(dates).stream().map(LocalDate::parse).toList(),
-                changes.get(passId));
+                changes.get(passId),
+                box(rs, "v_"));
     }
 
     @Override

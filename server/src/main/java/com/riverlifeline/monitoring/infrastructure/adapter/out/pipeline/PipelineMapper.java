@@ -272,6 +272,9 @@ public final class PipelineMapper {
         if (row.radar() != null) {
             layers.put(LayerId.RADAR_HH, layer(LayerId.RADAR_HH, row.radar()));
         }
+        if (row.sentinel1Vv() != null) {
+            layers.put(LayerId.SENTINEL1_VV, layer(LayerId.SENTINEL1_VV, row.sentinel1Vv()));
+        }
         if (row.water() != null) {
             layers.put(LayerId.WATER, layer(LayerId.WATER, row.water()));
             layers.put(LayerId.NODATA, layer(LayerId.NODATA, row.water()));

@@ -82,7 +82,7 @@ public class RasterLayerImageRepository implements LayerImageRepository {
                 rasterId,
                 image.widthPx(),
                 image.heightPx(),
-                image.id() == LayerId.RADAR_HH ? "float32" : "uint8",
+                image.id() == LayerId.RADAR_HH || image.id() == LayerId.SENTINEL1_VV ? "float32" : "uint8",
                 image.bounds().west() + stepX / 2,
                 image.bounds().north() + stepY / 2,
                 stepX,
