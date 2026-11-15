@@ -3,6 +3,8 @@ package com.riverlifeline.monitoring.infrastructure.adapter.in.web;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -137,7 +139,9 @@ class ApiContractTest {
                 .andExpect(jsonPath("$.items[2].counts.monitored").value(10))
                 .andExpect(jsonPath("$.items[2].counts.connected").value(nullValue()))
                 .andExpect(jsonPath("$.items[3].previous_pass_id").value(PARTIAL))
-                .andExpect(jsonPath("$.items[3].pixel_size_m").value(20));
+                .andExpect(jsonPath("$.items[3].pixel_size_m").value(20))
+                .andExpect(jsonPath("$.items[3].layer_ids").value(hasItems("radar_hh", "water")))
+                .andExpect(jsonPath("$.items[3].layer_ids").value(not(hasItem("sentinel1_vv"))));
         mvc.perform(get(TEFE + "/passes").param("evaluated", "true").param("from", "2026-10-01"))
                 .andExpect(jsonPath("$.count").value(2));
     }

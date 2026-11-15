@@ -54,7 +54,7 @@ export function renderHeadline(container, { pass, communities, hubName, threshol
     const share = pass.coverage == null ? "" : ` (${Math.round(pass.coverage * 100)} % covered)`;
     container.innerHTML = `<p class="headline-meta telemetry">${escapeHtml(meta)}</p>
       <h2 class="headline-title">This pass covers only part of the area.</h2>
-      <p class="headline-sub">The radar image is shown, but communities are not evaluated${share}. Pick a full pass in the log below.</p>`;
+      <p class="headline-sub">The radar image is shown, but communities are not evaluated${share}. Pick a full pass in the clock above.</p>`;
     return;
   }
   const { isolated } = countByStatus(communities);

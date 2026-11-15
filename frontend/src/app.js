@@ -1,6 +1,6 @@
 // The page: one area, one NISAR pass at a time. It loads the overview, keeps the user's choices in `state` and
 // redraws the parts that depend on them. Every part reads from `state`; the map is driven through its controls.
-import { neighbourPass, passForDay, renderClock } from "./components/clock.js";
+import { neighbourPass, passForDay, renderClock, selectablePasses } from "./components/clock.js";
 import { filterCommunities, renderCommunityList, renderListFilters } from "./components/communityList.js";
 import { renderDossier } from "./components/dossier.js";
 import { renderEarlyWarningPanel, renderLimits } from "./components/earlyWarningPanel.js";
@@ -317,7 +317,7 @@ function togglePlay() {
     return;
   }
   if (!neighbourPass(passes(), state.passId, 1)) {
-    const first = passes().find((pass) => pass.evaluated);
+    const first = selectablePasses(passes())[0];
     if (first) changePass(first.id);
   }
   state.playing = true;
@@ -440,11 +440,11 @@ async function init() {
     });
 
   // A shared link opens the same view: its day, then its community
+  // (or, without one, the latest complete pass: the latest pass may lack an image)
   const asked = readHash();
-  if (asked.day && asked.day !== state.day) {
-    const pass = passForDay(passes(), asked.day);
-    if (pass) await changePass(pass.id, { day: asked.day });
-  }
+  const wanted = asked.day ?? state.day;
+  const pass = wanted ? passForDay(passes(), wanted) : null;
+  if (pass && pass.id !== state.passId) await changePass(pass.id, asked.day ? { day: asked.day } : {});
   if (asked.communityId) select(asked.communityId);
 }
 

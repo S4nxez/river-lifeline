@@ -118,7 +118,9 @@ public final class ApiResponses {
             boolean lowWaterRuleActive,
             CountsResponse counts,
             String previousPassId,
-            String nextPassId) {}
+            String nextPassId,
+            // The layers the pass has, so a client can tell which passes have every image without asking each one
+            List<String> layerIds) {}
 
     public record PassDetailResponse(
             @JsonUnwrapped PassResponse pass,
